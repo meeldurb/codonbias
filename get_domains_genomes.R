@@ -2,6 +2,7 @@
 ##Script for retrieving all the genomes from the 
 ##MicroDB namescpace on blazegraph
 # just adding an extra line
+# adding another extra line
 
 # install the needed packages
 install.packages("RCurl")
