@@ -1,8 +1,7 @@
 ##Author: Melanie van den Bosch
 ##Script for retrieving all the genomes from the 
 ##MicroDB namescpace on blazegraph
-# just adding an extra line
-# adding another extra line
+
 
 # install the needed packages
 install.packages("RCurl")
@@ -23,7 +22,7 @@ genomes <- genome.and.organisms[1]
 # these domains with all their information have to be written to a file
 
 
-domain.data <-"
+domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
@@ -49,6 +48,7 @@ WHERE {
   ?xref biopax:id ?Pfam_id .
 }
 LIMIT 10
+"
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
@@ -56,4 +56,4 @@ endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql
 output <- SPARQL(url = endpoint, query = domain.data)
 
 # 
-domains <- output$results
+domain.data <- output$results
