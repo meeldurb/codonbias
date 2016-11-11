@@ -23,10 +23,7 @@ genomes10 <- genome.and.organisms[1]
 
 
 
-
-for (link in genomes10) 
-{ 
-  domain.sparql <-"
+domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
@@ -53,9 +50,20 @@ WHERE {
 }
 LIMIT 10
 "
-sub( "<hyperlink.genome>", toString(link), domain.sparql)
-  
+
+
+mgsub <- function(pattern, replacement, x){
+  result <- x
+  for (i in 1:length(pattern)){
+    result <- gsub(pattern[i], replacement[i], result)
+  }
+  result
 }
+
+for (link in genomes10){
+  domain.sparql.sub <- mgsub("<hyperlink.genome>", toString(link), domain.sparql)
+}
+
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
