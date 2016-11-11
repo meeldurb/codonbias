@@ -59,7 +59,9 @@ for (link in genomes10) { #always put he { on this line
 
  genome.sub <- sub("<hyperlink.genome>", link, domain.sparql)
   output.all <- SPARQL(url = endpoint, query = genome.sub)
+ domain.data <- output.all$results
+ print (domain.data)
  }
 
 
-domain.data <- output.all$results
+#domain.data <- output.all$results
