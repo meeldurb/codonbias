@@ -21,13 +21,17 @@ genomes <- genome.and.organisms[1]
 # and all the data needed for further processing of the genomes
 # these domains with all their information have to be written to a file
 
+for (link in genomes) 
+  {
+  
+}
 
 domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
 WHERE {
-  VALUES ?genome { <http://csb.wur.nl/genome/GCA_000746605-1> }
+  VALUES ?genome { <hyperlink> }
   ?genome a ssb:Genome .
   ?genome ssb:organism ?organism .
   ?genome ssb:dnaobject ?dna .
