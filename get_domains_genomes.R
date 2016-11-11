@@ -22,7 +22,11 @@ genomes10 <- genome.and.organisms[1]
 # these domains with all their information have to be written to a file
 
 
-domain.sparql <-"
+
+
+for (link in genomes10) 
+{ 
+  domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
@@ -49,10 +53,7 @@ WHERE {
 }
 LIMIT 10
 "
-
-for (link in genomes10) 
-{domain.sparql.sub <- gsub("<hyperlink.genome>", 
-                           toString(link), domain.sparql)
+sub( "<hyperlink.genome>", toString(link), domain.sparql)
   
 }
 
