@@ -13,8 +13,9 @@ install.packages("SPARQL")
 library("SPARQL")
 
 # reading the file with the genome names
-genome.and.organisms <- read.csv(file = "genomes10.csv", header = FALSE)
-genomes10 <- genome.and.organisms[1]
+genome.and.organisms <- read.csv(file = "genomes10.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+genomes10 <- genome.and.organisms[,1]
 
 #---------Retrieving domains from MicroDB--------#
 # By going through all the genomes, we will retrieve the domains
@@ -51,24 +52,14 @@ WHERE {
 LIMIT 10
 "
 
-
-mgsub <- function(pattern, replacement, x){
-  result <- x
-  for (i in 1:length(pattern)){
-    result <- gsub(pattern[i], replacement[i], result)
-  }
-  result
-}
-
-for (link in genomes10){
-  domain.sparql.sub <- mgsub("<hyperlink.genome>", toString(link), domain.sparql)
-}
-
-
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
-# We want to retrieve the genomes with the location of it on the web
-output <- SPARQL(url = endpoint, query = domain.sparql)
+# takes every genome and returns the domain data
+for (link in genomes10) { #always put he { on this line
 
-# 
-domain.data <- output$results
+ genome.sub <- sub("<hyperlink.genome>", link, domain.sparql)
+  output.all <- SPARQL(url = endpoint, query = genome.sub)
+ }
+
+
+domain.data <- output.all$results
