@@ -13,7 +13,7 @@ install.packages("SPARQL")
 library("SPARQL")
 
 #---------Retrieving genomes from MicroDB--------#
-genomes10 <- "
+genomes <- "
 PREFIX ssb:<http://csb.wur.nl/genome/>
 SELECT DISTINCT ?genome ?organism
 WHERE {
@@ -21,18 +21,20 @@ WHERE {
 ?genome ssb:organism ?organism .
 } 
 ORDER BY ?organism
-LIMIT 10
 "
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
 # We want to retrieve the genomes with the location of it on the web
-output <- SPARQL(url = endpoint, query = genomes10)
+output <- SPARQL(url = endpoint, query = genomes)
 
-# 
-genomes10.with.names <- output$results
+# Edit genomenumbers, removing the hyperlink notation
+genomes.and.organisms <- output$results
+genome.number <- substr(genomes.and.organisms$genome, 27, 41)
+genomes.and.organisms$genome <- genome.number
+genomes.and.organisms
 
-write.table(genomes10.with.names, file = "genomes10.csv", 
+write.table(genomes.and.organisms, file = "genomes.csv", 
             append = F, sep = ",", row.names = FALSE, 
             quote = FALSE, col.names = FALSE)
 
