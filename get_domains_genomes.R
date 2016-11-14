@@ -29,7 +29,7 @@ PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
 WHERE {
-  VALUES ?genome { <hyperlink.genome> }
+  VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
   ?genome a ssb:Genome .
   ?genome ssb:organism ?organism .
   ?genome ssb:dnaobject ?dna .
@@ -54,14 +54,21 @@ LIMIT 10
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
-# takes every genome and returns the domain data
-for (link in genomes10) { #always put he { on this line
 
- genome.sub <- sub("<hyperlink.genome>", link, domain.sparql)
+outfolder <- "Domain_data/"  
+if (!file.exists(outfolder))dir.create(outfolder)
+
+# takes every genome and writes the domain data to a file
+for (genomeID in genomes10) { #always put he { on this line
+
+ genome.sub <- sub("xxx", genomeID, domain.sparql)
   output.all <- SPARQL(url = endpoint, query = genome.sub)
  domain.data <- output.all$results
- print (domain.data)
+ #print (domain.data)
+ #if (!file.exists(outfolder))dir.create(outfolder)
+ fileout <- paste(outfolder, genomeID, sep="")
+ #print (fileout)
+ write.csv(domain.data, file=fileout)
  }
 
 
-#domain.data <- output.all$results
