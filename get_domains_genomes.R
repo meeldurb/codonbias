@@ -66,9 +66,10 @@ for (genomeID in genomes10) { #always put he { on this line
  domain.data <- output.all$results
  #print (domain.data)
  #if (!file.exists(outfolder))dir.create(outfolder)
- fileout <- paste(outfolder, genomeID, sep="")
+ fileout <- paste(outfolder, genomeID, ".csv", sep="")
  #print (fileout)
- write.csv(domain.data, file=fileout)
+ write.table(domain.data, file=fileout, append=F, sep = ",",
+             row.names = F, quote=F, col.names=T )
  }
 
 
