@@ -1,6 +1,6 @@
 ##Author: Melanie van den Bosch
 ##Script for retrieving all the genomes from the 
-##MicroDB namescpace on blazegraph
+##MicroDB namespace on blazegraph
 
 
 # install the needed packages
@@ -27,29 +27,28 @@ genomes10 <- genome.and.organisms[,1]
 domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
-SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq ?p_seq
+SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?gene_begin ?gene_end ?cds_seq
 WHERE {
-  VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
-  ?genome a ssb:Genome .
-  ?genome ssb:organism ?organism .
-  ?genome ssb:dnaobject ?dna .
-  ?dna ssb:feature ?cds .
-  ?cds a ssb:Cds .
-  ?cds ssb:sequence ?cds_seq .
-  #?gene ssb:begin ?gene_begin .
-  #?gene ssb:end ?gene_end .
-  ?cds ssb:protein ?protein .
-  ?protein ssb:sequence ?p_seq .
-  ?cds ssb:tool 'prodigal' .
-  ?protein ssb:feature ?Interpro .
-  ?Interpro ssb:begin ?d_begin .
-  ?Interpro ssb:end ?d_end .
-  ?Interpro ssb:signature ?signatureAccession .
-  ?signatureAccession biopax:xref ?xref .
-  ?xref biopax:db 'pfam' .
-  ?xref biopax:id ?Pfam_id .
+VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
+?genome a ssb:Genome .
+?genome ssb:organism ?organism .
+?genome ssb:dnaobject ?dna .
+?dna ssb:feature ?cds .
+?cds a ssb:Cds .
+?cds ssb:sequence ?cds_seq .
+?gene ssb:begin ?gene_begin .
+?gene ssb:end ?gene_end .
+?cds ssb:protein ?protein .
+?protein ssb:sequence ?p_seq .
+?cds ssb:tool 'prodigal' .
+?protein ssb:feature ?Interpro .
+?Interpro ssb:begin ?d_begin .
+?Interpro ssb:end ?d_end .
+?Interpro ssb:signature ?signatureAccession .
+?signatureAccession biopax:xref ?xref .
+?xref biopax:db 'pfam' .
+?xref biopax:id ?Pfam_id .
 }
-LIMIT 10
 "
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
@@ -60,16 +59,15 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 # takes every genome and writes the domain data to a file
 for (genomeID in genomes10) { #always put he { on this line
-
- genome.sub <- sub("xxx", genomeID, domain.sparql)
+  genome.sub <- sub("xxx", genomeID, domain.sparql)
   output.all <- SPARQL(url = endpoint, query = genome.sub)
- domain.data <- output.all$results
- #print (domain.data)
- #if (!file.exists(outfolder))dir.create(outfolder)
- fileout <- paste(outfolder, genomeID, ".csv", sep="")
- #print (fileout)
- write.table(domain.data, file=fileout, append=F, sep = ",",
-             row.names = F, quote=F, col.names=T )
- }
+  domain.data <- output.all$results
+  #print (domain.data)
+  #if (!file.exists(outfolder))dir.create(outfolder)
+  fileout <- paste(outfolder, genomeID, ".csv", sep="")
+  #print (fileout)
+  write.table(domain.data, file=fileout, append=F, sep = ",",
+              row.names = F, quote=F, col.names=T )
+}
 
 
