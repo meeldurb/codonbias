@@ -34,6 +34,7 @@ genome.number <- substr(genomes.and.organisms$genome, 27, 41)
 genomes.and.organisms$genome <- genome.number
 genomes.and.organisms
 
+#write genomenumbers and organisms to file
 write.table(genomes.and.organisms, file = "genomes.csv", 
             append = F, sep = ",", row.names = FALSE, 
             quote = FALSE, col.names = FALSE)
