@@ -13,9 +13,9 @@ install.packages("SPARQL")
 library("SPARQL")
 
 # reading the file with the genome names
-genome.and.organisms <- read.csv(file = "genomes10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes500.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-genomes10 <- genome.and.organisms[,1]
+genomes500 <- genome.and.organisms[,1]
 
 #---------Retrieving domains from MicroDB--------#
 # By going through all the genomes, we will retrieve the domains
@@ -27,7 +27,7 @@ genomes10 <- genome.and.organisms[,1]
 domain.sparql <-"
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
-SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?gene_begin ?gene_end ?cds_seq
+SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq
 WHERE {
 VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
 ?genome a ssb:Genome .
@@ -36,8 +36,6 @@ VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
 ?dna ssb:feature ?cds .
 ?cds a ssb:Cds .
 ?cds ssb:sequence ?cds_seq .
-?gene ssb:begin ?gene_begin .
-?gene ssb:end ?gene_end .
 ?cds ssb:protein ?protein .
 ?protein ssb:sequence ?p_seq .
 ?cds ssb:tool 'prodigal' .
@@ -53,21 +51,21 @@ VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
-
+# creating the folder to save the data in
 outfolder <- "Domain_data/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 # takes every genome and writes the domain data to a file
-for (genomeID in genomes10) { #always put he { on this line
+for (genomeID in genomes500) { #always put he { on this line
   genome.sub <- sub("xxx", genomeID, domain.sparql)
   output.all <- SPARQL(url = endpoint, query = genome.sub)
   domain.data <- output.all$results
-  #print (domain.data)
-  #if (!file.exists(outfolder))dir.create(outfolder)
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
-  #print (fileout)
-  write.table(domain.data, file=fileout, append=F, sep = ",",
+  #check if file already exists
+  if (!file.exists(fileout)){ 
+    write.table(domain.data, file=fileout, append=F, sep = ",",
               row.names = F, quote=F, col.names=T )
+  }
 }
 
 
