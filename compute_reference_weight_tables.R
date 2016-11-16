@@ -20,6 +20,13 @@ library("SPARQL")
 # loading required library to compute the codon frequency
 library("Biostrings")
 
+
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+genomes <- genome.and.organisms[,1]
+
+
 ##-------- Computing reference weight table  ---------------###
 
 # based on ribosomal protein domains
@@ -33,7 +40,7 @@ PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
 SELECT DISTINCT ?Pfam_id ?domain_description ?d_begin ?d_end ?cds_seq
 WHERE {
-  VALUES ?genome { <http://csb.wur.nl/genome/GCA_000746605-1> }
+  VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
   ?genome a ssb:Genome .
   ?genome ssb:organism ?organism .
   ?genome ssb:dnaobject ?dna .
@@ -55,10 +62,10 @@ WHERE {
 }
 "
 
-endpoint <- "http://ssb4:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
+endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 #storing the output of the query.
 
-output1 <- SPARQL(url = endpoint, query = AB1ribo, ns = c("ssb","http://csb.wur.nl/genome/"))
+output <- SPARQL(url = endpoint, query = ribosomal.seqs, ns = c("ssb","http://csb.wur.nl/genome/"))
 data1 <- data.frame(output1$results, stringsAsFactors=F)
 
 
