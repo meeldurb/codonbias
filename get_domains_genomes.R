@@ -56,7 +56,7 @@ outfolder <- "Domain_data/"
 if (!file.exists(outfolder))dir.create(outfolder)
 
 # takes every genome and writes the domain data to a file
-for (genomeID in genomes10) { #always put he { on this line
+for (genomeID in genomes500) { #always put he { on this line
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
