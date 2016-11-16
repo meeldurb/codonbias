@@ -12,15 +12,15 @@ install.packages("SPARQL")
 # loading required library to execute SPARQL query
 library("SPARQL")
 
-# reading the file with the genome names
-genome.and.organisms <- read.csv(file = "genomes500.csv", header = FALSE, 
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-genomes500 <- genome.and.organisms[,1]
+genomes <- genome.and.organisms[,1]
 
 #---------Retrieving domains from MicroDB--------#
 # By going through all the genomes, we will retrieve the domains
-# and all the data needed for further processing of the genomes
-# these domains with all their information have to be written to a file
+# and all the data needed for further processing of the genomes.
+# The domains with all their information are written to a file
 
 
 
@@ -55,8 +55,9 @@ endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql
 outfolder <- "Domain_data/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
-# takes every genome and writes the domain data to a file
-for (genomeID in genomes500) { #always put he { on this line
+# takes every genome and writes the Pfam ID, domain_begin, domain_end
+# and CDS to a file
+for (genomeID in genomes) { #always put he { on this line
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
