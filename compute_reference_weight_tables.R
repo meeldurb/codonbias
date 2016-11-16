@@ -38,7 +38,7 @@ genomes <- genome.and.organisms[,1]
 ribosomal.seqs <- "
 PREFIX ssb:<http://csb.wur.nl/genome/>
 PREFIX biopax:<http://www.biopax.org/release/bp-level3.owl#>
-SELECT DISTINCT ?Pfam_id ?domain_description ?d_begin ?d_end ?cds_seq
+SELECT DISTINCT ?Pfam_id ?d_begin ?d_end ?cds_seq
 WHERE {
   VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
   ?genome a ssb:Genome .
@@ -65,18 +65,20 @@ WHERE {
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 #storing the output of the query.
 
-output <- SPARQL(url = endpoint, query = ribosomal.seqs, ns = c("ssb","http://csb.wur.nl/genome/"))
-data1 <- data.frame(output1$results, stringsAsFactors=F)
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
+
+outfolder <- "Reference_weight_tables/"  
+if (!file.exists(outfolder))dir.create(outfolder)
 
 
 for (genomeID in genomes) { #always put he { on this line
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
-    genome.sub <- sub("xxx", genomeID, domain.sparql)
-    output.all <- SPARQL(url = endpoint, query = genome.sub)
-    domain.data <- output.all$results
-    write.table(domain.data, file=fileout, append=F, sep = ",",
-                row.names = F, quote=F, col.names=T )
+    genome.sub <- sub("xxx", genomeID, ribosomal.seqs) #substituting the genome numbers
+    output.all <- SPARQL(url = endpoint, query = genome.sub) # Run SPARQL query for all genomes
+    ribosomal.domain.data <- output.all$results #only retrieve results slice
+    write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
+                row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
   }
 }
