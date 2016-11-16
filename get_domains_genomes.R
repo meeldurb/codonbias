@@ -1,6 +1,6 @@
 ##Author: Melanie van den Bosch
-##Script for retrieving all the genomes from the 
-##MicroDB namespace on blazegraph
+##Script for retrieving all the domains of the genomes 
+##from the MicroDB namespace on blazegraph
 
 
 # install the needed packages
@@ -52,6 +52,7 @@ VALUES ?genome { <http://csb.wur.nl/genome/xxx> }
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 
 # creating the folder to save the data in
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 outfolder <- "Domain_data/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
