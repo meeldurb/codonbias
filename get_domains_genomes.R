@@ -61,7 +61,7 @@ if (!file.exists(outfolder))dir.create(outfolder)
 for (genomeID in genomes) { #always put he { on this line
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
-  if (!file.exists(fileout)) {
+  if (!file.exists(fileout)) { 
     genome.sub <- sub("xxx", genomeID, domain.sparql)
     output.all <- SPARQL(url = endpoint, query = genome.sub)
     domain.data <- output.all$results
