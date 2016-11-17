@@ -12,7 +12,7 @@ install.packages("SPARQL")
 # Packages needed to be installed to calculate the frequency of oligonucleotides
 source("http://bioconductor.org/biocLite.R")
 ?BiocUpgrade
-biocLite("BiocUpgrade")
+biocLite("Biostrings")
 
 
 # loading required library to execute SPARQL query
@@ -20,11 +20,13 @@ library("SPARQL")
 # loading required library to compute the codon frequency
 library("Biostrings")
 
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
+
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes10.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-genomes <- genome.and.organisms[,1]
+genomes10 <- genome.and.organisms[,1]
 
 
 ##-------- Computing reference weight table  ---------------###
@@ -65,20 +67,41 @@ WHERE {
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
 #storing the output of the query.
 
-setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 outfolder <- "Reference_weight_tables/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
-for (genomeID in genomes) { 
+for (genomeID in genomes10) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
-    genome.sub <- sub("xxx", genomeID, ribosomal.seqs) #substituting the genome numbers
-    output.all <- SPARQL(url = endpoint, query = genome.sub) # Run SPARQL query for all genomes
-    ribosomal.domain.data <- output.all$results #only retrieve results slice
-    write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
-                row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
-  #remove the write.table, we want to convert the ribosomal.domain.data into a weight table}
+    #substituting the genome numbers
+    genome.sub <- sub("xxx", genomeID, ribosomal.seqs) 
+    # Run SPARQL query for all genomes
+    output.all <- SPARQL(url = endpoint, query = genome.sub) 
+    #only retrieve results slice
+    ribosomal.domain.data <- output.all$results
+    # paste all the coding sequences together
+    pasted.cdseqs <- paste(ribosomal.domain.data[,4], sep="", collapse="")
+    # compute codon frequency
+    codon.frequency <- trinucleotideFrequency(DNAString(pasted.cdseqs), as.prob=F, with.labels=T, as.array=F)
+    
+    
+    #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
+     #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
+  #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
+    }
 }
+
+output1 <- SPARQL(url = endpoint, query = AB1ribo, ns = c("ssb","http://csb.wur.nl/genome/"))
+data1 <- data.frame(output1$results, stringsAsFactors=F)
+# pastes all the sequences together
+all_seq1 <-paste(as.matrix(data1)[,1], sep="", collapse="")
+w_Abaum <- trinucleotideFrequency(DNAString(all_seq1), as.prob = F, with.labels = T, as.array = F)
+str(w_Abaum)
+w_Abaum
+
+w_Abaumt <- t(w_Abaum)
+# converting the weight vector to dataframe
+w_data <- as.data.frame(w_Abaumt, stringsAsFactors = F)
