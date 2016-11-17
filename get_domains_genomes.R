@@ -12,6 +12,9 @@ install.packages("SPARQL")
 # loading required library to execute SPARQL query
 library("SPARQL")
 
+# set the working directory
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
+
 # reading a .csv file containing the genome names in the first column
 genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
