@@ -19,6 +19,8 @@ biocLite("Biostrings")
 library("SPARQL")
 # loading required library to compute the codon frequency
 library("Biostrings")
+# loading required library to use CAI function
+library("seqinr")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -72,6 +74,13 @@ outfolder <- "Reference_weight_tables/"
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
+amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", "Ser", "Arg", "Ser", 
+                 "Ile", "Ile", "Met/Start", "Ile", "Gln", "His", "Gln", "His", "Pro", "Pro", "Pro", "Pro",
+                 "Arg", "Arg", "Arg", "Arg", "Leu", "Leu", "Leu", "Leu", "Glu", "Asp", "Glu", "Asp",
+                 "Ala", "Ala", "Ala", "Ala", "Gly", "Gly", "Gly", "Gly", "Val", "Val", "Val", "Val",
+                 "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
+                 "Leu", "Phe", "Leu", "Phe")
+
 for (genomeID in genomes10) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
@@ -86,22 +95,57 @@ for (genomeID in genomes10) {
     pasted.cdseqs <- paste(ribosomal.domain.data[,4], sep="", collapse="")
     # compute codon frequency
     codon.frequency <- trinucleotideFrequency(DNAString(pasted.cdseqs), as.prob=F, with.labels=T, as.array=F)
-    
+    # Overwriting all the codons
+    # changing codons that code for the same amino acid and dividing by the sum of it
+    # Phenylalanine
+    codon.frequency[c("TTT", "TTC")]<- codon.frequency[c("TTT", "TTC")]/max(sum(codon.frequency[c("TTT", "TTC")]))
+    #Leucine
+    codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]<- codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]/max(sum(codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]))
+    #Isoleucine
+    codon.frequency[c("ATT", "ATC", "ATA")]<- codon.frequency[c("ATT", "ATC", "ATA")]/sum(codon.frequency[c("ATT", "ATC", "ATA")])
+    #Valine
+    codon.frequency[c("GTT", "GTC", "GTA", "GTG")]<- codon.frequency[c("GTT", "GTC", "GTA", "GTG")]/max(sum(codon.frequency[c("GTT", "GTC", "GTA", "GTG")]))
+    #Serine
+    codon.frequency[c("TCT", "TCC", "TCA", "TCG")]<- codon.frequency[c("TCT", "TCC", "TCA", "TCG")]/max(sum(codon.frequency[c("TCT", "TCC", "TCA", "TCG")]))
+    #Proline
+    codon.frequency[c("CCT", "CCC", "CCA", "CCG")]<- codon.frequency[c("CCT", "CCC", "CCA", "CCG")]/max(sum(codon.frequency[c("CCT", "CCC", "CCA", "CCG")]))
+    #threonine
+    codon.frequency[c("ACT", "ACC", "ACA", "ACG")]<- codon.frequency[c("ACT", "ACC", "ACA", "ACG")]/max(sum(codon.frequency[c("ACT", "ACC", "ACA", "ACG")]))
+    #Alanine
+    codon.frequency[c("GCT", "GCC", "GCA", "GCG")]<- codon.frequency[c("GCT", "GCC", "GCA", "GCG")]/max(sum(codon.frequency[c("GCT", "GCC", "GCA", "GCG")]))
+    #Tyrosine
+    codon.frequency[c("TAT", "TAC")]<- codon.frequency[c("TAT", "TAC")]/max(sum(codon.frequency[c("TAT", "TAC")]))
+    #Histidine
+    codon.frequency[c("CAT", "CAC")]<- codon.frequency[c("CAT", "CAC")]/max(sum(codon.frequency[c("CAT", "CAC")]))
+    #glutamine
+    codon.frequency[c("CAA", "CAG")]<- codon.frequency[c("CAA", "CAG")]/sum(codon.frequency[c("CAA", "CAG")])
+    #asparginine
+    codon.frequency[c("AAT", "AAC")]<- codon.frequency[c("AAT", "AAC")]/sum(codon.frequency[c("AAT", "AAC")])
+    #lysine
+    codon.frequency[c("AAA", "AAG")]<- codon.frequency[c("AAA", "AAG")]/sum(codon.frequency[c("AAA", "AAG")])
+    #aspartic acid
+    codon.frequency[c("GAT", "GAC")]<- codon.frequency[c("GAT", "GAC")]/sum(codon.frequency[c("GAT", "GAC")])
+    #glutamic acid
+    codon.frequency[c("GAA", "GAG")]<- codon.frequency[c("GAA", "GAG")]/sum(codon.frequency[c("GAA", "GAG")])
+    #cysteine
+    codon.frequency[c("TGT", "TGC")]<- codon.frequency[c("TGT", "TGC")]/sum(codon.frequency[c("TGT", "TGC")])
+    #tryptophan
+    codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
+    #arginine
+    codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]<- codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]/sum(codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")])
+    #serine
+    codon.frequency[c("AGT", "AGC")]<- codon.frequency[c("AGT", "AGC")]/sum(codon.frequency[c("AGT", "AGC")])
+    #glycine
+    codon.frequency[c("GGT", "GGC", "GGA", "GGG")]<- codon.frequency[c("GGT", "GGC", "GGA", "GGG")]/sum(codon.frequency[c("GGT", "GGC", "GGA", "GGG")])
+    #stopcodon
+    codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
+    #startcodon
+    codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
     
     #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
      #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
   #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
+    codon.frequency.table <- as.data.frame(codon.frequency)
+    codon.table <- cbind(codon.frequency.table, amino.acids)
     }
 }
-
-output1 <- SPARQL(url = endpoint, query = AB1ribo, ns = c("ssb","http://csb.wur.nl/genome/"))
-data1 <- data.frame(output1$results, stringsAsFactors=F)
-# pastes all the sequences together
-all_seq1 <-paste(as.matrix(data1)[,1], sep="", collapse="")
-w_Abaum <- trinucleotideFrequency(DNAString(all_seq1), as.prob = F, with.labels = T, as.array = F)
-str(w_Abaum)
-w_Abaum
-
-w_Abaumt <- t(w_Abaum)
-# converting the weight vector to dataframe
-w_data <- as.data.frame(w_Abaumt, stringsAsFactors = F)
