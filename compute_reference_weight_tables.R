@@ -81,7 +81,7 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
-for (genomeID in genomes) { 
+for (genomeID in genomes10) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
@@ -98,9 +98,9 @@ for (genomeID in genomes) {
     # Overwriting all the codons
     # changing codons that code for the same amino acid and dividing by the sum of it
     # Phenylalanine
-    codon.frequency[c("TTT", "TTC")]<- codon.frequency[c("TTT", "TTC")]/max(sum(codon.frequency[c("TTT", "TTC")]))
+    codon.frequency[c("TTT", "TTC")]<- codon.frequency[c("TTT", "TTC")]/(sum(codon.frequency[c("TTT", "TTC")]))
     #Leucine
-    codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]<- codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]/max(sum(codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]))
+    codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]<- codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]/(sum(codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]))
     #Isoleucine
     codon.frequency[c("ATT", "ATC", "ATA")]<- codon.frequency[c("ATT", "ATC", "ATA")]/sum(codon.frequency[c("ATT", "ATC", "ATA")])
     #Valine
@@ -145,10 +145,38 @@ for (genomeID in genomes) {
     #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
      #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
   #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
-    codon.frequency.table <- as.data.frame(codon.frequency)
+    codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
     codon.table <- cbind(codon.frequency.table, amino.acids)
     sorted.codon.table <- codon.table[order(amino.acids),]
+    # change the maximal frequency of the codon belonging to amino acid to 1
+    tableFinalC=NULL; 
+    tableFinalV=NULL; 
+    tableFinalA=NULL;
+    for (aa in unique(sorted.codon.table[,2])) { 
+      #cat(aa, "\n")
+      which.max = which(sorted.codon.table[,2]==aa)
+      tableFinalC = c(tableFinalC, rownames(sorted.codon.table)[which.max])
+      tableFinalV = c(tableFinalV, sorted.codon.table[which.max,1]/max(sorted.codon.table[which.max,1] ))
+      tableFinalA = c(tableFinalA, rep(aa, length(which.max)))
+    }
+    
+    final.codon.table=data.frame(tableFinalC, tableFinalV, tableFinalA, stringsAsFactors = FALSE)
+    colnames(final.codon.table) <- c("codon", "codon.frequency", "amino.acid")
     # write weight table to a file
-    write.table(sorted.codon.table, file = fileout, append = F, sep = ",", row.names = T, quote = F, col.names = F)
+    write.table(final.codon.table, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   }
 }
+
+
+tableFinalC=NULL; 
+tableFinalV=NULL; 
+tableFinalA=NULL; 
+
+for (aa in unique(sorted.codon.table[,2])) { 
+  #cat(aa, "\n")
+  sel = which(sorted.codon.table[,2]==aa)
+  tableFinalC = c(tableFinalC, rownames(sorted.codon.table)[sel])
+  tableFinalV = c(tableFinalV, sorted.codon.table[sel,1]/max(sorted.codon.table[sel,1] ))
+  tableFinalA = c(tableFinalA, rep(aa, length(sel)))
+  }
+  
