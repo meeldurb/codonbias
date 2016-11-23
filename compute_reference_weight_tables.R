@@ -81,7 +81,7 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
-for (genomeID in genomes10) { 
+for (genomeID in genomes) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
@@ -148,7 +148,7 @@ for (genomeID in genomes10) {
     codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
     codon.table <- cbind(codon.frequency.table, amino.acids)
     sorted.codon.table <- codon.table[order(amino.acids),]
-    # change the maximal frequency of the codon belonging to amino acid to 1
+    # correct the codon frequencies for the maximum codon.frequency belonging to one amino acid
     tableFinalC=NULL; 
     tableFinalV=NULL; 
     tableFinalA=NULL;
@@ -166,17 +166,17 @@ for (genomeID in genomes10) {
     write.table(final.codon.table, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   }
 }
-
-
-tableFinalC=NULL; 
-tableFinalV=NULL; 
-tableFinalA=NULL; 
-
-for (aa in unique(sorted.codon.table[,2])) { 
-  #cat(aa, "\n")
-  sel = which(sorted.codon.table[,2]==aa)
-  tableFinalC = c(tableFinalC, rownames(sorted.codon.table)[sel])
-  tableFinalV = c(tableFinalV, sorted.codon.table[sel,1]/max(sorted.codon.table[sel,1] ))
-  tableFinalA = c(tableFinalA, rep(aa, length(sel)))
-  }
+# 
+# 
+# tableFinalC=NULL; 
+# tableFinalV=NULL; 
+# tableFinalA=NULL; 
+# 
+# for (aa in unique(sorted.codon.table[,2])) { 
+#   #cat(aa, "\n")
+#   sel = which(sorted.codon.table[,2]==aa)
+#   tableFinalC = c(tableFinalC, rownames(sorted.codon.table)[sel])
+#   tableFinalV = c(tableFinalV, sorted.codon.table[sel,1]/max(sorted.codon.table[sel,1] ))
+#   tableFinalA = c(tableFinalA, rep(aa, length(sel)))
+#   }
   
