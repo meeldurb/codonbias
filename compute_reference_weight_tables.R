@@ -26,9 +26,9 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-genomes10 <- genome.and.organisms[,1]
+genomes <- genome.and.organisms[,1]
 
 
 ##-------- Computing reference weight table  ---------------###
@@ -81,7 +81,7 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
-for (genomeID in genomes10) { 
+for (genomeID in genomes) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
@@ -147,5 +147,8 @@ for (genomeID in genomes10) {
   #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
     codon.frequency.table <- as.data.frame(codon.frequency)
     codon.table <- cbind(codon.frequency.table, amino.acids)
-    }
+    sorted.codon.table <- codon.table[order(amino.acids),]
+    # write weight table to a file
+    write.table(sorted.codon.table, file = fileout, append = F, sep = ",", row.names = T, quote = F, col.names = F)
+  }
 }
