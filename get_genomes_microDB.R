@@ -20,7 +20,7 @@ WHERE {
 ?genome a ssb:Genome .
 ?genome ssb:organism ?organism .
 } 
-ORDER BY ?genome
+ORDER BY ?organism
 "
 
 endpoint <- "http://ssb2:9999/blazegraph/namespace/MicroDB/sparql/MicroDB/sparql"
@@ -35,7 +35,7 @@ genomes.and.organisms$genome <- genome.number
 
 
 #write genomenumbers and organisms to file
-write.table(genomes.and.organisms, file = "genomes_orderedOngenomes.csv", 
+write.table(genomes.and.organisms, file = "genomes.csv", 
             append = F, sep = ",", row.names = FALSE, 
             quote = FALSE, col.names = FALSE)
 
