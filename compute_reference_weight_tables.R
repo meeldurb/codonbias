@@ -89,12 +89,12 @@ for (genomeID in genomes) {
     genome.sub <- sub("xxx", genomeID, ribosomal.seqs) 
     # Run SPARQL query for all genomes
     output.all <- SPARQL(url = endpoint, query = genome.sub)
-    #some do not have ribosomal domain data, should skip these
-    if (is.null(output.all$namespaces)) {
-      next
-    }
     #only retrieve results slice
     ribosomal.domain.data <- output.all$results 
+    #some do not have ribosomal domain data, should skip these
+    if (length(ribosomal.domain.data) == 0) {
+      next
+    }
     # paste all the coding sequences together
     pasted.cdseqs <- paste(ribosomal.domain.data[,4], sep="", collapse="")
     # compute codon frequency
@@ -183,8 +183,12 @@ for (genomeID in genomes) {
 #   tableFinalA = c(tableFinalA, rep(aa, length(sel)))
 #   }
 
+
+if (length(ribosomal.domain.data) == 0) {
+  print (1:5)
+}
 for (number in 1:5) {
-  if (is.null(output.all$namespaces)) {
+  if ((output.all$namespaces)) {
     next
     cat(number)  
   }
