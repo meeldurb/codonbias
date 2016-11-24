@@ -88,9 +88,13 @@ for (genomeID in genomes) {
     #substituting the genome numbers
     genome.sub <- sub("xxx", genomeID, ribosomal.seqs) 
     # Run SPARQL query for all genomes
-    output.all <- SPARQL(url = endpoint, query = genome.sub) 
+    output.all <- SPARQL(url = endpoint, query = genome.sub)
+    #some do not have ribosomal domain data, should skip these
+    if (is.null(output.all$namespaces)) {
+      next
+    }
     #only retrieve results slice
-    ribosomal.domain.data <- output.all$results
+    ribosomal.domain.data <- output.all$results 
     # paste all the coding sequences together
     pasted.cdseqs <- paste(ribosomal.domain.data[,4], sep="", collapse="")
     # compute codon frequency
@@ -142,9 +146,9 @@ for (genomeID in genomes) {
     #startcodon
     codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
     
-    #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
-     #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
-  #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
+      #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
+      #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
+      #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
     codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
     codon.table <- cbind(codon.frequency.table, amino.acids)
     sorted.codon.table <- codon.table[order(amino.acids),]
@@ -159,7 +163,6 @@ for (genomeID in genomes) {
       tableFinalV = c(tableFinalV, sorted.codon.table[which.max,1]/max(sorted.codon.table[which.max,1] ))
       tableFinalA = c(tableFinalA, rep(aa, length(which.max)))
     }
-    
     final.codon.table=data.frame(tableFinalC, tableFinalV, tableFinalA, stringsAsFactors = FALSE)
     colnames(final.codon.table) <- c("codon", "codon.frequency", "amino.acid")
     # write weight table to a file
@@ -179,4 +182,16 @@ for (genomeID in genomes) {
 #   tableFinalV = c(tableFinalV, sorted.codon.table[sel,1]/max(sorted.codon.table[sel,1] ))
 #   tableFinalA = c(tableFinalA, rep(aa, length(sel)))
 #   }
-  
+
+for (number in 1:5) {
+  if (is.null(output.all$namespaces)) {
+    next
+    cat(number)  
+  }
+}
+
+for (n in 1:5) {
+  if (n==3) next
+  cat(n)
+}
+n
