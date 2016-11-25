@@ -26,7 +26,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_Mycoplasma", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 genomes <- genome.and.organisms[,1]
 
@@ -133,7 +133,7 @@ for (genomeID in genomes) {
     codon.frequency[c("GAA", "GAG")]<- codon.frequency[c("GAA", "GAG")]/sum(codon.frequency[c("GAA", "GAG")])
     #cysteine
     codon.frequency[c("TGT", "TGC")]<- codon.frequency[c("TGT", "TGC")]/sum(codon.frequency[c("TGT", "TGC")])
-    #tryptophan
+    #tryptophan(the stop codon TGA is a W in mycoplasma)
     codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
     #arginine
     codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]<- codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]/sum(codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")])
