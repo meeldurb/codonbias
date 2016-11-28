@@ -81,6 +81,15 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
+match.words = c("Mycoplasma", "Spiroplasma")
+
+for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
+  # retrieves the index(i) of where the name is myco-/spiroplasma
+  if (i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2] )) { 
+    print (i)
+  }
+}
+
 for (genomeID in genomes) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
@@ -169,33 +178,6 @@ for (genomeID in genomes) {
     write.table(final.codon.table, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   }
 }
-# 
-# 
-# tableFinalC=NULL; 
-# tableFinalV=NULL; 
-# tableFinalA=NULL; 
-# 
-# for (aa in unique(sorted.codon.table[,2])) { 
-#   #cat(aa, "\n")
-#   sel = which(sorted.codon.table[,2]==aa)
-#   tableFinalC = c(tableFinalC, rownames(sorted.codon.table)[sel])
-#   tableFinalV = c(tableFinalV, sorted.codon.table[sel,1]/max(sorted.codon.table[sel,1] ))
-#   tableFinalA = c(tableFinalA, rep(aa, length(sel)))
-#   }
 
 
-if (length(ribosomal.domain.data) == 0) {
-  print (1:5)
-}
-for (number in 1:5) {
-  if ((output.all$namespaces)) {
-    next
-    cat(number)  
-  }
-}
 
-for (n in 1:5) {
-  if (n==3) next
-  cat(n)
-}
-n
