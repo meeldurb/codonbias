@@ -28,7 +28,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 # reading a .csv file containing the genome names in the first column
 genome.and.organisms <- read.csv(file = "genomes_orderedOngenome.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-genomes <- genome.and.organisms[,1]
+# genomes <- genome.and.organisms[,1]
 
 
 ##-------- Computing reference weight table  ---------------###
@@ -81,26 +81,25 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
-match.words = c("Mycoplasma", "Spiroplasma")
 
-for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
-  # retrieves the index(i) of where the name is myco-/spiroplasma
-  if (i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2] )) { 
-    print (i)
-  }
-}
+# for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
+#   # retrieves the index(i) of where the name is myco-/spiroplasma
+#   if (i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2] )) { 
+#   print (genome.and.organisms[,1][i])
+#   }
+# }
 
-for (genomeID in genomes) { 
+for (genomeID in genome.and.organisms[,1]) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
-    #substituting the genome numbers
+    # substituting the genome numbers
     genome.sub <- sub("xxx", genomeID, ribosomal.seqs) 
     # Run SPARQL query for all genomes
     output.all <- SPARQL(url = endpoint, query = genome.sub)
-    #only retrieve results slice
+    # only retrieve results slice
     ribosomal.domain.data <- output.all$results 
-    #some do not have ribosomal domain data, should skip these
+    #some genomes do not have ribosomal domain data, should skip these
     if (length(ribosomal.domain.data) == 0) {
       next
     }
@@ -108,6 +107,7 @@ for (genomeID in genomes) {
     pasted.cdseqs <- paste(ribosomal.domain.data[,4], sep="", collapse="")
     # compute codon frequency
     codon.frequency <- trinucleotideFrequency(DNAString(pasted.cdseqs), as.prob=F, with.labels=T, as.array=F)
+   
     # Overwriting all the codons
     # changing codons that code for the same amino acid and dividing by the sum of it
     # Phenylalanine
@@ -142,22 +142,30 @@ for (genomeID in genomes) {
     codon.frequency[c("GAA", "GAG")]<- codon.frequency[c("GAA", "GAG")]/sum(codon.frequency[c("GAA", "GAG")])
     #cysteine
     codon.frequency[c("TGT", "TGC")]<- codon.frequency[c("TGT", "TGC")]/sum(codon.frequency[c("TGT", "TGC")])
-    #tryptophan
-    codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
     #arginine
     codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]<- codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")]/sum(codon.frequency[c("CGT", "CGC", "CGA", "CGG", "AGA", "AGG")])
     #serine
     codon.frequency[c("AGT", "AGC")]<- codon.frequency[c("AGT", "AGC")]/sum(codon.frequency[c("AGT", "AGC")])
     #glycine
     codon.frequency[c("GGT", "GGC", "GGA", "GGG")]<- codon.frequency[c("GGT", "GGC", "GGA", "GGG")]/sum(codon.frequency[c("GGT", "GGC", "GGA", "GGG")])
-    #stopcodon
-    codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
     #startcodon
     codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
-    
-      #write.table(ribosomal.domain.data, file=fileout, append=F, sep = ",",
-      #           row.names = F, quote=F, col.names=T ) # write the ribosomal domains of every genome to a file
-      #remove the write.table, we want to convert the ribosomal.domain.data into a weight table
+    # Searching for Mycoplasma and Spiroplasma, using other weight tables
+    match.words = c("Mycoplasma", "Spiroplasma")
+    i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
+    if (!genome.and.organims[,1][i]) {
+      #tryptophan (default)
+      codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
+      #stopcodon (default)
+      codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
+    }
+    else {
+      #tryptophan (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+      codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
+      #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+      codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
+    } 
+
     codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
     codon.table <- cbind(codon.frequency.table, amino.acids)
     sorted.codon.table <- codon.table[order(amino.acids),]
