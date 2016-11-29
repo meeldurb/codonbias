@@ -92,7 +92,7 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
 for (genomeID in genome.and.organisms[,1]) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
-  if (!file.exists(fileout)) {
+  if (! file.exists(fileout)) {
     # substituting the genome numbers
     genome.sub <- sub("xxx", genomeID, ribosomal.seqs) 
     # Run SPARQL query for all genomes
@@ -151,20 +151,22 @@ for (genomeID in genome.and.organisms[,1]) {
     #startcodon
     codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
     # Searching for Mycoplasma and Spiroplasma, using other weight tables
-    match.words = c("Mycoplasma", "Spiroplasma")
-    i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
-    if (!genome.and.organims[,1][i]) {
-      #tryptophan (default)
-      codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
-      #stopcodon (default)
-      codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
-    }
-    else {
-      #tryptophan (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
-      codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
-      #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
-      codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
-    } 
+    
+    
+    #  match.words = c("Mycoplasma", "Spiroplasma")
+    # i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
+    # if (!genome.and.organims[,1][i]) {
+    #   #tryptophan (default)
+    #   codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
+    #   #stopcodon (default)
+    #   codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
+    # }
+    # else {
+    #   #tryptophan (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+    #   codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
+    #   #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+    #   codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
+    # } 
 
     codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
     codon.table <- cbind(codon.frequency.table, amino.acids)
@@ -187,5 +189,17 @@ for (genomeID in genome.and.organisms[,1]) {
   }
 }
 
+match.words = c("Mycoplasma", "Spiroplasma")
+i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
 
+for (genomeID in genome.and.organisms[,1]) {
+  for (myc.spir.genome in genome.and.organisms[,1][i]) {
+    if (identical(genomeID, myc.spir.genome)) {
+      print ("Myco/spiro found")
+      }
+    else {
+      print ("not found")
+    }
+  }
+}
 
