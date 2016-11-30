@@ -112,25 +112,25 @@ for (genomeID in genome.and.organisms[,1]) {
     # Overwriting all the codons
     # changing codons that code for the same amino acid and dividing by the sum of it
     # Phenylalanine
-    codon.frequency[c("TTT", "TTC")]<- codon.frequency[c("TTT", "TTC")]/(sum(codon.frequency[c("TTT", "TTC")]))
+    codon.frequency[c("TTT", "TTC")]<- codon.frequency[c("TTT", "TTC")]/sum(codon.frequency[c("TTT", "TTC")])
     #Leucine
-    codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]<- codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]/(sum(codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]))
+    codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]<- codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")]/sum(codon.frequency[c("TTA", "TTG", "CTT", "CTC", "CTA", "CTG")])
     #Isoleucine
     codon.frequency[c("ATT", "ATC", "ATA")]<- codon.frequency[c("ATT", "ATC", "ATA")]/sum(codon.frequency[c("ATT", "ATC", "ATA")])
     #Valine
-    codon.frequency[c("GTT", "GTC", "GTA", "GTG")]<- codon.frequency[c("GTT", "GTC", "GTA", "GTG")]/max(sum(codon.frequency[c("GTT", "GTC", "GTA", "GTG")]))
+    codon.frequency[c("GTT", "GTC", "GTA", "GTG")]<- codon.frequency[c("GTT", "GTC", "GTA", "GTG")]/sum(codon.frequency[c("GTT", "GTC", "GTA", "GTG")])
     #Serine
-    codon.frequency[c("TCT", "TCC", "TCA", "TCG")]<- codon.frequency[c("TCT", "TCC", "TCA", "TCG")]/max(sum(codon.frequency[c("TCT", "TCC", "TCA", "TCG")]))
+    codon.frequency[c("TCT", "TCC", "TCA", "TCG")]<- codon.frequency[c("TCT", "TCC", "TCA", "TCG")]/sum(codon.frequency[c("TCT", "TCC", "TCA", "TCG")])
     #Proline
-    codon.frequency[c("CCT", "CCC", "CCA", "CCG")]<- codon.frequency[c("CCT", "CCC", "CCA", "CCG")]/max(sum(codon.frequency[c("CCT", "CCC", "CCA", "CCG")]))
+    codon.frequency[c("CCT", "CCC", "CCA", "CCG")]<- codon.frequency[c("CCT", "CCC", "CCA", "CCG")]/sum(codon.frequency[c("CCT", "CCC", "CCA", "CCG")])
     #threonine
-    codon.frequency[c("ACT", "ACC", "ACA", "ACG")]<- codon.frequency[c("ACT", "ACC", "ACA", "ACG")]/max(sum(codon.frequency[c("ACT", "ACC", "ACA", "ACG")]))
+    codon.frequency[c("ACT", "ACC", "ACA", "ACG")]<- codon.frequency[c("ACT", "ACC", "ACA", "ACG")]/sum(codon.frequency[c("ACT", "ACC", "ACA", "ACG")])
     #Alanine
-    codon.frequency[c("GCT", "GCC", "GCA", "GCG")]<- codon.frequency[c("GCT", "GCC", "GCA", "GCG")]/max(sum(codon.frequency[c("GCT", "GCC", "GCA", "GCG")]))
+    codon.frequency[c("GCT", "GCC", "GCA", "GCG")]<- codon.frequency[c("GCT", "GCC", "GCA", "GCG")]/sum(codon.frequency[c("GCT", "GCC", "GCA", "GCG")])
     #Tyrosine
-    codon.frequency[c("TAT", "TAC")]<- codon.frequency[c("TAT", "TAC")]/max(sum(codon.frequency[c("TAT", "TAC")]))
+    codon.frequency[c("TAT", "TAC")]<- codon.frequency[c("TAT", "TAC")]/sum(codon.frequency[c("TAT", "TAC")])
     #Histidine
-    codon.frequency[c("CAT", "CAC")]<- codon.frequency[c("CAT", "CAC")]/max(sum(codon.frequency[c("CAT", "CAC")]))
+    codon.frequency[c("CAT", "CAC")]<- codon.frequency[c("CAT", "CAC")]/sum(codon.frequency[c("CAT", "CAC")])
     #glutamine
     codon.frequency[c("CAA", "CAG")]<- codon.frequency[c("CAA", "CAG")]/sum(codon.frequency[c("CAA", "CAG")])
     #asparginine
@@ -166,15 +166,14 @@ for (genomeID in genome.and.organisms[,1]) {
         codon.table <- cbind(codon.frequency.table, amino.acids)
         sorted.codon.table <- codon.table[order(amino.acids),]
         } else { 
-        #tryptoph an (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
-        codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
+        #tryptophan (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+        codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/sum(codon.frequency[c("TGG", "TGA")])
         #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
         codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
         codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
         codon.table <- cbind(codon.frequency.table, myc.spir.amino.acids)
         sorted.codon.table <- codon.table[order(myc.spir.amino.acids),]
         }
-      }
     # correct the codon frequencies for the maximum codon.frequency belonging to one amino acid
     tableFinalC=NULL; 
     tableFinalV=NULL; 
@@ -191,6 +190,7 @@ for (genomeID in genome.and.organisms[,1]) {
     # write weight table to a file
     write.table(final.codon.table, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   }
+}
 
 
 
