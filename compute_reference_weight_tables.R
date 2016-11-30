@@ -81,7 +81,7 @@ amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", 
                  "Stop", "Tyr", "Stop", "Tyr", "Ser", "Ser", "Ser", "Ser", "Stop", "Cys", "Trp", "Cys",
                  "Leu", "Phe", "Leu", "Phe")
 
-amino.acids.myc.spir <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", "Ser", "Arg", "Ser", 
+myc.spir.amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr", "Arg", "Ser", "Arg", "Ser", 
                  "Ile", "Ile", "Met/Start", "Ile", "Gln", "His", "Gln", "His", "Pro", "Pro", "Pro", "Pro",
                  "Arg", "Arg", "Arg", "Arg", "Leu", "Leu", "Leu", "Leu", "Glu", "Asp", "Glu", "Asp",
                  "Ala", "Ala", "Ala", "Ala", "Gly", "Gly", "Gly", "Gly", "Val", "Val", "Val", "Val",
@@ -156,10 +156,9 @@ for (genomeID in genome.and.organisms[,1]) {
     match.words = c("Mycoplasma", "Spiroplasma")
     # i contains the indices where Myco/Spiro is found
     i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
-    for (myc.spir.genomeID in genome.and.organisms[,1][i]) { 
-      # When genomeID == myc.spir.genomeID we use different codon table
-      if (!(genomeID == myc.spir.genomeID)) { 
-        #tryptophan (default)
+    genomesMycoSpiro = genome.and.organisms[i,1]
+    if(!(genomeID %in% genomesMycoSpiro)) {
+       #tryptophan (default)
         codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
         #stopcodon (default)
         codon.frequency[c("TAA", "TAG", "TGA")]<- codon.frequency[c("TAA", "TAG", "TGA")]/sum(codon.frequency[c("TAA", "TAG", "TGA")])
@@ -167,13 +166,13 @@ for (genomeID in genome.and.organisms[,1]) {
         codon.table <- cbind(codon.frequency.table, amino.acids)
         sorted.codon.table <- codon.table[order(amino.acids),]
         } else { 
-          #tryptophan (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
-          codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
-          #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
-          codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
-          codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
-          codon.table <- cbind(codon.frequency.table, amino.acids.myc.spir)
-          sorted.codon.table <- codon.table[order(amino.acids.myc.spir),]
+        #tryptoph an (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+        codon.frequency[c("TGG", "TGA")]<- codon.frequency[c("TGG", "TGA")]/codon.frequency[c("TGG", "TGA")]
+        #stopcodon (Myco+Spiro; the stop codon TGA is a W in mycoplasma)
+        codon.frequency[c("TAA", "TAG")]<- codon.frequency[c("TAA", "TAG")]/sum(codon.frequency[c("TAA", "TAG")])
+        codon.frequency.table <- as.data.frame(codon.frequency, stringsAsFactors = F)
+        codon.table <- cbind(codon.frequency.table, myc.spir.amino.acids)
+        sorted.codon.table <- codon.table[order(myc.spir.amino.acids),]
         }
       }
     # correct the codon frequencies for the maximum codon.frequency belonging to one amino acid
@@ -192,7 +191,7 @@ for (genomeID in genome.and.organisms[,1]) {
     # write weight table to a file
     write.table(final.codon.table, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   }
-}
+
 
 
 
@@ -201,10 +200,10 @@ match.words = c("Mycoplasma", "Spiroplasma")
 i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
 
 for (genomeID in genome.and.organisms[,1]) {
-  cat(paste(genomeID, " "))
+  #cat(paste(genomeID, " "))
   for (myc.spir.genomeID in genome.and.organisms[,1][i]) {
-    cat(paste(myc.spir.genomeID, " "))
-    which (genomeID == myc.spir.genomeID)
+    #cat(paste(myc.spir.genomeID, " "))
+    #which (genomeID == myc.spir.genomeID)
     if (!(identical(genomeID, myc.spir.genomeID))) {
       print ("not found")
       } else {
