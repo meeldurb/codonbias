@@ -157,6 +157,8 @@ for (genomeID in genome.and.organisms[,1]) {
     # i contains the indices where Myco/Spiro is found
     i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
     genomesMycoSpiro = genome.and.organisms[i,1]
+    # when the genome number of myc/spir is not found it will run the default
+    # else it will run the codon table of myc+spiroplasma
     if(!(genomeID %in% genomesMycoSpiro)) {
        #tryptophan (default)
         codon.frequency["TGG"]<- codon.frequency["TGG"]/codon.frequency["TGG"]
@@ -174,6 +176,7 @@ for (genomeID in genome.and.organisms[,1]) {
         codon.table <- cbind(codon.frequency.table, myc.spir.amino.acids)
         sorted.codon.table <- codon.table[order(myc.spir.amino.acids),]
         }
+    
     # correct the codon frequencies for the maximum codon.frequency belonging to one amino acid
     tableFinalC=NULL; 
     tableFinalV=NULL; 
@@ -194,30 +197,4 @@ for (genomeID in genome.and.organisms[,1]) {
 
 
 
-
-
-match.words = c("Mycoplasma", "Spiroplasma")
-i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
-
-for (genomeID in genome.and.organisms[,1]) {
-  #cat(paste(genomeID, " "))
-  for (myc.spir.genomeID in genome.and.organisms[,1][i]) {
-    #cat(paste(myc.spir.genomeID, " "))
-    #which (genomeID == myc.spir.genomeID)
-    if (!(identical(genomeID, myc.spir.genomeID))) {
-      print ("not found")
-      } else {
-      print ("Myco/spiro found")
-      }
-    }
-}
-
-for (genomeID in genome.and.organisms[,1]) {
-  j <- grepl(paste(match.words, collapse="|"), genome.and.organisms[,2])
-  if (!j) {
-  print ("not found")
-  } else {
-    print ("M/S found")
-  }
-}
 
