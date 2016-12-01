@@ -1,14 +1,11 @@
 ##Author: Melanie van den Bosch
 ##Script for retrieving all the genomes from the 
-##MicroDB namescpace on blazegraph
+##ENA database on blazegraph
 
 
 # install the needed packages
 install.packages("RCurl")
 install.packages("XML")
-# SPARQL needs RCurl and XML
-install.packages("SPARQL")
-
 
 
 #---------Retrieving genomes from MicroDB--------#
@@ -31,20 +28,17 @@ curl = gsub(pattern = "\n", replacement = " ", x = curl)
 system(curl)
 output.genomes = rbind(query.genomes, read.csv("tmp.txt", sep = "\t"))
 
-#omit the first row
+# omit the first row, which contains some NA values
 output.genomes = output.genomes[-1,]
                 
 
-
-
 # Edit genomenumbers, removing the hyperlink notation
-genomes.and.organisms <- output$results
-genome.number <- substr(genomes.and.organisms$genome, 27, 41)
-genomes.and.organisms$genome <- genome.number
+genome.number <- substr(output.genomes$X.sample, 19, 31)
+output.genomes$X.sample <- genome.number
 
 
 #write genomenumbers and organisms to file
-write.table(genomes.and.organisms, file = "genomes_orderedOngenomes.csv", 
+write.table(output.genomes, file = "genomes_ENA.csv", 
             append = F, sep = ",", row.names = FALSE, 
             quote = FALSE, col.names = FALSE)
 
