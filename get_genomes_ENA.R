@@ -17,6 +17,7 @@ WHERE {
 ?contig gbol:sample ?sample .
 ?contig gbol:scientificname ?organism .
 }
+LIMIT 10 
 "
 
 ENDPOINT = "http://ssb5.wurnet.nl:7200/repositories/ENA"
@@ -38,7 +39,7 @@ output.genomes$X.sample <- genome.number
 
 
 #write genomenumbers and organisms to file
-write.table(output.genomes, file = "genomes_ENA.csv", 
+write.table(output.genomes, file = "genomes_ENA10.csv", 
             append = F, sep = ",", row.names = FALSE, 
             quote = FALSE, col.names = FALSE)
 
