@@ -17,7 +17,6 @@ WHERE {
 ?contig gbol:sample ?sample .
 ?contig gbol:scientificname ?organism .
 }
-LIMIT 10 
 "
 
 ENDPOINT = "http://ssb5.wurnet.nl:7200/repositories/ENA"
