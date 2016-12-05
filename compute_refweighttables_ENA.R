@@ -23,7 +23,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 # genomes <- genome.and.organisms[,1]
 
@@ -33,8 +33,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA10.csv", header = FALSE,
 # based on ribosomal protein domains
 # We will go through all the genomes and the weight tables 
 # will be written to a file
-# creating a variable to store all the ribosomal proteins from all Acinetobacter baumannii genomes
-# The output contains CDSsequence and proteinsequence, however 157 distinct CDS are obtained
+# creating a variable to store all the ribosomal proteins from all genomes
 
 query.ribosomal.seqs <- '
 PREFIX gbol: <http://gbol.life#>
@@ -90,24 +89,9 @@ myc.spir.amino.acids <- c("Lys", "Asn", "Lys", "Asn", "Thr", "Thr", "Thr", "Thr"
                  "Leu", "Phe", "Leu", "Phe")
 
 
-# # takes every genome and writes the Pfam ID, domain_begin, domain_end
-# # and CDS to a file
-# for (genomeID in genomes) { #always put he { on this line
-#   fileout <- paste(outfolder, genomeID, ".csv", sep="")
-#   #check if file already exists
-#   if (!file.exists(fileout)) { 
-#     # substitute xxx with the genomeID in the query.ribosomal.seqs query
-#     sub.query.ribosomal.seqs <- sub("xxx", genomeID, query.ribosomal.seqs)
-#     # running curl from command line
-#     curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",sub.query.ribosomal.seqs,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
-#     curl <- gsub(pattern = "\n", replacement = " ", x = curl)
-#     system(curl)
-#     output.riboseqs <- rbind(sub.query.ribosomal.seqs, read.csv("tmp.txt", sep = "\t"))
-#     ribosomal.seqs.data <- output.domains[-1,]
-#     write.table(ribosomal.seqs.data, file=fileout, append=F, sep = ",",
-#                 row.names = F, quote=F, col.names=T )
-#   }
-# }
+# # takes every genome and retrieves the ribosomal sequences.
+## then computes the codon frequency of all the codons in these sequences
+## writes the weight table of all genomes seperately to a file
 
 for (genomeID in genome.and.organisms[,1]) { 
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
@@ -122,7 +106,7 @@ for (genomeID in genome.and.organisms[,1]) {
     output.riboseqs <- rbind(sub.query.ribosomal.seqs, read.csv("tmp.txt", sep = "\t"))
     # slice off 1st row which contains NA values
     ribosomal.seqs.data <- output.riboseqs[-1,]
-    #some genomes do not have ribosomal domain data, should skip these
+    #some genomes do not have ribosomal domain data, we should skip these
     if (length(ribosomal.seqs.data) == 0) {
       next
     }
@@ -175,10 +159,10 @@ for (genomeID in genome.and.organisms[,1]) {
     codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
     
     # Searching for Mycoplasma and Spiroplasma, using other weight tables
-    match.words = c("Mycoplasma", "Spiroplasma")
+    match.words <- c("Mycoplasma", "Spiroplasma")
     # i contains the indices where Myco/Spiro is found
     i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
-    genomesMycoSpiro = genome.and.organisms[i,1]
+    genomesMycoSpiro <- genome.and.organisms[i,1]
     # when the genome number of myc/spir is not found it will run the default
     # else it will run the codon table of myc+spiroplasma
     if(!(genomeID %in% genomesMycoSpiro)) {
