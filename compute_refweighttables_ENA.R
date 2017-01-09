@@ -28,7 +28,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 # genomes <- genome.and.organisms[,1]
 
 
-##-------- Computing reference weight table  ---------------###
+###-------- Computing reference weight table  ---------------###
 
 # based on ribosomal protein domains
 # We will go through all the genomes and the weight tables 
