@@ -1,7 +1,8 @@
+########################################################
 ##Author: Melanie van den Bosch
 ##Script for retrieving all the domains of the genomes 
-##from the MicroDB namespace on blazegraph
-
+##from the ENA namespace on blazegraph
+#########################################################
 
 # install the needed packages
 install.packages("RCurl")
