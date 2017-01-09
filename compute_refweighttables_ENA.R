@@ -1,6 +1,6 @@
 #############################################################################
 ####  Author: Melanie van den Bosch
-####  Script for retrieving ribosomal domains of a genome
+####  Script for retrieving ribosomal domains of a genome for ENA db
 ####  and then computing a reference weight table for every genome
 #################################################################################
 
