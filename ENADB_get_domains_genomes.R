@@ -81,7 +81,7 @@ for (genomeID in genomes) { #always put he { on this line
 }
 
 
-
+# scribbling
 # curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",domain.sparql,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
 # curl <- gsub(pattern = "\n", replacement = " ", x = curl)
 # system(curl)
