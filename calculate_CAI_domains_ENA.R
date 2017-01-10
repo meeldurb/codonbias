@@ -25,6 +25,36 @@ library("seqinr")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
+outfolder <- "CAI_domains_ENA/"  
+if (!file.exists(outfolder))dir.create(outfolder)
+
+
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+
+# Retrieving weight vectors
+w.data <- read.csv(file = "Reference_weight_tables_ENA/xxx.csv", 
+                   header = FALSE, row.names = 1, as.is=TRUE) #as.is to keep the it as char
+
+
+# retrieving domain data
+domain.data <- read.csv(file = "Domain_data_ENA/xxx.csv", header = TRUE, 
+                        as.is=TRUE) #as.is to keep the it as char
+
+for (genomeID in genome.and.organisms[,1]) { 
+  fileout <- paste(outfolder, genomeID, "_CAI.csv", sep="")
+  #check if file already exists
+  if (!file.exists(fileout)) {
+    sub.w.data <- sub("xxx", genomeID, w.data)
+    print (sub.w.data)
+    w <- sub.w.data[,1]
+    sub.domain.data <- sub("xxx", genomeID, domain.data)
+}
+}
+
+
+####################_____________ calculating cai for single file _______________________################
 
 # Retrieving weight vectors
 w.data <- read.csv(file = "Reference_weight_tables_ENA/GCA_000003645.csv", 
