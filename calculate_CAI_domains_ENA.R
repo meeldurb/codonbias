@@ -84,21 +84,3 @@ cai <- sapply(fasta.domains, cai, w = w)
 # write the data to a file
 write.table(cai, file = "CAI_GCA_000003645.csv", append = F, sep = "\t", row.names = names(cai), quote = F, col.names = F)
 
-####################old script####################
-
-
-# write this data to a file
-write.table(CDS_dom_data, file = "20160428-Bpert_CDS_dom.csv", append = F, sep = "\t", row.names = FALSE, quote = FALSE, col.names = TRUE)
-
-#we converted the sequences to a fasta file with Python, to be able to be read by the CAI function
-input_fasta <- read.fasta(file = "20160428-Bpert_CDS_dom.fasta")
-w_data <- caitab$sc
-
-# calculating the CAI for these sequences of XXX genome 
-cai <- sapply(fasta.domains, cai, w = w_data)
-
-# write to file 
-# row.names are put with names(cai) to get the Pfam IDs in the file
-write.table(cai, file = "20160428-cai_table_Bpert(GCA_001013565-1.LN849008).csv", append = F, sep = "\t", row.names = names(cai), quote = F, col.names = F)
-
-
