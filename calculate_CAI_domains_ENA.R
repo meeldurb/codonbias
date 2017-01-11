@@ -35,21 +35,26 @@ genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE
 
 
 
-for (genomeID in genome.and.organisms[1:3,1]) { 
+for (genomeID in genome.and.organisms[,1]) { 
   fileout <- paste(outfolder, genomeID, "_CAI.csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
     # Going through all genome numbers and retrieving their weight vectors and domain data
     w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
-    w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-    # only leaving numbers
-    w <- w.data[,1]
-    domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
-    domain.data <- read.csv(file = domain.files, header = TRUE, 
-                            as.is=TRUE) #as.is to keep the it as char
-    print (domain.files)
-    str(domain.data)
-    
+    if (file.exists(w.files)){
+      w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+      # ordering on rownames, for it to be correctly used by cai function
+      ordered.w <- w.data[with(w.data, order(V1)), ]
+      # only leaving numbers
+      w <- ordered.w[,2]
+      domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
+      domain.data <- read.csv(file = domain.files, header = TRUE, 
+                              as.is=TRUE) #as.is to keep the it as char
+      print (w.files)
+      print (w)
+      
+    }
+
   
 }
 }
@@ -117,11 +122,11 @@ system(convertcmd)
 # opening the written file and calculating the CAI
 fasta.domains <- read.fasta(file = "tmp.fasta")
 cai.output <- sapply(fasta.domains, cai, w = w)
-cai.output.ord <- sapply(fasta.domains, cai, w = w.ordered)
+cai.output.ord <- sapply(fasta.domains, cai, w = w.ordered, numcode = 1)
 
 # write the data to a file
 write.table(cai.output, file = "CAI_GCA_000003645.csv", append = F, sep = "\t", row.names = names(cai.output), quote = F, col.names = F)
-write.table(cai.output.ord, file = "CAI_GCA_000003645ord.csv", append = F, sep = "\t", row.names = names(cai.output.ord), quote = F, col.names = F)
+write.table(cai.output.ord, file = "CAI_GCA_000003645ord2.csv", append = F, sep = "\t", row.names = names(cai.output.ord), quote = F, col.names = F)
 
 # gives different output.
 # found that cai function finds the indexpositions of codons that should be excluded from the analysis based on alphabetical order
