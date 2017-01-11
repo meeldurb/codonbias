@@ -30,26 +30,27 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# Retrieving weight vectors
-w.data <- read.csv(file = "Reference_weight_tables_ENA/xxx.csv", 
-                   header = FALSE, row.names = 1, as.is=TRUE) #as.is to keep the it as char
 
 
-# retrieving domain data
-domain.data <- read.csv(file = "Domain_data_ENA/xxx.csv", header = TRUE, 
-                        as.is=TRUE) #as.is to keep the it as char
-
-for (genomeID in genome.and.organisms[,1]) { 
+for (genomeID in genome.and.organisms[1:3,1]) { 
   fileout <- paste(outfolder, genomeID, "_CAI.csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
-    sub.w.data <- sub("xxx", genomeID, w.data)
-    print (sub.w.data)
-    w <- sub.w.data[,1]
-    sub.domain.data <- sub("xxx", genomeID, domain.data)
+    # Going through all genome numbers and retrieving their weight vectors and domain data
+    w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
+    w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+    # only leaving numbers
+    w <- w.data[,1]
+    domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
+    domain.data <- read.csv(file = domain.files, header = TRUE, 
+                            as.is=TRUE) #as.is to keep the it as char
+    print (domain.files)
+    str(domain.data)
+    
+  
 }
 }
 
@@ -59,8 +60,14 @@ for (genomeID in genome.and.organisms[,1]) {
 # Retrieving weight vectors
 w.data <- read.csv(file = "Reference_weight_tables_ENA/GCA_000003645.csv", 
                    header = FALSE, row.names = 1, as.is=TRUE) #as.is to keep the it as char
+
+# ordering on rownumbers for it to look the same as caitab
+w.data$names <-rownames(w.data)
+ordered.w <- w.data[with(w.data, order(names)), ]
+
 # only having numbers
 w <- w.data[,1]
+w.ordered <- ordered.w[,1]
 
 # retrieving domain data
 domain.data <- read.csv(file = "Domain_data_ENA/GCA_000003645.csv", header = TRUE, 
@@ -109,8 +116,12 @@ system(convertcmd)
 
 # opening the written file and calculating the CAI
 fasta.domains <- read.fasta(file = "tmp.fasta")
-cai <- sapply(fasta.domains, cai, w = w)
+cai.output <- sapply(fasta.domains, cai, w = w)
+cai.output.ord <- sapply(fasta.domains, cai, w = w.ordered)
 
 # write the data to a file
-write.table(cai, file = "CAI_GCA_000003645.csv", append = F, sep = "\t", row.names = names(cai), quote = F, col.names = F)
+write.table(cai.output, file = "CAI_GCA_000003645.csv", append = F, sep = "\t", row.names = names(cai.output), quote = F, col.names = F)
+write.table(cai.output.ord, file = "CAI_GCA_000003645ord.csv", append = F, sep = "\t", row.names = names(cai.output.ord), quote = F, col.names = F)
 
+# gives different output.
+# found that cai function finds the indexpositions of codons that should be excluded from the analysis based on alphabetical order
