@@ -30,10 +30,11 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 
+# calculating the codon adaptation index for all genomes and its domains
 
 for (genomeID in genome.and.organisms[,1]) { 
   fileout <- paste(outfolder, genomeID, "_CAI.csv", sep="")
@@ -50,10 +51,63 @@ for (genomeID in genome.and.organisms[,1]) {
       domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
       domain.data <- read.csv(file = domain.files, header = TRUE, 
                               as.is=TRUE) #as.is to keep the it as char
-      print (w.files)
-      print (w)
+      # renaming the columns
+      colnames(domain.data) <- c("domain_ID", "domain_beginpos", "domain_endpos", "CDS")
       
-    }
+      # computing the postions of the domains with their corresponding postion in the CDS
+      for (row in domain.data) 
+      {
+        CDS_begin <- 3*(domain.data[2]-1)+1
+        CDS_end <- 3*(domain.data[3])
+      }
+      
+      # renaming the columns
+      colnames(CDS_begin) <- ""
+      colnames(CDS_end) <- ""
+      
+      # binding these columns to already existing dataframe
+      # and converting to integers for later calculation
+      domain.data$CDS_domain_beginpos <- as.integer(CDS_begin[,1])
+      domain.data$CDS_domain_end <- as.integer(CDS_end[,1])
+      str(domain.data)
+      
+      for (CDS in domain.data[4]){
+        dom_seq <- substr(CDS, domain.data[domain.data$CDS == CDS, 5], 
+                          domain.data[domain.data$CDS == CDS, 6])
+        
+      }
+      domain.data$CDS_domain <- dom_seq 
+      
+      # shrinking the data to reduce computational time
+      keep <- c("domain_ID", "CDS_domain")
+      domain.data.CDS <- domain.data[keep]
+      
+      write.table(domain.data.CDS, file = "tmp.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+      
+      # converting the sequences to fasta format with python file
+      convertcmd <- "python Write_csvtofasta.py"
+      system(convertcmd)
+      
+      # opening the written file and calculating the CAI
+      fasta.domains <- read.fasta(file = "tmp.fasta")
+      
+      # Searching for Mycoplasma and Spiroplasma, using other weight tables
+      match.words <- c("Mycoplasma", "Spiroplasma")
+      # i contains the indices where Myco/Spiro is found
+      i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
+      genomesMycoSpiro <- genome.and.organisms[i,1]
+      # when the genome number of myc/spir is not found it will run the default
+      # else it will run with the codon table of myc+spiroplasma
+      if(!(genomeID %in% genomesMycoSpiro)) {
+        
+      cai.output <- sapply(fasta.domains, cai, w = w, numcode = 4)
+      } else { 
+        cai.output <- sapply(fasta.domains, cai, w = w, numcode = 1)
+      }
+      # write the data to a file
+      write.table(cai.output, file = fileout, append = F, sep = ",", row.names = names(cai.output), quote = F, col.names = F)
+
+      }
 
   
 }
