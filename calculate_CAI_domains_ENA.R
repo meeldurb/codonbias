@@ -69,7 +69,6 @@ for (genomeID in genome.and.organisms[,1]) {
       # and converting to integers for later calculation
       domain.data$CDS_domain_beginpos <- as.integer(CDS_begin[,1])
       domain.data$CDS_domain_end <- as.integer(CDS_end[,1])
-      str(domain.data)
       
       for (CDS in domain.data[4]){
         dom_seq <- substr(CDS, domain.data[domain.data$CDS == CDS, 5], 
