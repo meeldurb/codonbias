@@ -1,19 +1,21 @@
+#!usr/bin/env Rscript
+
+###################################################################
 ##Author: Melanie van den Bosch
 ##Script for calculating the CAI of all the genomes and their domains
 ##from the ENA namespace on blazegraph
-
+###################################################################
 
 # install the needed packages
-install.packages("RCurl")
-install.packages("XML")
+install.packages("RCurl", repos="http://cran.rstudio.com/")
+install.packages("XML", repos="http://cran.rstudio.com/")
 # SPARQL needs RCurl and XML
-install.packages("SPARQL")
+install.packages("SPARQL", repos="http://cran.rstudio.com/")
 # Packages needed to be installed to calculate the frequency of oligonucleotides
 source("http://bioconductor.org/biocLite.R")
-?BiocUpgrade
 biocLite("Biostrings")
 # to compute CAI
-install.packages("seqinr")
+install.packages("seqinr", repos="http://cran.rstudio.com/")
 
 # loading required library to execute SPARQL query
 library("SPARQL")
