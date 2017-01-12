@@ -73,6 +73,10 @@ for (genomeID in genome.and.organisms[,1]) {
       domain.data$CDS_domain_beginpos <- as.integer(CDS_begin[,1])
       domain.data$CDS_domain_end <- as.integer(CDS_end[,1])
       
+      # Substracting the CDS part that is associated to the protein domain
+      # from columns 5 and 6 the positions of the begin and end of the 
+      # CDS associated to protein domain are derived
+      # when CDS are equal, take the integer from that column
       for (CDS in domain.data[4]){
         dom_seq <- substr(CDS, domain.data[domain.data$CDS == CDS, 5], 
                           domain.data[domain.data$CDS == CDS, 6])
