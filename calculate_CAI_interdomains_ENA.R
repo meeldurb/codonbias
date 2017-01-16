@@ -87,36 +87,15 @@ for (genomeID in genome.and.organisms[,1]) {
       keep <- c("domain_ID", "CDS", "CDS_domain")
       domain.data.CDS <- domain.data[keep]
       
-      test <- domain.data.CDS[1:5,]
-    
-      #test2 <- as.data.frame(lapply, test, function(x) if(is.character(x)|is.factor(x)) gsub(pattern = test[3], replacement = "", x=test[2]) else x)
-
-      #  for (CDS in test[,2]){ # works for 1 row
-      #     test.sub <- gsub(pattern = test[,3], replacement = "", x = CDS)
-      #     print (test.sub)
-      # }
-      
-      for (i in 1:length(test[,1])){
-        test2.sub <- gsub(pattern = test[i,3], replacement="", x=test[i,2])
-        print(test2.sub)
+      for (i in 1:length(domain.data.CDS[1:5,1])){
+        inter.dom.CDS <- gsub(pattern = test[i,3], replacement="", x=test[i,2])
+        str(inter.dom.CDS)
         }
       }
   }
 }
 
-sub.domain.sparql <- sub("xxx", genomeID, domain.sparql)
-# running curl from command line
-curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",sub.domain.sparql,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
-curl <- gsub(pattern = "\n", replacement = " ", x = curl)
 
-
-}
-  #test.split <- strsplit(CDS, test[,3])
-  #test.split <- strsplit(CDS, "TTATTTCCAA")
-  #inter.dom.strlist <- strsplit(CDS, domain.data.CDS[3])
-  #print(inter.dom.strlist)
-  #inter.dom.CDS <- paste(inter.dom.strlist, collapse = "")
-  
 
 
 domain.data.CDS$CDS_inter_domain <- inter.dom.CDS
