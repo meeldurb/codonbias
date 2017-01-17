@@ -30,9 +30,8 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
-
 
 # calculating the codon adaptation index for all genomes and its domains
 
@@ -87,27 +86,52 @@ for (genomeID in genome.and.organisms[,1]) {
       keep <- c("domain_ID", "CDS", "CDS_domain")
       domain.data.CDS <- domain.data[keep]
       
-      for (i in 1:length(domain.data.CDS[1:5,1])){
-        inter.dom.CDS <- gsub(pattern = test[i,3], replacement="", x=test[i,2])
-        str(inter.dom.CDS)
+      # test <- domain.data.CDS[1:6392,]
+    
+      inter.dom.CDS.df <- NULL
+      inter.dom.CDS <- NULL
+      
+      for (i in 1:length(domain.data.CDS[,1])){
+        # cat (i, "\n")
+        inter.dom.CDS <- sub(pattern = domain.data.CDS[i,3], replacement="", x=domain.data.CDS[i,2], fixed=TRUE)
+        inter.dom.CDS.df <- append(inter.dom.CDS.df, inter.dom.CDS)
+        inter.dom.CDS <- NULL
         }
+      inter.dom.CDS.df <- data.frame(x=inter.dom.CDS.df, stringsAsFactors=FALSE)
+      colnames(inter.dom.CDS.df) <- "inter_domain_sequence"
+      
+      domain.data.inter.CDS <- cbind(domain.data.CDS, inter.dom.CDS.df)
+      
+      keep <- c("domain_ID", "inter_domain_sequence")
+      domain.data.CDS <- domain.data.inter.CDS[keep]
+      
+      write.table(domain.data.CDS, file = "tmp.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+      
+      # converting the sequences to fasta format with python file
+      convertcmd <- "python Write_csvtofasta.py"
+      system(convertcmd)
+      
+      # opening the written file and calculating the CAI
+      fasta.domains <- read.fasta(file = "tmp.fasta")
+      
+      # Searching for Mycoplasma and Spiroplasma, using other weight tables
+      match.words <- c("Mycoplasma", "Spiroplasma")
+      # i contains the indices where Myco/Spiro is found
+      i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
+      genomesMycoSpiro <- genome.and.organisms[i,1]
+      # when the genome number of myc/spir is not found it will run tshe default
+      # else it will run with the codon table of myc+spiroplasma
+      if(!(genomeID %in% genomesMycoSpiro)) {
+        
+        cai.inter.output <- tryCatch(sapply(fasta.domains, cai, w = w, numcode = 4), error=function(e) NULL)
+      } else { 
+        cai.inter.output <- tryCatch(sapply(fasta.domains, cai, w = w, numcode = 1), error=function(e) NULL)
       }
+      # write the data to a file
+      write.table(cai.inter.output, file = fileout, append = F, sep = ",", row.names = names(cai.inter.output), quote = F, col.names = F)
+      }
+    
   }
 }
-
-
-
-
-domain.data.CDS$CDS_inter_domain <- inter.dom.CDS
-x <- "Do you wish you were Mr. Jones?"
-y <- strsplit(x, ". ")
-z <- paste(y, sep="") 
-
-txt <- c("arm","foot","lefroo", "bafoobar")
-if(length(i <- grep("foo", txt, invert = TRUE)))
-  cat("'foo' appears at least once in\n\t", txt, "\n")
-i # 2 and 4
-pasted <- paste(txt[i], collapse='')
-
 
 
