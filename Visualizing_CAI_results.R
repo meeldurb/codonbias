@@ -41,12 +41,15 @@ duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
 #duplicated.domains2 <- names(domains.occurence2[domains.occurence2>=threshold])
 
 
-# calculate means and the length of 
+# calculate means, size sd and skewness of the samples
+# do a t-test to check whether observed difference is significant
 mean(unique.domains.cai)
+mean(data[!duplicated(data[,1]),2]) # looking for difference
 length(unique.domains.cai)
 sd(unique.domains.cai)
 skewness(unique.domains.cai)
 mean(duplicated.domains.cai)
+mean(data[duplicated(data[,1]),2]) # looking for difference
 length(duplicated.domains.cai)
 sd(duplicated.domains.cai)
 skewness(duplicated.domains.cai)
