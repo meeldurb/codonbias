@@ -19,6 +19,7 @@ library("Biostrings")
 # loading required library to use CAI function
 library("seqinr")
 
+
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
