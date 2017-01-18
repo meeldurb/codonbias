@@ -8,7 +8,8 @@
 ####  results obtained from computing the CAI for multiple genomes
 #################################################################################
 
-
+install.packages("fBasics", repos="http://cran.rstudio.com/")
+library("fBasics")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -23,10 +24,6 @@ data <- read.csv(file = cai.files, sep = ",",
 #####________difference between unique and duplicated domains________#####
 
 
-# finding the mean of duplicated and unique pfam domains
-mean(data[duplicated(data[,1]),2])
-mean(data[!duplicated(data[,1]),2])
-
 # how many times a domain occurs
 domains.occurence <- rle(sort(data[,1]))
 
@@ -36,6 +33,35 @@ unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
 
 duplicated.domains <- domains.occurence$values[which(domains.occurence$lengths!=1)]
 duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
+
+# same way of calculating
+#domains.occurence2 <- table(data[,1])
+#threshold <- 2
+#unique.domains2 <- names(domains.occurence2[domains.occurence2<threshold])
+#duplicated.domains2 <- names(domains.occurence2[domains.occurence2>=threshold])
+
+
+# calculate means and the length of 
+mean(unique.domains.cai)
+length(unique.domains.cai)
+sd(unique.domains.cai)
+skewness(unique.domains.cai)
+mean(duplicated.domains.cai)
+length(duplicated.domains.cai)
+sd(duplicated.domains.cai)
+skewness(duplicated.domains.cai)
+t.test(unique.domains.cai, duplicated.domains.cai)
+
+
+# not sure whether I still have to do this:
+samplesize=500
+# the sample sizes are too different, we try to sample the datasets
+sampled.uniq.dom.cai <- sample(unique.domains.cai, 500, replace = TRUE)
+sampled.dupl.dom.cai <- sample(duplicated.domains.cai, 500, replace = TRUE)
+sampled.unique.mean <- mean(sampled.uniq.dom.cai)
+sampled.duplicated.mean <- mean(sampled.dupl.dom.cai)
+t.test(sampled.unique.mean, sampled.duplicated.mean)
+
 
 # setting the properties for drawing the graphs
 xlim <- range(data[,2], na.rm = TRUE)
@@ -79,10 +105,6 @@ legend("top" ,c("Unique", "Non-Unique"), pch=15,
        col=c(rgb(0,0,1,1/4),rgb(1,0,0,1/4)) , bty="n",cex=1.5)
 #dev.off()
 
-# calculate means and do a t-test to check whether observed difference is significant
-unique.mean <- mean(unique.domains.cai)
-duplicated.mean <- mean(duplicated.domains.cai)
-t.test(unique.domains.cai, duplicated.domains.cai)
 
 # visualize for all genomes 
 # make a plot with mean CAI of unique domains on x-axis, and mean CAI of duplicated domains on y-axis
