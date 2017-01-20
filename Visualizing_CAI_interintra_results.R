@@ -62,7 +62,7 @@ for (genomeID in genome.and.organisms[,1]){
       }
     else {
       points(intra.cai, inter.cai, col=col.plot)
-      legend ('topright', c('interdomain', 'intradomain'), cex = 1.5, pch = 1,
+      legend ('topright', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
               col = c('blue', 'red'), bty='n')
     }
   }
@@ -85,6 +85,8 @@ data.inter <- na.omit(data.inter)
 
 length(data.intra[,2])
 length(data.inter[,2])
+skewness(data.intra[,2])
+skewness(data.inter[,2])
 intra.cai <- mean(data.intra[,2])
 inter.cai <- mean(data.inter[,2])
 t.test(data.intra[,2], data.inter[,2])
@@ -119,12 +121,12 @@ legend("topleft" ,c("intradomain", "interdomain"), pch = 15,
        col = c(rgb(0,0,1,1/4),rgb(1,0,0,1/4)) , bty = "n",cex=1.5)
 
 # drawing boxplots of the cai values of unique and duplicated domains
-boxplot(unique.domains.cai,  xlim=c(0.5,2.5), outline=FALSE, col= rgb(0,0,1,1/4),
-        ylab="CAI", main = "Boxplot of unique and non-unique protein domains", cex.axis=1.5, cex.lab=1.5)
-boxplot(duplicated.domains.cai, at=2 , add=TRUE , outline=FALSE, col=rgb(1,0,0,1/4),
+boxplot(data.intra[,2],  xlim=c(0.5,2.5), outline=FALSE, col= rgb(0,0,1,1/4),
+        ylab="CAI", main = "Boxplot of inter and intra domains", cex.axis=1.5, cex.lab=1.5)
+boxplot(data.inter[,2], at=2 , add=TRUE , outline=FALSE, col=rgb(1,0,0,1/4),
         cex.axis=1.5)
 
-legend("top" ,c("Unique", "Non-Unique"), pch=15,
+legend("top" ,c("Intradomains", "Interdomains"), pch=15,
        col=c(rgb(0,0,1,1/4),rgb(1,0,0,1/4)) , bty="n",cex=1.5)
 
 
