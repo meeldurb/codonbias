@@ -62,7 +62,7 @@ for (genomeID in genome.and.organisms[,1]){
     } 
     else {
       points(duplicated.mean, unique.mean, col = col.plot)
-      legend("topright" ,c("Unique", "Duplicated"), cex=1.5, pch=1,
+      legend("topright" ,c("Significant", "Non-significant"), cex=1.5, pch=1,
              col=c("blue", "red") , bty="n")
     } 
   }
@@ -119,7 +119,7 @@ for (genomeID in genome.and.organisms[,1]){
     } 
     else {
       points(sampled.duplicated.mean, sampled.unique.mean, col = col.plot)
-      legend("topright" ,c("Unique", "Duplicated"), cex=1.5, pch=1,
+      legend("topright" ,c("Significant", "Non-significant"), cex=1.5, pch=1,
              col=c("blue", "red") , bty="n")
     } 
   }
