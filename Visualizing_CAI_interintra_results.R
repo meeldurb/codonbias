@@ -21,7 +21,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
                                  as.is=TRUE) #as.is to keep the it as char
 
 
-#####________difference between CAI of inter and intra domains________#####
+#####________Mean CAI of inter and intra domains________#####
 
 genomecount = 0
 significant = 0
@@ -71,7 +71,8 @@ total = significant + nonsignificant
 print(paste(significant, "out of", total, "samples are found to have a significant difference "))
 
 
-#####________difference between CAI of inter and intra domains, with sampling the data________#####
+#####_______Mean CAI of inter and intra domains, with sampling the data________#####
+
 
 
 genomecount = 0
@@ -94,7 +95,6 @@ for (genomeID in genome.and.organisms[,1]){
     ttest <- t.test(data.intra[,2], data.inter[,2])
     # calculate means and do a t-test to check whether observed difference is significant
     
-    # not sure whether I still have to do this:
     samplesize=500
     # the sample sizes are too different, we try to sample the datasets
     sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
@@ -126,6 +126,68 @@ for (genomeID in genome.and.organisms[,1]){
       legend ('topright', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
               col = c('blue', 'red'), bty='n')
     }
+  }
+}
+
+total = significant + nonsignificant
+print(paste(significant, "out of", total, "samples are found to have a significant difference "))
+
+
+#####________difference between CAI of inter and intra domains, computed for all protein domains________#####
+
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+
+samplesize=500
+genomes.sampled <- sample(genome.and.organisms[,1], size = samplesize, replace = FALSE)
+
+
+
+genomecount = 0
+significant = 0
+nonsignificant = 0
+for (genomeID in genomes.sampled){
+  cat (genomeID, "\n")
+  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files)){
+    # read data 
+    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+   
+    
+    samplesize=500
+    # we try to sample the datasets to correct for overpowering
+    sampled.intra <- sample(data.intra[,2], size = samplesize, replace = TRUE)
+    sampled.inter <- sample(data.inter[,2], size = samplesize, replace = TRUE)
+    sampled.intra.mean <- mean(sampled.intra)
+    sampled.inter.mean <- mean(sampled.inter)
+    ttest <- t.test(sampled.intra, sampled.inter)
+    pval <- ttest$p.value
+    
+    xlim <- c(0, 1)
+    if (pval < 0.05){
+      col.plot = 'blue'
+      significant = significant + 1
+    } 
+    else {
+      col.plot = 'red'
+      nonsignificant = nonsignificant + 1
+    }
+    if (genomecount == 0){
+      plot(data.intra[,2], data.inter[,2], type = 'p', xlim = xlim, ylim = xlim, 
+           main = "Mean CAI values of inter and intra domains",
+           xlab = "CAI intra domains",
+           ylab = "CAI inter domains",
+           col = col.plot)
+      genomecount = genomecount + 1
+    }
+    else {
+      points(sampled.intra, sampled.inter, col=col.plot)
+      legend ('topleft', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
+              col = c('blue', 'red'), bty='n')
+    }
+
   }
 }
 
