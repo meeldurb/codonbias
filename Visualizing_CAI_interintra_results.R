@@ -142,7 +142,6 @@ samplesize=500
 genomes.sampled <- sample(genome.and.organisms[,1], size = samplesize, replace = FALSE)
 
 
-
 genomecount = 0
 significant = 0
 nonsignificant = 0
@@ -154,15 +153,7 @@ for (genomeID in genomes.sampled){
     # read data 
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
-   
-    
-    samplesize=500
-    # we try to sample the datasets to correct for overpowering
-    sampled.intra <- sample(data.intra[,2], size = samplesize, replace = TRUE)
-    sampled.inter <- sample(data.inter[,2], size = samplesize, replace = TRUE)
-    sampled.intra.mean <- mean(sampled.intra)
-    sampled.inter.mean <- mean(sampled.inter)
-    ttest <- t.test(sampled.intra, sampled.inter)
+    ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
     
     xlim <- c(0, 1)
@@ -176,7 +167,7 @@ for (genomeID in genomes.sampled){
     }
     if (genomecount == 0){
       plot(data.intra[,2], data.inter[,2], type = 'p', xlim = xlim, ylim = xlim, 
-           main = "Mean CAI values of inter and intra domains",
+           main = "CAI values of inter and intra domains",
            xlab = "CAI intra domains",
            ylab = "CAI inter domains",
            col = col.plot)
