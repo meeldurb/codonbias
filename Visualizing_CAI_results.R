@@ -93,7 +93,6 @@ for (genomeID in genome.and.organisms[,1]){
     duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
     
     # calculate means and do a t-test to check whether observed difference is significant
-    # not sure whether I still have to do this:
     samplesize=500
     # the sample sizes are too different, we try to sample the datasets
     sampled.uniq.dom.cai <- sample(unique.domains.cai, size = samplesize, replace = TRUE)
