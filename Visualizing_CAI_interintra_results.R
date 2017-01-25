@@ -9,7 +9,12 @@
 #################################################################################
 
 install.packages("fBasics", repos="http://cran.rstudio.com/")
+install.packages("pwr", repos="http://cran.rstudio.com/")
+install.packages("effsize", repos="http://cran.rstudio.com/")
 library("fBasics")
+library("pwr")
+library("effsize")
+
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -17,11 +22,12 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 # inter = between/among groups
 
 
+
+#####________Mean CAI of inter and intra domains________#####
+
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-
-#####________Mean CAI of inter and intra domains________#####
 
 genomecount = 0
 significant = 0
@@ -73,7 +79,8 @@ print(paste(significant, "out of", total, "samples are found to have a significa
 
 #####_______Mean CAI of inter and intra domains, with sampling the data________#####
 
-
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
 
 genomecount = 0
 significant = 0
@@ -102,7 +109,7 @@ for (genomeID in genome.and.organisms[,1]){
     sampled.intra.mean <- mean(sampled.intra.cai)
     sampled.inter.mean <- mean(sampled.inter.cai)
     ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
-    
+    # make a vector with all the pvalues
     pval <- ttest$p.value
     xlim <- c(0.5, 1)
     if (pval < 0.05){
@@ -157,7 +164,7 @@ for (genomeID in genomes.sampled){
     pval <- ttest$p.value
     
     xlim <- c(0, 1)
-    if (pval < 0.05){
+    if (pval < 0.01){
       col.plot = 'blue'
       significant = significant + 1
     } 
@@ -201,9 +208,27 @@ length(data.intra[,2])
 length(data.inter[,2])
 skewness(data.intra[,2])
 skewness(data.inter[,2])
-intra.cai <- mean(data.intra[,2])
-inter.cai <- mean(data.inter[,2])
-t.test(data.intra[,2], data.inter[,2])
+mean(data.intra[,2])
+mean(data.inter[,2])
+sd(data.intra[,2])
+sd(data.inter[,2])
+
+ttest <- t.test(data.intra[,2], data.inter[,2])
+# calculate means and do a t-test to check whether observed difference is significant
+
+samplesize=500
+# the sample sizes are too different, we try to sample the datasets
+sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
+sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
+mean(sampled.intra.cai)
+mean(sampled.inter.cai)
+sd(sampled.intra.cai)
+sd(sampled.inter.cai)
+ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
+pwr.t.test(samplesize, d = 0.152, sig.level = 0.01,
+                    alternative = "two.sided")
+# make a vector with all the pvalues
+
 
 
 # setting the properties for drawing the graphs
@@ -245,3 +270,13 @@ legend("top" ,c("Intradomains", "Interdomains"), pch=15,
 
 
 
+
+
+####________example calculating p adjusted________####
+set.seed(123)
+x <- rnorm(50, mean = c(rep(0, 25), rep(3, 25)))
+p <- 2*pnorm(-abs(x))
+round(p, 3)
+round(p.adjust(p), 3)
+round(p.adjust(p, "BH"), 3)
+p.adjust(p, "BH")
