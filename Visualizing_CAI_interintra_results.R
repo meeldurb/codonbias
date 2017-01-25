@@ -28,10 +28,8 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-
-genomecount = 0
-significant = 0
-nonsignificant = 0
+# first run the loop to create a vector with adjusted p values
+pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
@@ -48,14 +46,42 @@ for (genomeID in genome.and.organisms[,1]){
     inter.cai <- mean(data.inter[,2])
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
+    pvec <- c(pvec, pval)
+    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
+    }
+}
+    
+# then loop again with using the p-values of the padj vector
+genomecount = 0
+significant = 0
+nonsignificant = 0
+pvalcount = 1
+
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")
+  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files)){
+    # read data and omit NA's
+    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.intra <- na.omit(data.intra)
+    data.inter <- na.omit(data.inter)
+    
+    
+    intra.cai <- mean(data.intra[,2])
+    inter.cai <- mean(data.inter[,2])
+
     xlim <- c(0.5, 1)
-    if (pval < 0.05){
+    if (padj[pvalcount] < 0.05){
       col.plot = 'blue'
       significant = significant + 1
+      pvalcount = pvalcount + 1
     } 
     else {
       col.plot = 'red'
       nonsignificant = nonsignificant + 1
+      pvalcount = pvalcount + 1
     }
     if (genomecount == 0){
       plot(intra.cai, inter.cai, type = 'p', xlim = xlim, ylim = xlim,
@@ -162,7 +188,7 @@ for (genomeID in genomes.sampled){
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
-    
+
     xlim <- c(0, 1)
     if (pval < 0.01){
       col.plot = 'blue'
