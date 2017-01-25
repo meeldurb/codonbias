@@ -9,7 +9,11 @@
 #################################################################################
 
 install.packages("fBasics", repos="http://cran.rstudio.com/")
+install.packages("pwr", repos="http://cran.rstudio.com/")
+install.packages("effsize", repos="http://cran.rstudio.com/")
 library("fBasics")
+library("pwr")
+library("effsize")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -17,10 +21,13 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 #cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
 #data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
 
-genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
-                                 as.is=TRUE) #as.is to keep the it as char
+
 
 #####________difference between unique and duplicated domains, without sampling________#####
+
+
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
 
 genomecount = 0
 significant = 0
@@ -74,6 +81,16 @@ print(paste(significant, "out of", total, "samples are found to be significant")
 
 
 #####________difference between unique and duplicated domains, with sampling the data________#####
+
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
+
+#genomeID <- "GCA_000003645"
+#cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+#data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
+
+genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+
 genomecount = 0
 significant = 0
 nonsignificant = 0
@@ -92,15 +109,18 @@ for (genomeID in genome.and.organisms[,1]){
     duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
     duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
     
-    # calculate means and do a t-test to check whether observed difference is significant
+    # the sample sizes are too different, and because a lot of observations we will get significant 
+    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
+    # and also increase the effect size. In this way, the significant difference is actually meaningfull
     samplesize=500
-    # the sample sizes are too different, we try to sample the datasets
     sampled.uniq.dom.cai <- sample(unique.domains.cai, size = samplesize, replace = TRUE)
     sampled.dupl.dom.cai <- sample(duplicated.domains.cai, size = samplesize, replace = TRUE)
     sampled.unique.mean <- mean(sampled.uniq.dom.cai)
     sampled.duplicated.mean <- mean(sampled.dupl.dom.cai)
     ttest <- t.test(sampled.uniq.dom.cai, sampled.dupl.dom.cai)
     pval <- ttest$p.value
+    
+    
     if (pval < 0.05){
       col.plot= "blue"
       significant = significant + 1
@@ -130,6 +150,13 @@ print(paste(significant, "out of", total, "samples are found to be significant i
 
 
 ###__________________________for 1 genome__________________________###
+
+genomeID <- "GCA_000003925"
+cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+
+data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
+
+
 # how many times a domain occurs
 domains.occurence <- rle(sort(data[,1]))
 
@@ -147,33 +174,51 @@ duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
 #duplicated.domains2 <- names(domains.occurence2[domains.occurence2>=threshold])
 
 
-# calculate means, size sd and skewness of the samples
-# do a t-test to check whether observed difference is significant
+# calculating characteristics of this data
+# do a t-test and check the effect size and power of the tests
 unique.mean <- mean(unique.domains.cai)
+unique.mean
 mean(data[!duplicated(data[,1]),2]) # looking for difference
 length(unique.domains.cai)
 sd(unique.domains.cai)
 skewness(unique.domains.cai)
 duplicated.mean <- mean(duplicated.domains.cai)
+duplicated.mean
 mean(data[duplicated(data[,1]),2]) # looking for difference
 length(duplicated.domains.cai)
 sd(duplicated.domains.cai)
 skewness(duplicated.domains.cai)
 t.test(unique.domains.cai, duplicated.domains.cai)
+# calculating effectsize and power of the test
+effsize <- cohen.d(unique.domains.cai, duplicated.domains.cai, pooled = F, paired = F, conf.level = 0.95)
+effsize$estimate
+pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.01,
+           alternative = "two.sided")
 
 plot(duplicated.mean, unique.mean, type = "p", add = TRUE, main = "Mean CAI values of duplicated and unique protein domains",
      xlab = "Mean CAI value duplicated domain", ylab = "Mean CAI value unique domains", col = rgb(0,0,1,1/4))
 
 
 
-# not sure whether I still have to do this:
+# sampling to increase effect sizes and decrease power
 samplesize=500
 # the sample sizes are too different, we try to sample the datasets
-sampled.uniq.dom.cai <- sample(unique.domains.cai, 500, replace = TRUE)
-sampled.dupl.dom.cai <- sample(duplicated.domains.cai, 500, replace = TRUE)
-sampled.unique.mean <- mean(sampled.uniq.dom.cai)
-sampled.duplicated.mean <- mean(sampled.dupl.dom.cai)
-t.test(sampled.uniq.dom.cai, sampled.dupl.dom.cai)
+sampled.unique <- sample(unique.domains.cai, samplesize, replace = TRUE)
+sampled.duplicated <- sample(duplicated.domains.cai, samplesize, replace = TRUE)
+# calculating characteristics of this data
+# do a t-test and check the effect size and power of the tests
+s.unique.mean <- mean(sampled.unique)
+s.unique.mean
+sd(sampled.unique)
+s.duplicated.mean <- mean(sampled.duplicated)
+s.duplicated.mean
+sd(sampled.duplicated)
+t.test(sampled.unique, sampled.duplicated)
+# calculating effectsize and power of the test
+effsize <- cohen.d(sampled.unique, sampled.duplicated, pooled = F, paired = F, conf.level = 0.95)
+effsize$estimate
+pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.01,
+           alternative = "two.sided")
 
 
 # setting the properties for drawing the graphs
@@ -235,7 +280,7 @@ domain.list=unique(data[,1]) # do not take unique though, just all domains
 
 n.iterations <- 1000
 interDist = NULL
-for (i in 1:Niter){
+for (i in 1:n.iterations){
   sel=sample(domain.list,2 )
   interDist <- c(interDist, abs(data[sample(which(data[,1]==sel[1]),1),2]-
                                   data[sample(which(data[,1]==sel[2]),1),2]))
