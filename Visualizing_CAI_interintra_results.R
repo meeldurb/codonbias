@@ -73,6 +73,8 @@ for (genomeID in genome.and.organisms[,1]){
     inter.cai <- mean(data.inter[,2])
 
     xlim <- c(0.5, 1)
+    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
+    # values to the significancy of a genome
     if (padj[pvalcount] < 0.05){
       col.plot = 'blue'
       significant = significant + 1
@@ -108,9 +110,8 @@ print(paste(significant, "out of", total, "samples are found to have a significa
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-genomecount = 0
-significant = 0
-nonsignificant = 0
+# first run the loop to create a vector with adjusted p values
+pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
@@ -122,14 +123,10 @@ for (genomeID in genome.and.organisms[,1]){
     data.intra <- na.omit(data.intra)
     data.inter <- na.omit(data.inter)
     
-
-    intra.cai <- mean(data.intra[,2])
-    inter.cai <- mean(data.inter[,2])
-    ttest <- t.test(data.intra[,2], data.inter[,2])
-    # calculate means and do a t-test to check whether observed difference is significant
-    
+    # the sample sizes are too different, and because a lot of observations we will get significant 
+    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
+    # and also increase the effect size. In this way, the significant difference is actually meaningfull
     samplesize=500
-    # the sample sizes are too different, we try to sample the datasets
     sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
     sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
     sampled.intra.mean <- mean(sampled.intra.cai)
@@ -137,15 +134,53 @@ for (genomeID in genome.and.organisms[,1]){
     ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
     # make a vector with all the pvalues
     pval <- ttest$p.value
+    pvec <- c(pvec, pval)
+    # by calculating the p adjusted values we correct for multiple hypothesis testing
+    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
+  }
+}
+    
+    
+
+# then loop again over the genomes to calculate the significance by using the adjusted p-values
+genomecount = 0
+significant = 0
+nonsignificant = 0
+pvalcount = 1
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")
+  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files)){
+    # read data and omit NA's
+    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.intra <- na.omit(data.intra)
+    data.inter <- na.omit(data.inter)
+    
+    # the sample sizes are too different, and because a lot of observations we will get significant 
+    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
+    # and also increase the effect size. In this way, the significant difference is actually meaningfull
+    samplesize=500
+    sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
+    sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
+    sampled.intra.mean <- mean(sampled.intra.cai)
+    sampled.inter.mean <- mean(sampled.inter.cai)
+    
+    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
+    # values to the significancy of a genome
+
     xlim <- c(0.5, 1)
-    if (pval < 0.05){
+    if (padj[pvalcount] < 0.05){
       col.plot = 'blue'
       significant = significant + 1
+      pvalcount = pvalcount + 1
       } 
     else {
       col.plot = 'red'
       nonsignificant = nonsignificant + 1
-      }
+      pvalcount = pvalcount + 1
+            }
     if (genomecount == 0){
       plot(sampled.intra.mean, sampled.inter.mean, type = 'p', xlim = xlim, ylim = xlim,
            main = "Mean CAI values of inter and intra domains (sampled data)",
