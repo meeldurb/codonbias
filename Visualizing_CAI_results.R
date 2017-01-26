@@ -29,9 +29,8 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-genomecount = 0
-significant = 0
-nonsignificant = 0
+
+pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
@@ -47,17 +46,49 @@ for (genomeID in genome.and.organisms[,1]){
     duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
     duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
     
-    # calculate means and do a t-test to check whether observed difference is significant
-    unique.mean <- mean(unique.domains.cai)
-    duplicated.mean <- mean(duplicated.domains.cai)
+    # Do a t-test to get the pvalues
     ttest <- t.test(unique.domains.cai, duplicated.domains.cai)
     pval <- ttest$p.value
-    if (pval < 0.05){
-      col.plot= "blue"
+    # make a vector with all the pvalues
+    pvec <- c(pvec, pval)
+    # by calculating the p adjusted values we correct for multiple hypothesis testing
+    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
+  }
+}
+
+# then loop again over the genomes to calculate the significance by using the adjusted p-values
+
+genomecount = 0
+significant = 0
+nonsignificant = 0
+pvalcount = 1
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")
+  cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  if (file.exists(cai.files)){
+    data <- read.csv(file = cai.files, sep = ",", 
+                     header = FALSE, as.is = TRUE)
+    # how many times domains occur
+    domain.occurence <- rle(sort(data[,1]))
+    # retrieving CAI values of duplicated and unique domains
+    unique.domains <- domain.occurence$values[which(domain.occurence$lengths==1)]
+    unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
+    
+    duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
+    duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
+    unique.mean <- mean(unique.domains.cai)
+    duplicated.mean <- mean(duplicated.domains.cai)
+    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
+    # values to the significancy of a genome
+    if (padj[pvalcount] < 0.05){
+      col.plot = 'blue'
       significant = significant + 1
-    } else{
-      col.plot = "red"
+      pvalcount = pvalcount + 1
+    } 
+    else {
+      col.plot = 'red'
       nonsignificant = nonsignificant + 1
+      pvalcount = pvalcount + 1
     }
     if (genomecount == 0){
     plot(duplicated.mean, unique.mean, type = "p", xlim = c(0.5, 1), ylim = c(0.5, 1),
@@ -73,7 +104,6 @@ for (genomeID in genome.and.organisms[,1]){
              col=c("blue", "red") , bty="n")
     } 
   }
-  
 }
 
 total = significant + nonsignificant
@@ -88,12 +118,46 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 #cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
 #data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
 
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
+pvec <- numeric()
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")
+  cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  if (file.exists(cai.files)){
+    data <- read.csv(file = cai.files, sep = ",", 
+                     header = FALSE, as.is = TRUE)
+    # how many times domains occur
+    domain.occurence <- rle(sort(data[,1]))
+    # retrieving CAI values of duplicated and unique domains
+    unique.domains <- domain.occurence$values[which(domain.occurence$lengths==1)]
+    unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
+    
+    duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
+    duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
+    
+    # the sample sizes are too different, and because a lot of observations we will get significant 
+    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
+    # and also increase the effect size. In this way, the significant difference is actually meaningfull
+    samplesize=500
+    sampled.uniq.dom.cai <- sample(unique.domains.cai, size = samplesize, replace = TRUE)
+    sampled.dupl.dom.cai <- sample(duplicated.domains.cai, size = samplesize, replace = TRUE)
+
+    # Do a t-test to get the pvalues
+    ttest <- t.test(sampled.uniq.dom.cai, sampled.dupl.dom.cai)
+    pval <- ttest$p.value
+    # make a vector with all the pvalues
+    pvec <- c(pvec, pval)
+    # by calculating the p adjusted values we correct for multiple hypothesis testing
+    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
+  }
+}
+    
 genomecount = 0
 significant = 0
 nonsignificant = 0
+pvalcount = 1
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
@@ -117,16 +181,17 @@ for (genomeID in genome.and.organisms[,1]){
     sampled.dupl.dom.cai <- sample(duplicated.domains.cai, size = samplesize, replace = TRUE)
     sampled.unique.mean <- mean(sampled.uniq.dom.cai)
     sampled.duplicated.mean <- mean(sampled.dupl.dom.cai)
-    ttest <- t.test(sampled.uniq.dom.cai, sampled.dupl.dom.cai)
-    pval <- ttest$p.value
-    
-    
-    if (pval < 0.05){
-      col.plot= "blue"
+    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
+    # values to the significancy of a genome
+    if (padj[pvalcount] < 0.05){
+      col.plot = 'blue'
       significant = significant + 1
-    } else{
-      col.plot = "red"
+      pvalcount = pvalcount + 1
+    } 
+    else {
+      col.plot = 'red'
       nonsignificant = nonsignificant + 1
+      pvalcount = pvalcount + 1
     }
     if (genomecount == 0){
       plot(sampled.duplicated.mean, sampled.unique.mean, type = "p", xlim = c(0.5, 1), ylim = c(0.5, 1),
@@ -142,7 +207,6 @@ for (genomeID in genome.and.organisms[,1]){
              col=c("blue", "red") , bty="n")
     } 
   }
-
 }
 total = significant + nonsignificant
 print(paste(significant, "out of", total, "samples are found to be significant in the sampled dataset"))
