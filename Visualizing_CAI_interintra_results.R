@@ -68,11 +68,9 @@ for (genomeID in genome.and.organisms[,1]){
     data.intra <- na.omit(data.intra)
     data.inter <- na.omit(data.inter)
     
-    
     intra.cai <- mean(data.intra[,2])
     inter.cai <- mean(data.inter[,2])
 
-    xlim <- c(0.5, 1)
     # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
     # values to the significancy of a genome
     if (padj[pvalcount] < 0.05){
@@ -85,6 +83,7 @@ for (genomeID in genome.and.organisms[,1]){
       nonsignificant = nonsignificant + 1
       pvalcount = pvalcount + 1
     }
+    xlim <- c(0.5, 1)
     if (genomecount == 0){
       plot(intra.cai, inter.cai, type = 'p', xlim = xlim, ylim = xlim,
            main = "Mean CAI values of inter and intra domains",
@@ -170,7 +169,6 @@ for (genomeID in genome.and.organisms[,1]){
     # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
     # values to the significancy of a genome
 
-    xlim <- c(0.5, 1)
     if (padj[pvalcount] < 0.05){
       col.plot = 'blue'
       significant = significant + 1
@@ -180,7 +178,8 @@ for (genomeID in genome.and.organisms[,1]){
       col.plot = 'red'
       nonsignificant = nonsignificant + 1
       pvalcount = pvalcount + 1
-            }
+    }
+    xlim <- c(0.5, 1)
     if (genomecount == 0){
       plot(sampled.intra.mean, sampled.inter.mean, type = 'p', xlim = xlim, ylim = xlim,
            main = "Mean CAI values of inter and intra domains (sampled data)",
@@ -210,9 +209,7 @@ samplesize=500
 genomes.sampled <- sample(genome.and.organisms[,1], size = samplesize, replace = FALSE)
 
 
-genomecount = 0
-significant = 0
-nonsignificant = 0
+pvec = numeric()
 for (genomeID in genomes.sampled){
   cat (genomeID, "\n")
   cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
@@ -223,16 +220,38 @@ for (genomeID in genomes.sampled){
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
+    pvec <- c(pvec, pval)
+    # by calculating the p adjusted values we correct for multiple hypothesis testing
+    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
+  }
+}
 
-    xlim <- c(0, 1)
-    if (pval < 0.01){
+genomecount = 0
+significant = 0
+nonsignificant = 0
+pvalcount = 1
+for (genomeID in genomes.sampled){
+  cat (genomeID, "\n")
+  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files)){
+    # read data 
+    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
+    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+
+    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
+    # values to the significancy of a genome
+    if (padj[pvalcount] < 0.05){
       col.plot = 'blue'
       significant = significant + 1
+      pvalcount = pvalcount + 1
     } 
     else {
       col.plot = 'red'
       nonsignificant = nonsignificant + 1
-    }
+      pvalcount = pvalcount + 1
+      }
+    xlim <- c(0, 1)
     if (genomecount == 0){
       plot(data.intra[,2], data.inter[,2], type = 'p', xlim = xlim, ylim = xlim, 
            main = "CAI values of inter and intra domains",
