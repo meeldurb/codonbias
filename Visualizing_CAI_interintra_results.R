@@ -44,9 +44,12 @@ for (genomeID in genome.and.organisms[,1]){
     
     intra.cai <- mean(data.intra[,2])
     inter.cai <- mean(data.inter[,2])
+    # Do a t-test to get the pvalues
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
+    # make a vector with all the pvalues
     pvec <- c(pvec, pval)
+    # by calculating the p adjusted values we correct for multiple hypothesis testing
     padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
     }
 }
@@ -130,9 +133,10 @@ for (genomeID in genome.and.organisms[,1]){
     sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
     sampled.intra.mean <- mean(sampled.intra.cai)
     sampled.inter.mean <- mean(sampled.inter.cai)
+    # Do a t-test to get the pvalues
     ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
-    # make a vector with all the pvalues
     pval <- ttest$p.value
+    # make a vector with all the pvalues
     pvec <- c(pvec, pval)
     # by calculating the p adjusted values we correct for multiple hypothesis testing
     padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
@@ -218,13 +222,17 @@ for (genomeID in genomes.sampled){
     # read data 
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+    # Do a t-test to get the pvalues
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
+    # make a vector with all the pvalues
     pvec <- c(pvec, pval)
     # by calculating the p adjusted values we correct for multiple hypothesis testing
     padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
   }
 }
+
+# then loop again over the genomes to calculate the significance by using the adjusted p-values
 
 genomecount = 0
 significant = 0
@@ -307,10 +315,6 @@ sd(sampled.inter.cai)
 ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
 pwr.t.test(samplesize, d = 0.152, sig.level = 0.01,
                     alternative = "two.sided")
-# make a vector with all the pvalues
-
-
-
 # setting the properties for drawing the graphs
 xlim <- range(data.intra[,2], data.inter[,2], na.rm = TRUE)
 nbins = 50
@@ -349,14 +353,3 @@ legend("top" ,c("Intradomains", "Interdomains"), pch=15,
        col=c(rgb(0,0,1,1/4),rgb(1,0,0,1/4)) , bty="n",cex=1.5)
 
 
-
-
-
-####________example calculating p adjusted________####
-set.seed(123)
-x <- rnorm(50, mean = c(rep(0, 25), rep(3, 25)))
-p <- 2*pnorm(-abs(x))
-round(p, 3)
-round(p.adjust(p), 3)
-round(p.adjust(p, "BH"), 3)
-p.adjust(p, "BH")
