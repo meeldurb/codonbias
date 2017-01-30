@@ -76,16 +76,16 @@ stenohal.hist <- hist(stenohal.cai,
 ylim <- c(0,max(halophile.hist$density, halotol.hist$density, stenohal.hist$density))
 par(mfrow = c(1,1))
 
-plot(halophile.hist, col = 'blue', xlim = xlim,  freq=FALSE,
+plot(halophile.hist, col = rgb(1,1,1/4,1/2), xlim = xlim,  freq=FALSE,
       xlab="mean CAI", cex = 1.5, main="CAI distribution of different salinity requirements", 
       ylab = "Bacterial frequency", cex.axis = 1.5, cex.lab=1.5, ylim = ylim) 
 
-plot(euryhal.hist, col = 'yellow', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(halotol.hist, col = 'red', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(stenohal.hist, col = 'green', xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(euryhal.hist, col = rgb(0,0,1,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(halotol.hist, col = rgb(1,0,0,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(stenohal.hist, col = rgb(0,1,0,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
 
 legend("topright", c("Halophile", "Euryhaline", "Halotolerant", "Stenohaline"), pch = 15,
-       col = c('blue', 'yellow', 'red', 'green') , bty = "n", cex=1.5)
+       col = c(rgb(1,1,1/4,1/2), rgb(0,0,1,1/4), rgb(1,0,0,1/4), rgb(0,1,0,1/4)) , bty = "n", cex=1.5)
 
 # removed eury- and stenohaline
 ylim <- c(0,max(halophile.hist$density, halotol.hist$density))
@@ -183,20 +183,21 @@ ylim <- c(0.4, max(aerobe.hist$density, anearobe.hist$density, facul.hist$densit
                 micr.hist$density, oblaerobe.hist$density, oblanearobe.hist$density))
 par(mfrow = c(1,1))
 
-plot(aerobe.hist, col = 'blue', xlim = xlim,  freq=FALSE,
+plot(aerobe.hist, col = rgb(1,1,1/4,1/2), xlim = xlim,  freq=FALSE,
      xlab="mean CAI", cex = 1.5, main="CAI distribution of different oxygen requirements", 
      ylab = "Bacterial frequency", cex.axis = 1.5, cex.lab=1.5, ylim = ylim) 
 
-plot(anearobe.hist, col = 'red', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(facul.hist, col = 'green', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(micr.hist, col = 'purple', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(oblaerobe.hist, col = 'orange', xlim =  xlim, add = TRUE,  freq = FALSE)
-plot(oblanearobe.hist, col = 'yellow', xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(anearobe.hist, col = rgb(0,0,1,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(facul.hist, col = rgb(1,0,0,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(micr.hist, col = rgb(0,1,0,1/4), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(oblaerobe.hist, col = rgb(0,1,1,1/2), xlim =  xlim, add = TRUE,  freq = FALSE)
+plot(oblanearobe.hist, col = rgb(1,1/4,1,1/2), xlim =  xlim, add = TRUE,  freq = FALSE)
 
 
 legend("topright", c("Aerobe", "Anearobe", "Facultative", "Microareophilic", 
                      "Obligate aerobe", "Obligate anaerobe"), pch = 15,
-                      col = c('blue', 'red', 'green', 'purple', 'orange', 'yellow') , bty = "n", cex=1.5)
+                      col = c(rgb(1,1,1/4,1/2), rgb(0,0,1,1/4), rgb(1,0,0,1/4), 
+                              rgb(0,1,0,1/4), rgb(0,1,1,1/2), rgb(1,1/4,1,1/2)), bty = "n", cex=1.5)
 
 # removed eury- and stenohaline
 ylim <- c(0,max(halophile.hist$density, halotol.hist$density))
