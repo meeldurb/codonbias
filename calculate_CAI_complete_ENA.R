@@ -82,8 +82,13 @@ for (genomeID in genome.and.organisms[,1]) {
       } else { 
         cai.output <- sapply(fasta.domains, cai, w = w, numcode = 1)
       }
+      # convert the rownames
+      cai.df <- data.frame(cai.output)
+      cai.df$domainid <- names(cai.output)
+      cai.df$domain_beginpos <- domain.data[,2]
+      cai.df <- cai.df[,c(2,1,3)]
       # write the data to a file
-      write.table(cai.output, file = fileout, append = F, sep = ",", row.names = names(cai.output), quote = F, col.names = F)
+      write.table(cai.df, file = fileout, append = F, sep = ",", quote = F, col.names = F)
 
       }
   }
