@@ -27,7 +27,7 @@ library("seqinr")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-outfolder <- "CAI_complete_ENA/"  
+outfolder <- "CAI_complete_ENA_new/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
@@ -88,7 +88,7 @@ for (genomeID in genome.and.organisms[,1]) {
       cai.df$domain_beginpos <- domain.data[,2]
       cai.df <- cai.df[,c(2,1,3)]
       # write the data to a file
-      write.table(cai.df, file = fileout, append = F, sep = ",", quote = F, col.names = F)
+      write.table(cai.df, file = fileout, append = F, sep = ",", quote = F, col.names = F, row.names = F)
 
       }
   }
