@@ -7,7 +7,10 @@
 # install the needed packages
 install.packages("RCurl")
 install.packages("XML")
-
+# load libraries
+library("Rcurl")
+library("XML")
+library("SPARQL")
 
 # set the working directory
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
@@ -26,9 +29,9 @@ genomes <- genome.and.organisms[,1]
 
 domain.sparql <-'
 PREFIX gbol: <http://gbol.life#>
-SELECT DISTINCT ?domain_id ?d_begin ?d_end ?CDS
+SELECT DISTINCT ?domain_id ?domain_description ?d_begin ?d_end ?CDS
 WHERE {
-VALUES ?sample { <http://gbol.life#xxx> }    
+VALUES ?sample { <http://gbol.life#GCA_000005825> }    
 ?sample a gbol:Sample .
 ?contig gbol:sample ?sample .
 ?contig gbol:feature ?gene .
@@ -41,6 +44,8 @@ VALUES ?sample { <http://gbol.life#xxx> }
 ?transcript gbol:feature ?cds .
 ?cds gbol:protein ?protein .
 ?protein gbol:feature ?feature .
+?feature gbol:provenance ?provenance .
+?provenance gbol:signature_description ?domain_description .
 ?feature gbol:location ?location .
 ?location gbol:begin ?beginiri .
 ?beginiri gbol:position ?d_begin .
@@ -56,7 +61,7 @@ VALUES ?sample { <http://gbol.life#xxx> }
 ENDPOINT = "http://ssb5.wurnet.nl:7200/repositories/ENA"
 
 # creating the folder to save the data in
-outfolder <- "Domain_data_ENA/"  
+outfolder <- "Domain_data_ENA_description/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
@@ -64,6 +69,7 @@ if (!file.exists(outfolder))dir.create(outfolder)
 # takes every genome and writes the Pfam ID, domain_begin, domain_end
 # and CDS to a file
 for (genomeID in genomes) { #always put he { on this line
+  cat (genomeID, "\n")
   fileout <- paste(outfolder, genomeID, ".csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) { 
@@ -79,17 +85,5 @@ for (genomeID in genomes) { #always put he { on this line
                 row.names = F, quote=F, col.names=T )
   }
 }
-
-
-# scribbling
-# curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",domain.sparql,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
-# curl <- gsub(pattern = "\n", replacement = " ", x = curl)
-# system(curl)
-# output.domains <- rbind(domain.sparql, read.csv("tmp.txt", sep = "\t"))
-# domain.data <- output.domains[-1,]
-# write.table(domain.data, file="tmp.csv", append=F, sep = ",",
-#             row.names = F, quote=F, col.names=T )
-
-
 
 
