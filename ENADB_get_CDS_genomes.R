@@ -4,10 +4,10 @@
 #################################################################################
 
 # install the needed packages
-install.packages("RCurl")
-install.packages("XML")
+install.packages("RCurl", repos="http://cran.rstudio.com/")
+install.packages("XML", repos="http://cran.rstudio.com/")
 # SPARQL needs RCurl and XML
-install.packages("SPARQL")
+install.packages("SPARQL", repos="http://cran.rstudio.com/")
 
 library("SPARQL")
 library("XML")
