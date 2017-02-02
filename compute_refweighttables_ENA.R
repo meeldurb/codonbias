@@ -68,7 +68,7 @@ FILTER(regex(?domain_description, "ribosomal protein", "i"))
 }
 '
 
-ENDPOINT = "http://ssb5.wurnet.nl:7201/repositories/ENA"
+ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
 
 # creating the folder to save the data in
 outfolder <- "Reference_weight_tables_ENA/"  
