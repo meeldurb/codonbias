@@ -58,7 +58,7 @@ VALUES ?sample { <http://gbol.life#GCA_000005825> }
 } 
 '
 
-ENDPOINT = "http://ssb5.wurnet.nl:7200/repositories/ENA"
+ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
 
 # creating the folder to save the data in
 outfolder <- "Domain_data_ENA_description/"  
