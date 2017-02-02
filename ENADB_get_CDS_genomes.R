@@ -64,7 +64,6 @@ for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
   if (!file.exists(fileout)) { 
     # substitute xxx with the genomeID in the domain.sparql query
     sub.gene.sparql <- sub("xxx", genomeID, query.gene.seqs)
-    print(sub.gene.sparql)
     # running curl from command line
     curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",sub.gene.sparql,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
     curl <- gsub(pattern = "\n", replacement = " ", x = curl)
