@@ -106,9 +106,9 @@ for (genomeID in genome.and.organisms[,1]) {
       # else it will run with the codon table of myc+spiroplasma
       if(!(genomeID %in% genomesMycoSpiro)) {
         
-      cai.output <- sapply(fasta.domains, cai, w = w, numcode = 4)
+      cai.output <- sapply(fasta.domains, cai, w = w, numcode = 1)
       } else { 
-        cai.output <- sapply(fasta.domains, cai, w = w, numcode = 1)
+        cai.output <- sapply(fasta.domains, cai, w = w, numcode = 4)
       }
       # write the data to a file
       write.table(cai.output, file = fileout, append = F, sep = ",", row.names = names(cai.output), quote = F, col.names = F)
