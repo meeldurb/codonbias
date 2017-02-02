@@ -18,7 +18,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 # genomes <- genome.and.organisms[,1]
 
