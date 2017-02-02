@@ -74,10 +74,11 @@ for (genomeID in genome.and.organisms[,1]) {
       # when the genome number of myc/spir is not found it will run the default
       # else it will run with the codon table of myc+spiroplasma
       if(!(genomeID %in% genomesMycoSpiro)) {
+        print ("found")
         
-      cai.output <- sapply(fasta.genes, cai, w = w, numcode = 4)
-      } else { 
       cai.output <- sapply(fasta.genes, cai, w = w, numcode = 1)
+      } else { 
+      cai.output <- sapply(fasta.genes, cai, w = w, numcode = 4)
       }
       # write the data to a file
       cai.df <- data.frame(cai.output)
