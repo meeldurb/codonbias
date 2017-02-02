@@ -18,9 +18,6 @@ biocLite("Biostrings")
 # loading required libraries
 library("Biostrings")
 library("seqinr")
-library("fBasics")
-library("pwr")
-library("effsize")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -29,12 +26,11 @@ genomeID <- "GCA_000003645"
 
 
 #CDS data
-domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
-domain.data <- read.csv(file = domain.files, header = TRUE, 
+gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+gene.data <- read.csv(file = gene.files, header = TRUE, 
                         as.is=TRUE) #as.is to keep the it as char
-colnames(domain.data) <- c("domain_ID", "domain_beginpos", "domain_endpos", "CDS")
-keep <- c("domain_ID", "CDS")
-domain.data.complete <- domain.data[keep]
+colnames(gene.data) <- c("gene_ID", "CDS")
+
 
 #weight tables
 w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
