@@ -18,17 +18,16 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 # genomes <- genome.and.organisms[,1]
 
 
-###-------- Computing reference weight table  ---------------###
+###-------- Retrieving all gene sequences of genome ---------------###
 
-# based on ribosomal protein domains
-# We will go through all the genomes and the weight tables 
+# From the prodigal annotation tool we will retrieve all the annotated gene sequences
+# We will go through all the genomes and all the gene sequences with its names 
 # will be written to a file
-# creating a variable to store all the ribosomal proteins from all genomes
 
 query.gene.seqs <- '
 PREFIX gbol: <http://gbol.life#>
@@ -55,8 +54,7 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 
 
-# takes every genome and writes the Pfam ID, domain_begin, domain_end
-# and CDS to a file
+# takes every genome and writes the gene_ID and CDS to a file
 for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
   cat (genomeID, "\n")
   fileout <- paste(outfolder, genomeID, "_CDS.csv", sep="")
