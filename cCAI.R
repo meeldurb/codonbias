@@ -24,9 +24,9 @@
 
 
 
-compute.cai <- function(seqs.df, genome_ID, w){
+compute.cai <- function(seqs.df, genome_ID, w, tmpfile.seqs = "tmp.csv", tmpfile.fasta = "tmp.fasta"){
   
-  write.table(seqs.df, file = "tmpcai.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+  write.table(seqs.df, file = tmpfile.seqs, append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
   
   # converting the sequences to fasta format with python file 
   # when it contains CDS the names of seqs consist of a link
@@ -42,7 +42,7 @@ compute.cai <- function(seqs.df, genome_ID, w){
   # do something with ifelse statement when domains or when CDSs.
   
   # opening the written file and calculating the CAI
-  fasta.genes <- read.fasta(file = "tmp.fasta")
+  fasta.genes <- read.fasta(file = tmpfile.fasta)
   
   
   #load all the genomeIDs and organisms for checking for Myco/Spiroplasma
@@ -70,4 +70,4 @@ compute.cai <- function(seqs.df, genome_ID, w){
 }
 
 
-#caivals <- compute.cai(gene.data, "GCA_000003645")
+caivals <- compute.cai(gene.data, "GCA_000003645", w, "tmpcai.csv", "tmpcai.fasta")
