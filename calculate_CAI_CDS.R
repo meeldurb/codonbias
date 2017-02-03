@@ -82,6 +82,7 @@ for (genomeID in genome.and.organisms[,1]) {
       cai.df <- data.frame(cai.output)
       cai.df$gene_id <- names(cai.output)
       cai.df <- cai.df[,c(2,1)]
+      rownames(cai.df) <- NULL
       write.table(cai.df, file = fileout, append = F, sep = ",", quote = F, col.names = T, row.names = F)
 
       }
@@ -122,6 +123,7 @@ if(!(genomeID %in% genomesMycoSpiro)) {
 cai.df <- data.frame(cai.output)
 cai.df$gene_id <- names(cai.output)
 cai.df <- cai.df[,c(2,1)]
+rownames(cai.df) <- NULL
 return(cai.df)
 }
 
