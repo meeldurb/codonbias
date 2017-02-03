@@ -65,6 +65,7 @@ compute.cai <- function(seqs.df, genome_ID){
   cai.df <- data.frame(cai.output)
   cai.df$gene_id <- names(cai.output)
   cai.df <- cai.df[,c(2,1)]
+  rownames(cai.df) <- NULL
   return(cai.df)
 }
 
