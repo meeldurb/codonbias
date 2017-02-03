@@ -24,7 +24,7 @@
 
 
 
-compute.cai <- function(seqs.df, genome_ID){
+compute.cai <- function(seqs.df, genome_ID, w){
   
   write.table(seqs.df, file = "tmpcai.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
   
@@ -70,5 +70,4 @@ compute.cai <- function(seqs.df, genome_ID){
 }
 
 
-caivals <- compute.cai(gene.data, "GCA_000003645")
-grepl("http://", gene.data[1,1])
+#caivals <- compute.cai(gene.data, "GCA_000003645")
