@@ -70,4 +70,4 @@ compute.cai <- function(seqs.df, genome_ID, w, tmpfile.seqs = "tmp.csv", tmpfile
 }
 
 
-caivals <- compute.cai(gene.data, "GCA_000003645", w, "tmpcai.csv", "tmpcai.fasta")
+#caivals <- compute.cai(gene.data, "GCA_000003645", w, "tmpcai.csv", "tmpcai.fasta")
