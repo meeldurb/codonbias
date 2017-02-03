@@ -13,16 +13,15 @@
 
 
 
-# Packages needed to be installed to calculate the frequency of oligonucleotides
-source("http://bioconductor.org/biocLite.R")
-?BiocUpgrade
-biocLite("Biostrings")
-
-# loading required library to compute the codon frequency
-library("Biostrings")
-# loading required library to use CAI function
-library("seqinr")
-
+# Packages that need to be installed
+# source("http://bioconductor.org/biocLite.R")
+# ?BiocUpgrade
+# biocLite("Biostrings")
+# 
+# # loading required libraries
+# library("Biostrings")
+# library("seqinr")
+# 
 
 
 
