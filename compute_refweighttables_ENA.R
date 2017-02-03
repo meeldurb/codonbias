@@ -207,9 +207,7 @@ for (genomeID in genome.and.organisms[,1]) {
 #############_________________Function for computing refweighttables_________________#############
 
 compute.weight <- function(seqs.df, genome_ID){
-  genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
-                                   as.is=TRUE) #as.is to keep the it as char
-  
+
   pasted.cdseqs <- paste(seqs.df, sep="", collapse="")
   # compute codon frequency
   codon.frequency <- trinucleotideFrequency(DNAString(pasted.cdseqs), as.prob=F, with.labels=T, as.array=F)
@@ -273,6 +271,10 @@ compute.weight <- function(seqs.df, genome_ID){
   codon.frequency[c("GGT", "GGC", "GGA", "GGG")]<- codon.frequency[c("GGT", "GGC", "GGA", "GGG")]/sum(codon.frequency[c("GGT", "GGC", "GGA", "GGG")])
   #startcodon
   codon.frequency["ATG"]<- codon.frequency["ATG"]/codon.frequency["ATG"]
+  
+  #load all the genomeIDs and organisms for checking for Myco/Spiroplasma
+  genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                   as.is=TRUE) #as.is to keep the it as char
   
   # Searching for Mycoplasma and Spiroplasma, which use other genetic codon table
   match.words <- c("Mycoplasma", "Spiroplasma")
