@@ -31,6 +31,7 @@ compute.cai <- function(seqs.df, genome_ID){
   # converting the sequences to fasta format with python file
   convertcmd <- "python Write_genecsvtofasta.py"
   system(convertcmd)
+  # do something with ifelse statement when domains or when CDSs.
   
   # opening the written file and calculating the CAI
   fasta.genes <- read.fasta(file = "tmp.fasta")
