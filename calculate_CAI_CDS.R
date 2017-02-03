@@ -93,7 +93,7 @@ for (genomeID in genome.and.organisms[,1]) {
 
 compute.cai <- function(seqs.df, genome_ID){
 
-write.table(seqs.df, file = "tmpcai.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+write.table(seqs.df, file = "tmpcai2.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
 
 # converting the sequences to fasta format with python file
 convertcmd <- "python Write_genecsvtofasta.py"
@@ -128,4 +128,4 @@ return(cai.df)
 }
 
 
-compute.cai(gene.data, "GCA_000003645")
+#compute.cai(gene.data, "GCA_000003645")
