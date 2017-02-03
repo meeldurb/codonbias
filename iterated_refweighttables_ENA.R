@@ -20,7 +20,7 @@ library("seqinr")
 
 #loading my own functions
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cweight.R")
-
+source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 
 
 
@@ -47,24 +47,30 @@ w <- ordered.w[,2]
 #cai values of the first round
 cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
 cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
-
-
-
-
+## can also recompute, but takes longer
+cai.ini <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
 
 # sort on CAI value and take top 50
-sort.cai <- cai.data[order(-cai.data$cai.output),]
-ini.top50 <- head(sort.cai, 50)
+ini.sort.cai <- cai.data[order(-cai.data$cai.output),]
+ini.top50 <- head(ini.sort.cai, 50)
 
 # We retrieve only the CDS of the gene_IDs that are in the top 50
 match.id <- as.vector(ini.top50[,1])
 gene.match <- gene.data[gene.data$gene_ID %in% match.id,] 
 
-codon.table <- compute.weight(gene.match[,2], "GCA_000003645")
+
+w.table <- compute.weight(gene.match[,2], genomeID)
+ordered.w <- w.table[with(w.table, order(V1)), ]
+# only leaving numbers
+w <- ordered.w[,2]
 
 
 # We re-calculate the CAI of all the gene_IDs 
+cainew <- compute.cai(gene.data, genomeID, codon.table)
 
+
+res.sort.cai <- cai.data[order(-cai.data$cai.output),] 
+res.top50 <- head(ini.sort.cai, 50)
 
 
 write.table(gene.data, file = "tmpcai.csv", append = FALSE, sep = ",", 
