@@ -28,8 +28,16 @@ compute.cai <- function(seqs.df, genome_ID){
   
   write.table(seqs.df, file = "tmpcai.csv", append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
   
-  # converting the sequences to fasta format with python file
+  # converting the sequences to fasta format with python file 
+  # when it contains CDS the names of seqs consist of a link
+  # when it contains domain seqs the names consist of pf_IDs
+  if (grepl("http://", seqs.df[1,1])){
   convertcmd <- "python Write_genecsvtofasta.py"
+  }
+  if (grepl("pf", seqs.df[1,1])) {
+  convertcmd <- "python Write_csvtofasta.py"
+  }
+  
   system(convertcmd)
   # do something with ifelse statement when domains or when CDSs.
   
@@ -61,4 +69,5 @@ compute.cai <- function(seqs.df, genome_ID){
 }
 
 
-compute.cai(gene.data, "GCA_000003645")
+caivals <- compute.cai(gene.data, "GCA_000003645")
+grepl("http://", gene.data[1,1])
