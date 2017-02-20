@@ -31,13 +31,14 @@ compute.cai <- function(seqs.df, genome_ID, w, tmpfile.seqs = "tmp.csv", tmpfile
   # converting the sequences to fasta format with python file 
   # when it contains CDS the names of seqs consist of a link
   # when it contains domain seqs the names consist of pf_IDs
-  if (grepl("http://", seqs.df[1,1])){
-  convertcmd <- "python Write_genecsvtofasta.py"
-  }
-  if (grepl("pf", seqs.df[1,1])) {
-  convertcmd <- "python Write_csvtofasta.py"
-  }
   
+  #if (grepl("http://", seqs.df[1,1])){
+  #convertcmd <- "python Write_genecsvtofasta.py"
+  #}
+  #if (grepl("pf", seqs.df[1,1])) {
+  #convertcmd <- "python Write_csvtofasta.py"
+  #}
+  convertcmd <- paste("python write2fasta.py", tmpfile.seqs, tmpfile.seqs)
   system(convertcmd)
   # do something with ifelse statement when domains or when CDSs.
   
@@ -69,5 +70,9 @@ compute.cai <- function(seqs.df, genome_ID, w, tmpfile.seqs = "tmp.csv", tmpfile
   return(cai.df)
 }
 
-
-#caivals <- compute.cai(gene.data, "GCA_000003645", w, "tmpcai.csv", "tmpcai.fasta")
+genomeID <- "GCA_000003645"
+gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+gene.data <- read.csv(file = gene.files, header = TRUE, 
+                      as.is=TRUE) #as.is to keep the it as char
+seqs.df <- gene.data
+caivals <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
