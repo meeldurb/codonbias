@@ -13,6 +13,8 @@
 source("http://bioconductor.org/biocLite.R")
 ?BiocUpgrade
 biocLite("Biostrings")
+# to compute CAI
+install.packages("seqinr", repos="http://cran.rstudio.com/")
 
 # loading required libraries
 library("Biostrings")
@@ -30,47 +32,50 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 genomeID <- "GCA_000003645"
 
 
-#CDS data
-gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
-gene.data <- read.csv(file = gene.files, header = TRUE, 
-                        as.is=TRUE) #as.is to keep the it as char
-colnames(gene.data) <- c("gene_ID", "CDS")
 
 #weight table
 w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
 w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
 # order on codon because of cai function
-ordered.w <- w.data[with(w.data, order(V1)), ]
+ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
 # only leaving numbers
 w <- ordered.w[,2]
 
-#cai values of the first round
-cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
-cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
-## can also recompute, but takes longer
+#CDS data
+gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+gene.data <- read.csv(file = gene.files, header = TRUE, 
+                      as.is=TRUE) #as.is to keep the it as char
+#colnames(gene.data) <- c("gene_ID", "CDS")
+
+
+# compute CAI for the first round
 cai.ini <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
 
 # sort on CAI value and take top 50
-ini.sort.cai <- cai.data[order(-cai.data$cai.output),]
+#sort.cai <- cai.data[order(-cai.data[,2]),]
+ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
 ini.top50 <- head(ini.sort.cai, 50)
 
 # We retrieve only the CDS of the gene_IDs that are in the top 50
 match.id <- as.vector(ini.top50[,1])
 gene.match <- gene.data[gene.data$gene_ID %in% match.id,] 
 
-
+# then compute weight tables again
 w.table <- compute.weight(gene.match[,2], genomeID)
-ordered.w <- w.table[with(w.table, order(V1)), ]
+ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
 # only leaving numbers
 w <- ordered.w[,2]
 
 
 # We re-calculate the CAI of all the gene_IDs 
-cainew <- compute.cai(gene.data, genomeID, codon.table)
+cai.res <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
 
+# and take the top 50 again
+res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+res.top50 <- head(res.sort.cai, 50)
 
-res.sort.cai <- cai.data[order(-cai.data$cai.output),] 
-res.top50 <- head(ini.sort.cai, 50)
+#compare initial and result top 50
+#intersect(ini.top50[,1], res.top50[,1])
 
 
 write.table(gene.data, file = "tmpcai.csv", append = FALSE, sep = ",", 
