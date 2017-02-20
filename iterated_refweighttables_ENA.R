@@ -42,10 +42,11 @@ ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
 w <- ordered.w[,2]
 
 #CDS data
+#cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
+#cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
 gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
 gene.data <- read.csv(file = gene.files, header = TRUE, 
                       as.is=TRUE) #as.is to keep the it as char
-#colnames(gene.data) <- c("gene_ID", "CDS")
 
 
 # compute CAI for the first round
@@ -58,9 +59,9 @@ ini.top50 <- head(ini.sort.cai, 50)
 
 # We retrieve only the CDS of the gene_IDs that are in the top 50
 match.id <- as.vector(ini.top50[,1])
-gene.match <- gene.data[gene.data$gene_ID %in% match.id,] 
+gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
 
-# then compute weight tables again
+# then re-compute weight tables 
 w.table <- compute.weight(gene.match[,2], genomeID)
 ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
 # only leaving numbers
@@ -75,11 +76,40 @@ res.sort.cai <- cai.res[order(-cai.res[,2]),]
 res.top50 <- head(res.sort.cai, 50)
 
 #compare initial and result top 50
-#intersect(ini.top50[,1], res.top50[,1])
+diff.count <- length(setdiff(ini.top50[,1], res.top50[,1]))
+
+# if the difference between both lists is lower than 5, run the analysis again
+# else save the resulting weight table
+if (diff.count > 5){
+  ini.top50 <- res.top50
+  # We retrieve only the CDS of the gene_IDs that are in the top 50
+  match.id <- as.vector(ini.top50[,1])
+  gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
+  
+  # then re-compute weight tables 
+  w.table <- compute.weight(gene.match[,2], genomeID)
+  ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
+  # only leaving numbers
+  w <- ordered.w[,2]
+  
+  
+  # We re-calculate the CAI of all the gene_IDs 
+  cai.res <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
+  
+  # and take the top 50 again
+  res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+  res.top50 <- head(res.sort.cai, 50)
+  
+  #compare initial and result top 50
+  diff.count <- length(setdiff(ini.top50[,1], res.top50[,1]))
+  diff.count
+  
+} else{
+  write.table(gene.data, file = "tmpcai.csv", append = FALSE, sep = ",", 
+              row.names = FALSE, quote = FALSE, col.names = FALSE)
+}
 
 
-write.table(gene.data, file = "tmpcai.csv", append = FALSE, sep = ",", 
-            row.names = FALSE, quote = FALSE, col.names = FALSE)
 
 
 
