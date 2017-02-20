@@ -55,7 +55,7 @@ cai.ini <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
 # sort on CAI value and take top 50
 #sort.cai <- cai.data[order(-cai.data[,2]),]
 ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
-ini.top50 <- head(ini.sort.cai, 50)
+ini.top50 <- head(ini.sort.cai, 25)
 
 # We retrieve only the CDS of the gene_IDs that are in the top 50
 match.id <- as.vector(ini.top50[,1])
@@ -73,14 +73,14 @@ cai.res <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
 
 # and take the top 50 again
 res.sort.cai <- cai.res[order(-cai.res[,2]),] 
-res.top50 <- head(res.sort.cai, 50)
+res.top50 <- head(res.sort.cai, 25)
 
 #compare initial and result top 50
 diff.count <- length(setdiff(ini.top50[,1], res.top50[,1]))
 
 # if the difference between both lists is lower than 5, run the analysis again
 # else save the resulting weight table
-if (diff.count > 5){
+while (diff.count > 5){
   ini.top50 <- res.top50
   # We retrieve only the CDS of the gene_IDs that are in the top 50
   match.id <- as.vector(ini.top50[,1])
@@ -98,16 +98,23 @@ if (diff.count > 5){
   
   # and take the top 50 again
   res.sort.cai <- cai.res[order(-cai.res[,2]),] 
-  res.top50 <- head(res.sort.cai, 50)
+  res.top50 <- head(res.sort.cai, 25)
   
   #compare initial and result top 50
   diff.count <- length(setdiff(ini.top50[,1], res.top50[,1]))
-  diff.count
+  cat(paste("differences between tables is ", diff.count, "\n"))
   
-} else{
-  write.table(gene.data, file = "tmpcai.csv", append = FALSE, sep = ",", 
+} 
+
+# creating the folder to save the data in
+outfolder <- "Iterated_weight_tables_ENA/"  
+if (!file.exists(outfolder))dir.create(outfolder)
+
+fileout <- paste(outfolder, genomeID, "_it_weight25.csv", sep="")
+
+write.table(w.table, file = fileout, append = FALSE, sep = ",", 
               row.names = FALSE, quote = FALSE, col.names = FALSE)
-}
+
 
 
 
