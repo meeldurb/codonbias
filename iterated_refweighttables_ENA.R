@@ -29,104 +29,109 @@ source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open files and making suitable for analysis
-genomeID <- "GCA_000003645"
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
 
-
-
-#weight table
-w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
-w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-# order on codon because of cai function
-ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-# only leaving numbers
-w <- ordered.w[,2]
-
-#CDS data
-#cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
-#cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
-gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
-gene.data <- read.csv(file = gene.files, header = TRUE, 
-                      as.is=TRUE) #as.is to keep the it as char
-
-
-# compute CAI for the first round
-cai.ini <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
-
-# sort on CAI value and take top 25
-#sort.cai <- cai.data[order(-cai.data[,2]),]
-ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
-ini.top25 <- head(ini.sort.cai, 25)
-
-# We retrieve only the CDS of the gene_IDs that are in the top 25
-match.id <- as.vector(ini.top25[,1])
-gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
-
-# then re-compute weight tables 
-w.table <- compute.weight(gene.match[,2], genomeID)
-ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
-# only leaving numbers
-w <- ordered.w[,2]
-
-
-# We re-calculate the CAI of all the gene_IDs 
-cai.res <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
-
-# and take the top 25 again
-res.sort.cai <- cai.res[order(-cai.res[,2]),] 
-res.top25 <- head(res.sort.cai, 25)
-
-#compare initial and result top 25
-diff.count <- length(setdiff(ini.top25[,1], res.top25[,1]))
-
-# if the difference between both lists is lower than 5, run the analysis again
-# else save the resulting weight table
-it.count = 0
-while (diff.count > 5 | it.count > 20){
-  ini.top25 <- res.top25
-  # We retrieve only the CDS of the gene_IDs that are in the top 25
-  match.id <- as.vector(ini.top25[,1])
-  gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
-  
-  # then re-compute weight tables 
-  w.table <- compute.weight(gene.match[,2], genomeID)
-  ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
-  # only leaving numbers
-  w <- ordered.w[,2]
-  
-  # We re-calculate the CAI of all the gene_IDs 
-  cai.res <- compute.cai(gene.data, genomeID, w, "tmpcai.csv", "tmpcai.fasta")
-  
-  # and take the top 25 again
-  res.sort.cai <- cai.res[order(-cai.res[,2]),] 
-  res.top25 <- head(res.sort.cai, 25)
-  
-  #compare initial and result top 25
-  diff.count <- length(setdiff(ini.top25[,1], res.top25[,1]))
-  cat(paste("differences between tables is ", diff.count, "\n"))
-  
-  # keep a count of the iterations, loop needs to stop after 20
-  it.count <- sum(it.count, 1)
-} 
-
-
-# save count of iterations for each genome
-genomeID.table <- NULL
-itcount.table <- NULL
-genomeID.table <- c(genomeID.table, genomeID)
-itcount.table <- c(itcount.table, it.count)
-
-
+#genomeID <- "GCA_000003925"
 
 # creating the folder to save the data in
 outfolder <- "Iterated_weight_tables_ENA/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
-fileout <- paste(outfolder, genomeID, "_it_weight.csv", sep="")
 
-write.table(w.table, file = fileout, append = FALSE, sep = ",", 
-              row.names = FALSE, quote = FALSE, col.names = FALSE)
+for (genomeID in genome.and.organisms[,1]) { 
+  cat (genomeID, "\n")
+  fileout <- paste(outfolder, genomeID, "_it_weight.csv", sep="")
+  if (!file.exists(fileout)) {
+    #weight table
+    w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
+    if (file.exists(w.files)){
+      w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+      # order on codon because of cai function
+      ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
+      # only leaving numbers
+      w <- ordered.w[,2]
 
-
+      #CDS data
+      #cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
+      #cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
+      gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+      gene.data <- read.csv(file = gene.files, header = TRUE, 
+                            as.is=TRUE) #as.is to keep the it as char
+      
+      
+      # compute CAI for the first round
+      cai.ini <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
+      
+      # sort on CAI value and take top 25
+      #sort.cai <- cai.data[order(-cai.data[,2]),]
+      ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
+      ini.top25 <- head(ini.sort.cai, 25)
+      
+      # We retrieve only the CDS of the gene_IDs that are in the top 25
+      match.id <- as.vector(ini.top25[,1])
+      gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
+      
+      # then re-compute weight tables 
+      w.table <- compute.weight(gene.match[,2], genomeID)
+      ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
+      # only leaving numbers
+      w <- ordered.w[,2]
+      
+      
+      # We re-calculate the CAI of all the gene_IDs 
+      cai.res <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
+      
+      # and take the top 25 again
+      res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+      res.top25 <- head(res.sort.cai, 25)
+      
+      #compare initial and result top 25
+      diff.count <- length(setdiff(ini.top25[,1], res.top25[,1]))
+      
+      # if the difference between both lists is lower than 5, run the analysis again
+      # else save the resulting weight table
+      it.count = 1
+      while (diff.count > 5 | it.count > 20){
+        ini.top25 <- res.top25
+        # We retrieve only the CDS of the gene_IDs that are in the top 25
+        match.id <- as.vector(ini.top25[,1])
+        gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
+        
+        # then re-compute weight tables 
+        w.table <- compute.weight(gene.match[,2], genomeID)
+        ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
+        # only leaving numbers
+        w <- ordered.w[,2]
+        
+        # We re-calculate the CAI of all the gene_IDs 
+        cai.res <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
+        
+        # and take the top 25 again
+        res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+        res.top25 <- head(res.sort.cai, 25)
+        
+        #compare initial and result top 25
+        diff.count <- length(setdiff(ini.top25[,1], res.top25[,1]))
+        cat(paste("differences between tables is ", diff.count, "\n"))
+        
+        # keep a count of the iterations, loop needs to stop after 20
+        it.count <- sum(it.count, 1)
+      } 
+      # save count of iterations for each genome
+      genomeID.table <- NULL
+      itcount.table <- NULL
+      genomeID.table <- c(genomeID.table, genomeID)
+      itcount.table <- c(itcount.table, it.count)
+      
+      
+      # write weight table to file
+      write.table(w.table, file = fileout, append = FALSE, sep = ",", 
+                  row.names = FALSE, quote = FALSE, col.names = FALSE)
+      }
+    }
+  }
 # fill dataframe of iteration count per genome after all weight tables were computed
 iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, stringsAsFactors = FALSE)
 write.table(iteration.df, file = "iterationcount.csv", append = FALSE, sep = ",", 
