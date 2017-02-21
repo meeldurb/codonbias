@@ -30,7 +30,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open files and making suitable for analysis
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 #genomeID <- "GCA_000003925"
@@ -39,6 +39,9 @@ genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE
 outfolder <- "Iterated_weight_tables_ENA/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
+genomeID.table <- NULL
+itcount.table <- NULL
+diffcount.table <- NULL
 
 for (genomeID in genome.and.organisms[,1]) { 
   cat (genomeID, "\n")
@@ -89,11 +92,12 @@ for (genomeID in genome.and.organisms[,1]) {
       
       #compare initial and result top 25
       diff.count <- length(setdiff(ini.top25[,1], res.top25[,1]))
+      cat(paste("differences between tables is ", diff.count, "\n"))
       
       # if the difference between both lists is lower than 5, run the analysis again
       # else save the resulting weight table
       it.count = 1
-      while (diff.count > 5 | it.count > 20){
+      while (diff.count > 0 | it.count <= 20){
         ini.top25 <- res.top25
         # We retrieve only the CDS of the gene_IDs that are in the top 25
         match.id <- as.vector(ini.top25[,1])
@@ -120,10 +124,9 @@ for (genomeID in genome.and.organisms[,1]) {
         it.count <- sum(it.count, 1)
       } 
       # save count of iterations for each genome
-      genomeID.table <- NULL
-      itcount.table <- NULL
       genomeID.table <- c(genomeID.table, genomeID)
       itcount.table <- c(itcount.table, it.count)
+      diffcount.table <- c(diffcount.table, diff.count)
       
       
       # write weight table to file
@@ -133,7 +136,9 @@ for (genomeID in genome.and.organisms[,1]) {
     }
   }
 # fill dataframe of iteration count per genome after all weight tables were computed
-iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, stringsAsFactors = FALSE)
+iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, 
+                           difference = diffcount.table, stringsAsFactors = FALSE)
+
 write.table(iteration.df, file = "iterationcount.csv", append = FALSE, sep = ",", 
             row.names = FALSE, quote = FALSE, col.names = TRUE)
 
