@@ -97,7 +97,7 @@ for (genomeID in genome.and.organisms[,1]) {
       # if the difference between both lists is lower than 5, run the analysis again
       # else save the resulting weight table
       it.count = 1
-      while (diff.count > 1 | it.count <= 20){
+      while (diff.count >= 0 && it.count <= 20){
         ini.top25 <- res.top25
         # We retrieve only the CDS of the gene_IDs that are in the top 25
         match.id <- as.vector(ini.top25[,1])
