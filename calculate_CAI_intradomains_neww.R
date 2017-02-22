@@ -35,7 +35,7 @@ if (!file.exists(outfolder))dir.create(outfolder)
 
 
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 
