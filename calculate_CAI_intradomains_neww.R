@@ -43,7 +43,7 @@ genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE
 
 for (genomeID in genome.and.organisms[,1]) { 
   cat (genomeID, "\n")
-  fileout <- paste(outfolder, genomeID, "_intradom_CAI_.csv", sep="")
+  fileout <- paste(outfolder, genomeID, "_intradom_CAI.csv", sep="")
   #check if file already exists
   if (!file.exists(fileout)) {
     # Going through all genome numbers and retrieving their weight vectors and domain data
@@ -113,7 +113,7 @@ for (genomeID in genome.and.organisms[,1]) {
       #   cai.output <- sapply(fasta.domains, cai, w = w, numcode = 4)
       # }
       # write the data to a file
-      write.table(cai.output, file = fileout, append = F, sep = ",", row.names = names(cai.output), quote = F, col.names = F)
+      write.table(cai.output, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
     }
   }
 }
