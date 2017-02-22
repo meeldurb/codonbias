@@ -132,6 +132,8 @@ for (genomeID in genome.and.organisms[,1]) {
       # write weight table to file
       write.table(w.table, file = fileout, append = FALSE, sep = ",", 
                   row.names = FALSE, quote = FALSE, col.names = FALSE)
+      write.table(res.top25, file = paste(outfolder, genomeID, "_restop25.csv", sep=""),
+                  append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
       }
     }
   }
