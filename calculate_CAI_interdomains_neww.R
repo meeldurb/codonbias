@@ -42,7 +42,7 @@ for (genomeID in genome.and.organisms[,1]) {
   #check if file already exists
   if (!file.exists(fileout)) {
     # Going through all genome numbers and retrieving their weight vectors and domain data
-    w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
+    w.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "")
     if (file.exists(w.files)){
       w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
       # ordering on rownames, for it to be correctly used by cai function
