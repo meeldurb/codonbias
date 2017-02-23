@@ -32,8 +32,8 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -62,8 +62,8 @@ pvalcount = 1
 
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -86,7 +86,7 @@ for (genomeID in genome.and.organisms[,1]){
       nonsignificant = nonsignificant + 1
       pvalcount = pvalcount + 1
     }
-    xlim <- c(0.5, 1)
+    xlim <- c(0.3, 1)
     if (genomecount == 0){
       plot(intra.cai, inter.cai, type = 'p', xlim = xlim, ylim = xlim,
            main = "Mean CAI values of inter and intra domains",
@@ -116,8 +116,8 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -152,8 +152,8 @@ nonsignificant = 0
 pvalcount = 1
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -183,7 +183,7 @@ for (genomeID in genome.and.organisms[,1]){
       nonsignificant = nonsignificant + 1
       pvalcount = pvalcount + 1
     }
-    xlim <- c(0.5, 1)
+    xlim <- c(0.3, 1)
     if (genomecount == 0){
       plot(sampled.intra.mean, sampled.inter.mean, type = 'p', xlim = xlim, ylim = xlim,
            main = "Mean CAI values of inter and intra domains (sampled data)",
@@ -216,9 +216,9 @@ genomes.sampled <- sample(genome.and.organisms[,1], size = samplesize, replace =
 pvec = numeric()
 for (genomeID in genomes.sampled){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
-  if (file.exists(cai.inter.files)){
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files) && file.exists(cai.intra.files)){
     # read data 
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -240,8 +240,8 @@ nonsignificant = 0
 pvalcount = 1
 for (genomeID in genomes.sampled){
   cat (genomeID, "\n")
-  cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
     # read data 
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -269,7 +269,7 @@ for (genomeID in genomes.sampled){
       genomecount = genomecount + 1
     }
     else {
-      points(sampled.intra, sampled.inter, col=col.plot)
+      points(data.intra[,2], data.inter[,2], col=col.plot)
       legend ('topleft', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
               col = c('blue', 'red'), bty='n')
     }
@@ -283,9 +283,9 @@ print(paste(significant, "out of", total, "samples are found to have a significa
 
 ###__________________________for 1 genome__________________________###
 
-genomeID <- "GCA_000003925"
-cai.intra.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-cai.inter.files <- paste("CAI_inter_domains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+genomeID <- "GCA_000003645"
+cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
 
 data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
 data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -317,7 +317,7 @@ pwr.t.test(samplesize, d = 0.152, sig.level = 0.01,
                     alternative = "two.sided")
 # setting the properties for drawing the graphs
 xlim <- range(data.intra[,2], data.inter[,2], na.rm = TRUE)
-nbins = 50
+nbins = 30
 par(mfrow = c(2,1))
 
 
