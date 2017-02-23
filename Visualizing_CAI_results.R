@@ -17,9 +17,9 @@ library("effsize")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-#genomeID <- "GCA_000003645"
-#cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-#data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
+genomeID <- "GCA_000003645"
+cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
 
 
 
@@ -33,7 +33,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
+  cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
   if (file.exists(cai.files)){
     data <- read.csv(file = cai.files, sep = ",", 
                      header = FALSE, as.is = TRUE)
