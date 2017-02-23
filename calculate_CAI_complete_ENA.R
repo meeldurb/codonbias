@@ -27,7 +27,7 @@ library("seqinr")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-outfolder <- "CAI_complete_ENA_new/"  
+outfolder <- "CAI_completedomains_ENA_new/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
