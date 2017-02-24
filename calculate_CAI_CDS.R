@@ -13,7 +13,7 @@ install.packages("XML", repos="http://cran.rstudio.com/")
 install.packages("SPARQL", repos="http://cran.rstudio.com/")
 # Packages needed to be installed to calculate the frequency of oligonucleotides
 source("http://bioconductor.org/biocLite.R")
-biocLite("Biostrings")
+biocLite()
 # to compute CAI
 install.packages("seqinr", repos="http://cran.rstudio.com/")
 
@@ -36,7 +36,7 @@ if (!file.exists(outfolder))dir.create(outfolder)
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-genomeID <- "GCA_000003645"
+#genomeID <- "GCA_000003645"
 
 
 # calculating the codon adaptation index for all genomes and its complete CDS
