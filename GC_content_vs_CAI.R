@@ -21,6 +21,7 @@ library("seqinr")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
+genomeID <- "GCA_000003645"
 
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
@@ -28,17 +29,17 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 genomecount = 0
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
-  cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-  domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
+  cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
+  CDS.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
   if (file.exists(cai.files)){
-    cai.data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
-    seq.data <- read.csv(file = domain.files, sep = ",", header = TRUE, as.is = TRUE)
+    cai.data <- read.csv(file = cai.files, sep = ",", header = TRUE, as.is = TRUE)
+    seq.data <- read.csv(file = CDS.files, sep = ",", header = TRUE, as.is = TRUE)
     
     # calculate mean of all the CAI values in the genome
     mean.cai <- mean(cai.data[,2])
     
     # calculate the GC content of the genome
-    all.seq <- paste(as.matrix(seq.data)[,4], sep="", collapse="")
+    all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
     xlim = c(10, 90)
@@ -52,8 +53,7 @@ for (genomeID in genome.and.organisms[,1]){
            ylab = "Mean CAI")
       grid(NULL, NULL, lty = 6, col = "cornsilk2")
       genomecount = genomecount + 1
-    } 
-    else {
+    } else {
       points(GCcont, mean.cai, pch = 18, col = "blue")
     } 
   }
@@ -64,10 +64,10 @@ for (genomeID in genome.and.organisms[,1]){
 ######______________________________For 1 genome______________________________######
 
 genomeID <- "GCA_000003645"
-cai.files <- paste("CAI_complete_ENA/", genomeID, "_CAI_complete.csv", sep = "")
+cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
+CDS.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
 cai.data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
-domain.files <- paste("Domain_data_ENA/", genomeID, ".csv", sep = "")
-seq.data <- read.csv(file = domain.files, sep = ",", header = TRUE, as.is = TRUE)
+seq.data <- read.csv(file = CDS.files, sep = ",", header = TRUE, as.is = TRUE)
 
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
@@ -76,7 +76,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 mean.cai <- mean(cai.data[,2])
 
 
-all.seq <- paste(as.matrix(seq.data)[,4], sep="", collapse="")
+all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
 GC(all.seq)
 seq.split <- strsplit(all.seq, "")[[1]]
 GCcont <- GC(seq.split)*100
