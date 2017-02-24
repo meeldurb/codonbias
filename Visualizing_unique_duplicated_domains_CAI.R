@@ -105,6 +105,7 @@ for (genomeID in genome.and.organisms[,1]){
     } 
   }
 }
+abline(a=0, b=1)
 
 total = significant + nonsignificant
 print(paste(significant, "out of", total, "samples are found to be significant"))
@@ -208,6 +209,8 @@ for (genomeID in genome.and.organisms[,1]){
     } 
   }
 }
+abline(a=0, b=1)
+
 total = significant + nonsignificant
 print(paste(significant, "out of", total, "samples are found to be significant in the sampled dataset"))
 
