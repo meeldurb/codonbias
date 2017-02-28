@@ -128,9 +128,9 @@ for (genomeID in genome.and.organisms[,1]) {
       # # else it will run with the codon table of myc+spiroplasma
       # if(!(genomeID %in% genomesMycoSpiro)) {
       #   
-      #   cai.inter.output <- tryCatch(sapply(fasta.domains, cai, w = w, numcode = 4), error=function(e) NULL)
-      # } else { 
       #   cai.inter.output <- tryCatch(sapply(fasta.domains, cai, w = w, numcode = 1), error=function(e) NULL)
+      # } else { 
+      #   cai.inter.output <- tryCatch(sapply(fasta.domains, cai, w = w, numcode = 4), error=function(e) NULL)
       # }
       
       # write the data to a file
