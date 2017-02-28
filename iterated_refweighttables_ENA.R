@@ -50,6 +50,8 @@ for (genomeID in genome.and.organisms[,1]) {
     #weight table
     w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
     if (file.exists(w.files)){
+      gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+      if (file.exists(gene.files)){
       w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
       # order on codon because of cai function
       ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
@@ -59,14 +61,14 @@ for (genomeID in genome.and.organisms[,1]) {
       #CDS data
       #cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
       #cai.data <- read.csv(file = cai.files, header = TRUE, as.is = TRUE)
-      gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+      #gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
       gene.data <- read.csv(file = gene.files, header = TRUE, 
                             as.is=TRUE) #as.is to keep the it as char
       
       
       # compute CAI for the first round
       cai.ini <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
-      
+
       # sort on CAI value and take top 25
       #sort.cai <- cai.data[order(-cai.data[,2]),]
       ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
@@ -122,7 +124,7 @@ for (genomeID in genome.and.organisms[,1]) {
         
         # keep a count of the iterations, loop needs to stop after 20
         it.count <- sum(it.count, 1)
-      } 
+      }
       # save count of iterations for each genome
       genomeID.table <- c(genomeID.table, genomeID)
       itcount.table <- c(itcount.table, it.count)
@@ -137,6 +139,8 @@ for (genomeID in genome.and.organisms[,1]) {
       }
     }
   }
+}
+
 # fill dataframe of iteration count per genome after all weight tables were computed
 iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, 
                            difference = diffcount.table, stringsAsFactors = FALSE)
