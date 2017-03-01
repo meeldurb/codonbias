@@ -114,7 +114,7 @@ if __name__ == "__main__":
     sorted_recs = order_by_genomeID(recs, reverse=False)
     #print sorted_recs
     # write recors to csv file
-    write_file(sorted_recs, "itcount.csv")
+    write_file(sorted_recs, outfile)
     
     
     
