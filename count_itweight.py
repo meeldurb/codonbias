@@ -52,12 +52,12 @@ def write_dict_records(countdict):
     records = []
     dict_records = {}
     for key, value in countdict.items():
-        print key
-        print value
+        #print key
+        #print value
         dict_records["ID"] = key
         dict_records["diffcount"] = value
-        #dict_records = {}
-    	records.append(dict_records)
+	#print dict_records
+        records.append(dict_records.copy())
 
     return records
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     #get filenames
     infile, outfile = get_filenames(argv)
     dictcount = tmpweight_parser(infile)
-    print dictcount
+    #print dictcount
     recs = write_dict_records(dictcount)
     print recs
     
