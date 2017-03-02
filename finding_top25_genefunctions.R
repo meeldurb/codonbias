@@ -16,7 +16,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 # get filenames
 outfolder <- "top25genes/"  
 if (!file.exists(outfolder))dir.create(outfolder)
-genomeID <- "GCA_000014005"
+# genomeID <- "GCA_000014005"
 
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
