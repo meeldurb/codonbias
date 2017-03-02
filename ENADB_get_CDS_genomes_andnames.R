@@ -55,7 +55,7 @@ ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
 outfolder <- "CDS_data_withgenenames/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
-genomeID <- "GCA_000008805"
+genomeID <- "GCA_000008865"
 
 # takes every genome and writes the gene_ID and CDS to a file
 for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
@@ -70,12 +70,14 @@ for (genomeID in genome.and.organisms[,1]) { #always put he { on this line
     curl <- gsub(pattern = "\n", replacement = " ", x = curl)
     system(curl)
     output.genes <- rbind(sub.gene.sparql, read.csv("tmp.txt", sep = "\t"))
+    if (length(output.genes[,1]) > 2){
     gene.data <- output.genes[-1,]
     gene.data.withoutcomma <- gsub(",", "" ,gene.data[,3])
     gene.data[,3] <- NULL
     gene.data$X.product <- gene.data.withoutcomma
     write.table(gene.data, file=fileout, append=F, sep = ",",
                 row.names = F, quote=F, col.names=T )
+    }
   }
 }
 
