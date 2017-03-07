@@ -18,6 +18,7 @@ biocLite("Biostrings")
 install.packages("seqinr", repos="http://cran.rstudio.com/")
 
 # loading required library to execute SPARQL query
+library("XML")
 library("SPARQL")
 # loading required library to compute the codon frequency
 library("Biostrings")
