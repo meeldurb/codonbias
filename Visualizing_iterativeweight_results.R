@@ -20,24 +20,28 @@ itcountdf <- na.omit(itcountdf)
 
 
 # setting the properties for drawing the graph
-xlim <- range(itcount[,2], na.rm = TRUE)
+xlim <- range(itcountdf[,2], na.rm = TRUE)
 nbins = 21
 
 
-hist(itcount[,2], breaks=seq(xlim[1], xlim[2], length = nbins), xlim = xlim, 
+hist(itcountdf[,2], breaks=seq(xlim[1], xlim[2], length = nbins), xlim = xlim, 
      main = "Iteration counts to compute weight tables for all genomes", 
      xlab = "number of iterations per resulting weight table", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
 
 #selecting the genomeIDs that are below the cut-off value of 5
-# write biased and unbiased genomes to a file
-biased.i <- which(itcountdf[,2] < 5)
+biased.i <- which(itcountdf[,2] <= 4 & itcountdf[,2] != 0)
 biased.genomes <- as.vector(itcountdf[biased.i,1])
-length(biased.genomes)
 
-unbiased.i <- which(itcountdf[,2] > 5)
+unbiased.i <- which(itcountdf[,2] >= 5)
 unbiased.genomes <- as.vector(itcountdf[unbiased.i,1])
+
+# numbers of genomes contained in the datasets
+length(which(itcountdf[,2]==0))
+length(biased.genomes)
 length(unbiased.genomes)
+
+# length(which(itcountdf[,2]==0)) + length(biased.genomes) + length(unbiased.genomes) should be 6041
 
 # combine both lists
 #un.biased.genomes <- cbind(biased.genomes, unbiased.genomes)
