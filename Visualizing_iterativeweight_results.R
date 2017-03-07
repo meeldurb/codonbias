@@ -43,7 +43,7 @@ length(unbiased.genomes)
 #un.biased.genomes <- cbind(biased.genomes, unbiased.genomes)
 
 # write to file
-write.table(unbiased.genomes, file = "biased.genomes.csv", append=F, 
+write.table(biased.genomes, file = "biased.genomes.csv", append=F, 
             sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
 write.table(unbiased.genomes, file = "unbiased.genomes.csv", append=F, 
             sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
