@@ -11,28 +11,46 @@
 install.packages("ggplot2", repos="http://cran.rstudio.com/")
 
 
-# open files and making suitable for analysis
-
-# reading a .csv file containing the genome names in the first column
-#genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
- #                                as.is=TRUE) #as.is to keep the it as char
-
-genomeID <- "GCA_000003925"
-
-# load dataframe of all genomes with the codons and their relative adaptiveness
-
-
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-w.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "")  
-w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-# order on codon because of cai function
-ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-# only leaving numbers
-w <- ordered.w[,2]
-codgendf <- data.frame(row.names=ordered.w[,1])
-codgendf <- cbind(codgendf, w)
-colnames(codgendf) <- genomeID
+# open files and making suitable for analysis
+genomeID <- "GCA_000003925"
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                as.is=TRUE) #as.is to keep the it as char
+
+
+
+# create dataframe of all genomes with the codons and their relative adaptiveness
+genomecount = 0
+n = 0
+c = 0
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")  
+  w.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "") 
+  if (file.exists(w.files)){
+    n <- n + 1
+    w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+    # order on codon because of cai function
+    ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
+    # only leaving numbers
+    w <- ordered.w[,2]
+    if (genomecount == 0){
+    codgendf <- data.frame(row.names=ordered.w[,1])
+    codgendf <- cbind(codgendf, w)
+    colnames(codgendf)[n] <- genomeID
+    genomecount = genomecount + 1
+    } else {
+      codgendf <- cbind(codgendf, w)
+      colnames(codgendf)[n] <- genomeID
+    } 
+    } else {
+      print(paste("genomefile", genomeID, "does not exist"))
+      c <- c + 1
+    }
+}
+write.csv(codgendf, file = "CodonGenomeDataSet.csv")
+
 
 
 ###_______________________________example script from Maria_______________________________###
