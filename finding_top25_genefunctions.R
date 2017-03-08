@@ -26,7 +26,7 @@ for (genomeID in genome.and.organisms[,1]) {
   cat (genomeID, "\n")
   fileout <- paste(outfolder, genomeID, "_top25.csv", sep="")
   if (!file.exists(fileout)) { 
-    top25.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_restop25.csv", sep = "")
+    top25.files <- paste("top25genes_results/", genomeID, "_restop25.csv", sep = "")
     genenames.files <- paste("CDS_data_withgenenames/", genomeID, "_CDS_names.csv", sep = "")
     if (file.exists(top25.files)){
       if (file.exists(genenames.files)){
