@@ -41,7 +41,8 @@ length(which(itcountdf[,2]==0))
 length(biased.genomes)
 length(unbiased.genomes)
 
-# length(which(itcountdf[,2]==0)) + length(biased.genomes) + length(unbiased.genomes) should be 6041
+length(which(itcountdf[,2]==0)) + length(biased.genomes) + length(unbiased.genomes) 
+#should be 6041
 
 # combine both lists
 #un.biased.genomes <- cbind(biased.genomes, unbiased.genomes)
