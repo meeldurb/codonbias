@@ -49,7 +49,7 @@ for (genomeID in genome.and.organisms[,1]){
       c <- c + 1
     }
 }
-write.csv(codgendf, file = "CodonGenomeDataSet.csv")
+write.csv(codgendf, file = "CodonGenomeDataSet.RData")
 
 
 
