@@ -36,7 +36,7 @@ unbiased.genomes <- read.csv(file = "unbiased.genomes.csv", header = FALSE,
 unbiased.genomes <- as.vector(as.matrix(unbiased.genomes))
 
 genomecount = 0
-pdf("GCvsCAI_plot.pdf")
+pdf("GCvsCAI_plot_newaxis.pdf")
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -52,18 +52,19 @@ for (genomeID in genome.and.organisms[,1]){
     all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
-    xlim = c(10, 90)
-    ylim = c(0.1, 1)
+    xlim = c(20, 80)
+    ylim = c(0.35, 0.8)
+    col = "blue"
     # then plot the GC content against the mean CAI
-      if(genomeID %in% biased.genomes){
-        print ("biased genome")
-        col = "blue"
-        } else if (genomeID %in% unbiased.genomes){
-          print ("unbiased genome")
-        col = "red"
-        } else {
-        col = "grey"
-        }
+      # #if(genomeID %in% biased.genomes){
+      #   print ("biased genome")
+      #   col = "blue"
+      #   } else if (genomeID %in% unbiased.genomes){
+      #     print ("unbiased genome")
+      #   col = "red"
+      #   } else {
+      #   col = "grey"
+      #   }
     if (genomecount == 0){  
       
       plot(GCcont, mean.cai, type = "p", xlim = xlim, ylim = ylim,
@@ -72,8 +73,8 @@ for (genomeID in genome.and.organisms[,1]){
            xlab = "GC content (%)", 
            ylab = "Mean CAI")
       grid(NULL, NULL, lty = 6, col = "cornsilk2")
-      legend("topleft" ,c("biased", "unbiased", "unknown"), cex=1.5, pch=18,
-             col=c("blue", "red", "grey") , bty="n")
+      #legend("topleft" ,c("biased", "unbiased", "unknown"), cex=1.5, pch=18,
+            # col=c("blue", "red", "grey") , bty="n")
       genomecount = genomecount + 1
       } else {
       points(GCcont, mean.cai, pch = 18, col = col)
