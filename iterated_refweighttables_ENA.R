@@ -38,6 +38,8 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 # creating the folder to save the data in
 outfolder <- "Iterated_weight_tables_ENA/"  
 if (!file.exists(outfolder))dir.create(outfolder)
+outfolder25 <- "restop25_results/"
+if (!file.exists(outfolder25))dir.create(outfolder25)
 
 genomeID.table <- NULL
 itcount.table <- NULL
@@ -134,7 +136,7 @@ for (genomeID in genome.and.organisms[,1]) {
       # write weight table to file
       write.table(w.table, file = fileout, append = FALSE, sep = ",", 
                   row.names = FALSE, quote = FALSE, col.names = FALSE)
-      write.table(res.top25, file = paste(outfolder, genomeID, "_restop25.csv", sep=""),
+      write.table(res.top25, file = paste(outfolder25, genomeID, "_restop25.csv", sep=""),
                   append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
       }
     }
