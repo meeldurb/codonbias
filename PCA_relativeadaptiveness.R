@@ -90,17 +90,18 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 ### ggplot
 df <-data.frame(PC1.codgen, PC2.codgen)
 
-genus.count <- rle(sort(gold.data$Genus))
-selected <- genus.count$values[which(genus.count$length>100)]   ##put colors in those for which we have more than 5 (increase for a "real" example
-group <- gold.data$Genus
+class.count <- rle(sort(gold.data$NCBI.Class))
+selected <- class.count$values[which(class.count$length>1000)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Class
 group[which(!group%in% selected)] <- "Other"
 
 library(ggplot2)
-df$Group <- group
-df$Group <- factor(df$Group, levels=c(selected, "Other") )
+df$NCBI.Classr <- group
+df$NCBI.ćlass <- factor(df$NCBI.Class, levels=c(selected, "Other") )
 
 
-myplot <- ggplot(df,aes(PC1.codgen,PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
+myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
   geom_point(size=3, shape=15)+
   theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
   theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
