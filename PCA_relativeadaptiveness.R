@@ -9,7 +9,7 @@
 
 # install packages to draw plots
 install.packages("ggplot2", repos="http://cran.rstudio.com/")
-
+library(ggplot2)
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -87,29 +87,77 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 
 
 
-### ggplot
+
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+
+### ggplot ORDER
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+order.count <- rle(sort(gold.data$NCBI.Order))
+selected <- order.count$values[which(order.count$length>100)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Order
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected, "Other"))
+title <- "ggplot of Orders"
+
+### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 class.count <- rle(sort(gold.data$NCBI.Class))
-selected <- class.count$values[which(class.count$length>1000)]   
+selected <- class.count$values[which(class.count$length>100)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Class
 group[which(!group%in% selected)] <- "Other"
 
-library(ggplot2)
-df$NCBI.Classr <- group
-df$NCBI.ćlass <- factor(df$NCBI.Class, levels=c(selected, "Other") )
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected, "Other"))
+title <- "ggplot of Classes"
+
+### ggplot PHYLUM
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+phylum.count <- rle(sort(gold.data$NCBI.Phylum))
+selected <- phylum.count$values[which(phylum.count$length>100)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Phylum
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected, "Other") )
+
+title <- "ggplot of Phyla"
 
 
+### ggplot SHAPE
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+shape.count <- rle(sort(gold.data$Cell.Shape))
+selected <- shape.count$values[which(shape.count$length>1)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$Cell.Shape
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected, "Other") )
+title <- "ggplot of organim shape"
+
+
+
+### Draw plot
 myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
-  geom_point(size=3, shape=15)+
+  geom_point(size=2, shape=18)+
   theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
   theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
   theme_bw()+
-  theme(legend.background = element_rect(fill="white", size=.0, linetype="dotted")) +
-  theme(legend.text = element_text( size = 10))  +
-  xlab( paste("PC1 (", format(pca.summary$importance[2,1]*100, digits=2),"%)", sep="")) +   
-  ylab( paste("PC2 (", format(pca.summary$importance[2,2]*100, digits=2),"%)", sep=""))
+  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  theme(legend.text = element_text(size = 10))  +
+  xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
+  ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
+  ggtitle(title) 
 
 
 
