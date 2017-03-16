@@ -59,10 +59,10 @@ for (genomeID in genome.and.organisms[,1]) {
       #compute initial weight table from 25 randomly selected genes
       randomgenes <- sample(gene.data[,2], 25)
       w.data <- compute.weight(randomgenes, genomeID)
-          # order on codon because of cai function
-          ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-          # only leaving numbers
-          w <- ordered.w[,2]
+      # order on codon because of cai function
+      ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
+      # only leaving numbers
+      w <- ordered.w[,2]
           
       # compute CAI for the first round
       cai.ini <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
