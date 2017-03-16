@@ -3,10 +3,10 @@
 
 #############################################################################
 ####  Author: Melanie van den Bosch
-####  Title: Computing iterated reference weight tables 
-####  Purpose of script: Re-computation of weight tables by selecting the top 25
-####  domains with highest cai after each iteration is checked whether the top 25 
-####  domains are comparable to previous iteration
+####  Title: Computing iterated reference weight tables and checking for robustness 
+####  Purpose of script: Re-computation of weight tables by selecting 25 random
+####  selected genes as seed. Then computing the weight tables by iterative
+####  algorithm
 #################################################################################
 
 # install needed packages
@@ -43,7 +43,7 @@ genomeID.table <- NULL
 itcount.table <- NULL
 diffcount.table <- NULL
 
-for (genomeID in genome.and.organisms[,1]) { 
+for (genomeID in sample(genome.and.organisms[,1], 25)) { 
   cat (genomeID, "\n")
   fileout <- paste(outfolder, genomeID, "_robust_it.csv", sep="")
   if (!file.exists(fileout)) {
@@ -132,12 +132,11 @@ for (genomeID in genome.and.organisms[,1]) {
       # write weight table to file
       write.table(w.table, file = fileout, append = FALSE, sep = ",", 
                   row.names = FALSE, quote = FALSE, col.names = FALSE)
-      write.table(res.top25, file = paste(outfolder25, genomeID, "_restop25.csv", sep=""),
-                  append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+      #write.table(res.top25, file = paste(outfolder25, genomeID, "_restop25.csv", sep=""),
+       #           append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
       }
-    }
-  }
 }
+
 
 # fill dataframe of iteration count per genome after all weight tables were computed
 iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, 
