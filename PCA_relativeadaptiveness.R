@@ -71,11 +71,14 @@ gold.data <- gold.data[gold.data$GCA %in% rownames(codgen), ]
 str(gold.data)
 # shorten also codgen data
 codgen <- codgen[rownames(codgen) %in% gold.data$GCA, ]
+codgen=codgen[gold.data$GCA,]
 str(codgen)
 
 # do the PCA
 m.codgen <- as.matrix(codgen)
-codgen.pca <- prcomp(m.codgen)
+m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
+
+codgen.pca <- prcomp(m.codgen, scale = TRUE)
 pca.summary <- summary(codgen.pca)
 
 #easy plot
@@ -95,26 +98,26 @@ df <-data.frame(PC1.codgen, PC2.codgen)
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- order.count$values[which(order.count$length>100)]   
+selected <- order.count$values[which(order.count$length>200)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
-group[which(!group%in% selected)] <- "Other"
+group[which(!group%in% selected)] <- NA
 
 df$Group <- group
-df$Group <- factor(df$Group, levels=c(selected, "Other"))
+df$Group <- factor(df$Group, levels=c(selected))
 title <- "ggplot of Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 class.count <- rle(sort(gold.data$NCBI.Class))
-selected <- class.count$values[which(class.count$length>100)]   
+selected <- class.count$values[which(class.count$length>200)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Class
-group[which(!group%in% selected)] <- "Other"
+group[which(!group%in% selected)] <- NA
 
 df$Group <- group
-df$Group <- factor(df$Group, levels=c(selected, "Other"))
+df$Group <- factor(df$Group, levels=c(selected))
 title <- "ggplot of Classes"
 
 ### ggplot PHYLUM
@@ -124,10 +127,10 @@ phylum.count <- rle(sort(gold.data$NCBI.Phylum))
 selected <- phylum.count$values[which(phylum.count$length>100)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Phylum
-group[which(!group%in% selected)] <- "Other"
+group[which(!group%in% selected)] <- NA
 
 df$Group <- group
-df$Group <- factor(df$Group, levels=c(selected, "Other") )
+df$Group <- factor(df$Group, levels=c(selected) )
 
 title <- "ggplot of Phyla"
 
@@ -139,12 +142,37 @@ shape.count <- rle(sort(gold.data$Cell.Shape))
 selected <- shape.count$values[which(shape.count$length>1)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$Cell.Shape
-group[which(!group%in% selected)] <- "Other"
+group[which(!group%in% selected)] <- NA
 
 df$Group <- group
-df$Group <- factor(df$Group, levels=c(selected, "Other") )
+df$Group <- factor(df$Group, levels=c(selected) )
 title <- "ggplot of organim shape"
 
+### ggplot GRAM STAIN
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+gram.count <- rle(sort(gold.data$Gram.Stain))
+selected <- gram.count$values[which(gram.count$length>1)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$Gram.Stain
+group[which(!group%in% selected)] <- NA
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+title <- "ggplot of gram stain"
+
+### ggplot OXYGEN REQUIREMENT
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+oxygen.count <- rle(sort(gold.data$Oxygen.Requirement))
+selected <- oxygen.count$values[which(oxygen.count$length>1)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$Oxygen.Requirement
+group[which(!group%in% selected)] <- NA
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+title <- "ggplot of oxygen requirement"
 
 
 ### Draw plot
