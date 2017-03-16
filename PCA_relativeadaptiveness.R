@@ -49,7 +49,7 @@ for (genomeID in genome.and.organisms[,1]){
       c <- c + 1
     }
 }
-write.csv(codgendf, file = "codonGenomeDataSet.csv")
+save(codgendf, file = "codonGenomeDataSet.RData")
 
 
 ####________________________ Do the PCA of all genomes and codon weights ________________________####
@@ -88,10 +88,6 @@ PC2.codgen <- as.numeric(codgen.pca$x[,2])
 plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2,1]*100, digits=2),"%)", sep=""), 
      ylab=paste("PC2 (", format(pca.summary$importance[2,2]*100, digits=2),"%)", sep=""))
 
-
-
-
-df <-data.frame(PC1.codgen, PC2.codgen)
 
 
 ### ggplot ORDER
