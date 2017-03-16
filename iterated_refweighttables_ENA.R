@@ -36,7 +36,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 #genomeID <- "GCA_000003925"
 
 # creating the folder to save the data in
-outfolder <- "robustnesscheck_iterated_weight_tables/"  
+outfolder <- "Iterated_weight_tables_ENA/" 
 if (!file.exists(outfolder))dir.create(outfolder)
 
 genomeID.table <- NULL
@@ -45,8 +45,17 @@ diffcount.table <- NULL
 
 for (genomeID in genome.and.organisms[,1]) { 
   cat (genomeID, "\n")
-  fileout <- paste(outfolder, genomeID, "_robust_it.csv", sep="")
+  fileout <- paste(outfolder, genomeID, "_it_weight.csv", sep="")
   if (!file.exists(fileout)) {
+    w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
+    if (file.exists(w.files)){
+      gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+      if (file.exists(gene.files)){
+        w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+        # order on codon because of cai function
+        ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
+        # only leaving numbers
+        w <- ordered.w[,2]
 
       #CDS data
       #cai.files <- paste("CAI_CDS/", genomeID, "_CAI_CDS.csv", sep = "")
@@ -56,15 +65,7 @@ for (genomeID in genome.and.organisms[,1]) {
                             as.is=TRUE) #as.is to keep the it as char
       
       #compute initial weight table from 25 randomly selected genes
-      w.files <- paste("Reference_weight_tables_ENA/", genomeID, ".csv", sep = "")
-      if (file.exists(w.files)){
-        gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
-        if (file.exists(gene.files)){
-          w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-          # order on codon because of cai function
-          ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-          # only leaving numbers
-          w <- ordered.w[,2]
+     
           
       # compute CAI for the first round
       cai.ini <- compute.cai(gene.data, genomeID, w, "tmpc.csv", "tmpc.fasta")
