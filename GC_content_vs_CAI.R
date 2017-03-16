@@ -11,12 +11,18 @@ source("http://bioconductor.org/biocLite.R")
 biocLite("Biostrings")
 # to compute CAI
 install.packages("seqinr", repos="http://cran.rstudio.com/")
+install.packages("locfit", repos="http://cran.rstudio.com/")
 
 
 # loading required library to compute the codon frequency
 library("Biostrings")
 # loading required library to use CAI function
 library("seqinr")
+library("locfit")
+# install packages to draw plots
+install.packages("ggplot2", repos="http://cran.rstudio.com/")
+library(ggplot2)
+
 
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
@@ -26,18 +32,41 @@ genomeID <- "GCA_000003645"
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# open the files with biased and unbiased genomes for colouring the plot
-biased.genomes <- read.csv(file = "biased.genomes.csv", header = FALSE, 
-                           as.is=TRUE)
-biased.genomes <- as.vector(as.matrix(biased.genomes))
+# open iterationcount file
+itcountdf <- read.csv(file = "itcount_final.csv", header = TRUE, sep=",")
+itcountdf <- itcountdf[,1:2]
+itcountdf <- na.omit(itcountdf)
 
-unbiased.genomes <- read.csv(file = "unbiased.genomes.csv", header = FALSE, 
-                             as.is=TRUE)
-unbiased.genomes <- as.vector(as.matrix(unbiased.genomes))
+
+# getting groups of it counts and factorizing to later colour
+sort.count <- rle(sort(itcountdf[,2]))
+
+#order.count <- rle(sort(gold.data$NCBI.Order))
+selected <- sort.count$values[which(sort.count$length>1)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- itcountdf$difference.count
+group[which(!group%in% selected)] <- NA
+itcountdf$Group <- group
+itcountdf$Group <- factor(itcountdf$Group, levels=c(selected))
+
+
+#itcountdf$Group <- factor(itcountdf[,2], levels = itcountdf[,2])
+#title <- "ggplot of Orders"
+
+myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
+  geom_point(size=2, shape=18)+
+  theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
+  theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
+  theme_bw()+
+  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  theme(legend.text = element_text(size = 10))  +
+  xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
+  ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
+  ggtitle(title)
 
 genomecount = 0
-pdf("GCvsCAI_plot_newaxis.pdf")
-for (genomeID in genome.and.organisms[,1]){
+#pdf("GCvsCAI_plot_itcount.pdf")
+for (genomeID in itcountdf[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
   CDS.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
@@ -54,7 +83,7 @@ for (genomeID in genome.and.organisms[,1]){
     GCcont <- GC(seq.split)*100
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
-    col = "blue"
+    #col = "blue"
     # then plot the GC content against the mean CAI
       # #if(genomeID %in% biased.genomes){
       #   print ("biased genome")
@@ -66,10 +95,9 @@ for (genomeID in genome.and.organisms[,1]){
       #   col = "grey"
       #   }
     if (genomecount == 0){  
-      
-      plot(GCcont, mean.cai, type = "p", xlim = xlim, ylim = ylim,
-           pch = 18, col = col,
-           main = "Average CAI vs. GC content",
+      plot(GCcont, mean.cai, col=itcountdf$Group, 
+                   type = "p", xlim = xlim, ylim = ylim,
+           pch = 18, main = "Average CAI vs. GC content",
            xlab = "GC content (%)", 
            ylab = "Mean CAI")
       grid(NULL, NULL, lty = 6, col = "cornsilk2")
@@ -77,7 +105,7 @@ for (genomeID in genome.and.organisms[,1]){
             # col=c("blue", "red", "grey") , bty="n")
       genomecount = genomecount + 1
       } else {
-      points(GCcont, mean.cai, pch = 18, col = col)
+      points(GCcont, mean.cai, col= itcountdf$Group, pch = 18)
       }
   }
 }
