@@ -15,7 +15,6 @@ source("http://bioconductor.org/biocLite.R")
 biocLite("Biostrings")
 # to compute CAI
 install.packages("seqinr", repos="http://cran.rstudio.com/")
-
 # loading required libraries
 library("Biostrings")
 library("seqinr")
