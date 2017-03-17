@@ -28,11 +28,15 @@ source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-# codon table 1
+
 codons <- words()
 aa <- translate(s2c(c2s(words())))
 names(aa) <- codons
 aa
+# codon table 1 bacterial
+aa1 <- getGeneticCode("SGC1")
+# codon table 4 spiro/myco
+aa4 <- getGeneticCode("SGC4")
 
 
 
