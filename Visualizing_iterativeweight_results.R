@@ -48,7 +48,7 @@ length(which(itcountdf[,2]==0)) + length(biased.genomes) + length(unbiased.genom
 #un.biased.genomes <- cbind(biased.genomes, unbiased.genomes)
 
 # write to file
-write.table(biased.genomes, file = "biased.genomes.csv", append=F, 
+write.table(biased.genomes, file = "it1_4genomes.csv", append=F, 
             sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
-write.table(unbiased.genomes, file = "unbiased.genomes.csv", append=F, 
+write.table(unbiased.genomes, file = "it5_21genomes.csv", append=F, 
             sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
