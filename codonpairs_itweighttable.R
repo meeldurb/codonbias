@@ -66,9 +66,9 @@ codonpair.table$codon.pairs<- codon.pairs
 
 # counting the codon pairs
 # fake sequence
-seq1 <- "TACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGG"
-seq2 <- "AAGTGCAATGATACAGGGATACGGGCTAACTAGATCCAGGTAACGATAAACATTGGAGGC"
-seq3 <- "AACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGC"
+seq1 <- "GGTGGTGGTGGCGGTGGCGGTGGCGGTGGGGGTGGGGGTGGGGGTGGGGGTGGGGGTGGG"
+seq2 <- "GGAGGAGGAGGAGGGGGAGGGGGAGGGGGAGGAGGTGGAGGTGGAGGTGGAGGTGGAGGT"
+seq3 <- "GGCGGGGGCGGGGGCGGGGGCGGGGGCGGGGGCGGGGGCGGGGGCGGGGGCGGGGGCGGG"
 # how it should be
 #seqs3 <- c(seq1, seq2)
 # convert to df, because also read like this when loading the data
@@ -93,6 +93,25 @@ for (DNAseq in seqs2){
     }
   }
 }
+unique.aa <- unique(codonpair.table[,1])
+for (aa in unique.aa){
+  subs <- codonpair.table[which(codonpair.table[,1] == aa) ,]
+  totcount.aa <- sum(subs[,3])
+  print (subs)
+}
+
+
+new <- sapply(unique.aa, function(name){
+  subs <- codonpair.table[, codonpair.table[,1] == name]
+  if (is.data.frame(subs)){
+    rowSums(subs)
+    } else{
+      subs[,3]
+    }
+})
+  
+
+
 
 # check whether codons are saved in dataframe
 findcod <- which("AAC_TGC" == codonpair.table[,2])
@@ -103,10 +122,6 @@ findcod <- which("TAC_AGG" == codonpair.table[,2])
 codonpair.table[findcod,3]
 findcod <- which("AGG_TAC" == codonpair.table[,2])
 codonpair.table[findcod,3]
-
-
-
-
 
 
 #fakedata
