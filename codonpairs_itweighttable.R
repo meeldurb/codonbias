@@ -32,6 +32,10 @@ source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 
+
+
+
+#####________________________________Example script________________________________#####
 codons <- words()
 aa <- translate(s2c(c2s(words())))
 names(aa) <- codons
@@ -42,7 +46,7 @@ aa1 <- getGeneticCode("SGC0")
 aa4 <- getGeneticCode("SGC3")
 
 
-
+# making the codonpair table with codons and aa
 codon.pairs <- NULL
 aa.pairs <- NULL
 
@@ -55,32 +59,52 @@ for (first in names(aa1)){
   }
 }
 
-codonpair.table <- aa.pairs
-names(codonpair.table) <- codon.pairs
-codonpair.table
+codonpair.table <- as.data.frame(aa.pairs)
+codonpair.table$codon.pairs<- codon.pairs
+#length(codonpair.table[,2])
 
 
+# counting the codon pairs
 # fake sequence
-seq1<- "AACTGCGATGATACAGGGATACCGATAGACTAGATCCAGGTAACGATAAAGCGAGAGGCC"
-seq2 <- "AACTGCAATGATACAGGGATACGGGCTAACTAGATCCAGGTAACGATAAACATTGGAGGC"
-seqs <- c(seq1, seq2)
-for (DNAseq in seqs){
+seq1 <- "TACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGGTACAGG"
+seq2 <- "AAGTGCAATGATACAGGGATACGGGCTAACTAGATCCAGGTAACGATAAACATTGGAGGC"
+seq3 <- "AACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGCAACTGC"
+# how it should be
+#seqs3 <- c(seq1, seq2)
+# convert to df, because also read like this when loading the data
+seqs <- as.data.frame(c(seq1, seq2, seq3))
+seqs2 <- as.vector(seqs[,1])
+
+data <- rep(0, length(codonpair.table[,1]))
+codonpair.table$count <- data
+
+for (DNAseq in seqs2){
   sq <- gsub("(.{3})", "\\1 ", DNAseq)
   sq <- sub("\\s+$", "", sq)
   sq <- gsub(" ", "_", sq)
   print(sq)
-  for (codonpair in names(codonpair.table)){
+  for (codonpair in codonpair.table[,2]){
     #print (codonpair)
-    meh <- str_count(sq, pattern=codonpair)
-    if (meh > 0){
-      print (codonpair)
-      print (meh)
+    pair.count <- str_count(sq, pattern=codonpair)
+    if (pair.count > 0){
+      # take the codonpair from data that is the same as this one
+      sel <- which(codonpair == codonpair.table[,2])
+      codonpair.table[sel,3] <- sum(codonpair.table[sel,3], pair.count)
     }
   }
 }
 
-# counting occurence in string
-#str_count(sq, "AAC_TGC")
+# check whether codons are saved in dataframe
+findcod <- which("AAC_TGC" == codonpair.table[,2])
+codonpair.table[findcod,3]
+findcod <- which("TGC_AAC" == codonpair.table[,2])
+codonpair.table[findcod,3]
+findcod <- which("TAC_AGG" == codonpair.table[,2])
+codonpair.table[findcod,3]
+findcod <- which("AGG_TAC" == codonpair.table[,2])
+codonpair.table[findcod,3]
+
+
 
 
 
