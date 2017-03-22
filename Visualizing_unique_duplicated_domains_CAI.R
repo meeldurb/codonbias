@@ -26,9 +26,10 @@ data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
 #####________difference between unique and duplicated domains, without sampling________#####
 
 
-genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "it1_4genomes.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
+length(genome.and.organisms[,1])
 
 pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
