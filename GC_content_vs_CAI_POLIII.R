@@ -3,7 +3,8 @@
 ###################################################################
 ##Author: Melanie van den Bosch
 ##Script for calculating the mean CAI vs the 
-##GC content of all genomes
+##GC content of all genomes grouped on phyla that are known
+##which polIII isoform they contain
 ###################################################################
 
 # Packages needed to be installed to calculate the frequency of oligonucleotides
@@ -19,15 +20,12 @@ library("Biostrings")
 # loading required library to use CAI function
 library("seqinr")
 library("locfit")
-# install packages to draw plots
-install.packages("ggplot2", repos="http://cran.rstudio.com/")
-library(ggplot2)
 
 
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-genomeID <- "GCA_000003645"
+#genomeID <- "GCA_000003645"
 
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
@@ -64,7 +62,7 @@ length(group.polC.dnaE3)
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
 genomecount = 0
-#pdf("GCvsCAI_plot_itcount.pdf")
+pdf("GCvsCAI_plot_itcount.pdf")
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
