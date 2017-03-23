@@ -30,26 +30,67 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# the 3 different groups of polIII isoforms and its phyla belonging to it
-org.dnaE1 <- c("Actinobacteria", "Aquificae", "Bacteroidetes", "Chlorobi", "Chlamydiae", "Verrucomicrobia",
-           "Chloroflexi", "Cyanobacteria", "Deinococcus-Thermus", "Proteobacteria", "Spirochaetes")
+# the 3 different groups of polIII isoforms and its groups belonging to it
 
-org.dnaE2.dnaE1 <- c("Fibrobacteres", "Acidobacteria", "Planctomycetes", "Proteobacteria")
+polIII.data <- read.csv("list_alphasubunitsPOLIII_bacteria.csv", header = TRUE,
+                        as.is=TRUE)
+polIII.data <- na.omit(polIII.data)
 
-org.polC.dnaE3 <- c("Firmicutes", "Fusobacteria", "Thermotogae")
+
+genus.dnaE1 <- NULL
+genus.polC.dna3 <- NULL
+genus.dnaE1.dnaE2 <- NULL
+for (row in seq_along(polIII.data[,1])){
+  print (polIII.data[row,16])
+  if (polIII.data[row,2] == "" && polIII.data[row,3] == "" && polIII.data[row,4] == "") {
+    genus.dnaE1 <- c(genus.dnaE1, polIII.data[row,16]) 
+    } 
+  else if (polIII.data[row,1] == "" && polIII.data[row,2] == "") {
+    genus.polC.dna3 <- c(genus.polC.dna3, polIII.data[row,16])
+  }
+  else if (polIII.data[row,3] == "" && polIII.data[row,4] == "" && polIII.data[row,2] == "dnaE_II") {
+    genus.dnaE1.dnaE2 <- c(genus.dnaE1.dnaE2, polIII.data[row,16])
+  }
+} 
+  
+dnaE1table <- table(genus.dnaE1)
+dnaE1E2 <- table(genus.dnaE1.dnaE2)
+dnapolcE2 <- table(genus.polC.dna3)
+
+
+genus.dnaE1 <- unique(genus.dnaE1)
+genus.polC.dna3 <- unique(genus.polC.dna3)
+genus.dnaE1.dnaE2 <- unique(genus.dnaE1.dnaE2)
+
+
+which(genus.dnaE1 %in% genus.dnaE1.dnaE2)
+which(genus.dnaE1.dnaE2 %in% genus.dnaE1)
+
+# no duplicated species
+genus.dnaE1 %in% genus.polC.dna3
+genus.dnaE1.dnaE2 %in% genus.polC.dna3
+
+genus.dnaE1
+genus.polC.dna3
+genus.dnaE1.dnaE2
+
+
+
+  
+
 
 
 # Taking the information on phyla from the gold db
 gold.data= read.table(file = "gold_gca.tsv", sep="\t" , header=TRUE,
                       row.names=1,as.is=TRUE)
 
-# taking the genomeIDs that have phyla information
-phyla <- as.data.frame(c(gold.data[1], gold.data[which(colnames(gold.data)=="NCBI.Phylum")]))
-phyla <- na.omit(phyla)
-length(phyla$NCBI.Phylum)
+# taking the genomeIDs that have genus information
+genus <- as.data.frame(c(gold.data[1], gold.data[which(colnames(gold.data)=="NCBI.Genus")]))
+genus <- na.omit(genus)
+length(genus)
 # check which groups are there and how large they are
-unique(phyla$NCBI.Phylum)
-table(phyla[,2])
+unique(genus$NCBI.Genus)
+table(genus[,2])
 
 # making a list of which 
 group.dnaE1 <- phyla[which(phyla$NCBI.Phylum %in% org.dnaE1), 1]
