@@ -32,41 +32,10 @@ genomeID <- "GCA_000003645"
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# open iterationcount file
-itcountdf <- read.csv(file = "itcount_final.csv", header = TRUE, sep=",")
-itcountdf <- itcountdf[,1:2]
-itcountdf <- na.omit(itcountdf)
-
-
-# getting groups of it counts and factorizing to later colour
-sort.count <- rle(sort(itcountdf[,2]))
-
-#order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- sort.count$values[which(sort.count$length>1)]   
-##put colors in those for which we have more than 5 (increase for a "real" example)
-group <- itcountdf$difference.count
-group[which(!group%in% selected)] <- NA
-itcountdf$Group <- group
-itcountdf$Group <- factor(itcountdf$Group, levels=c(selected))
-
-
-#itcountdf$Group <- factor(itcountdf[,2], levels = itcountdf[,2])
-#title <- "ggplot of Orders"
-
-myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
-  geom_point(size=2, shape=18)+
-  theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
-  theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
-  theme_bw()+
-  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
-  theme(legend.text = element_text(size = 10))  +
-  xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
-  ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
-  ggtitle(title)
 
 genomecount = 0
 #pdf("GCvsCAI_plot_itcount.pdf")
-for (genomeID in itcountdf[,1]){
+for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
   CDS.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
@@ -83,7 +52,7 @@ for (genomeID in itcountdf[,1]){
     GCcont <- GC(seq.split)*100
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
-    #col = "blue"
+    col = "blue"
     # then plot the GC content against the mean CAI
       # #if(genomeID %in% biased.genomes){
       #   print ("biased genome")
@@ -95,7 +64,7 @@ for (genomeID in itcountdf[,1]){
       #   col = "grey"
       #   }
     if (genomecount == 0){  
-      plot(GCcont, mean.cai, col=itcountdf$Group, 
+      plot(GCcont, mean.cai, col=col, 
                    type = "p", xlim = xlim, ylim = ylim,
            pch = 18, main = "Average CAI vs. GC content",
            xlab = "GC content (%)", 
@@ -105,7 +74,7 @@ for (genomeID in itcountdf[,1]){
             # col=c("blue", "red", "grey") , bty="n")
       genomecount = genomecount + 1
       } else {
-      points(GCcont, mean.cai, col= itcountdf$Group, pch = 18)
+      points(GCcont, mean.cai, col= col, pch = 18)
       }
   }
 }
