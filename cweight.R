@@ -14,18 +14,18 @@
 
 
 # Packages that need to be installed
-# source("http://bioconductor.org/biocLite.R")
+source("http://bioconductor.org/biocLite.R")
 # ?BiocUpgrade
-# biocLite("Biostrings")
+biocLite("Biostrings")
 # 
 # # loading required libraries
-# library("Biostrings")
-# library("seqinr")
+library("Biostrings")
+library("seqinr")
 # 
 
 
 
-compute.weight <- function(seqs.df, genome_ID){
+compute.weight <- function(seqs.df, genomeID){
   
   pasted.cdseqs <- paste(seqs.df, sep="", collapse="")
   # compute codon frequency
@@ -135,3 +135,12 @@ compute.weight <- function(seqs.df, genome_ID){
   colnames(final.codon.table) <- c("codon", "codon.frequency", "amino.acid")
   return(final.codon.table)
 }
+
+#genomeID <- "GCA_000003925"
+#gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+
+#gene.data <- read.csv(file = gene.files, header = TRUE, 
+#                      as.is=TRUE) #as.is to keep the it as char
+
+#w.table <- compute.weight(gene.data[,2], genomeID)
+
