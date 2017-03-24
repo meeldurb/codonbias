@@ -100,7 +100,9 @@ length(group.polC.dnaE3)
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
 genomecount = 0
-#pdf("GCvsCAI_plot_polIIIgenus.pdf")
+pdf("GCvsCAI_plot_polIIIother.pdf")
+GCneut <- NULL
+GCext <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -116,6 +118,12 @@ for (genomeID in genome.and.organisms[,1]){
     all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
+    if (GCcont > 65.0  | GCcont < 35.0){
+      GCext <- c(GCext, genomeID)
+    }
+    if (GCcont > 35.0 && GCcont < 65.0){
+      GCneut <- c(GCneut, genomeID)
+    }
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
     if (genomeID %in% group.dnaE2.dnaE1){
@@ -150,10 +158,15 @@ for (genomeID in genome.and.organisms[,1]){
       } else {
       points(GCcont, mean.cai, col= col, pch = 18)
       }
-  }
-}
 
+    }
+}
 dev.off()
+
+write.table(GCneut, "GCneutralgenomes.csv")
+write.table(GCext, "GCextremegenomes.csv")
+
+
 
 
 
