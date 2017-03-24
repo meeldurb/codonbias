@@ -58,25 +58,22 @@ dnaE1E2 <- table(genus.dnaE1.dnaE2)
 dnapolcE2 <- table(genus.polC.dna3)
 
 
-genus.dnaE1 <- unique(genus.dnaE1)
-genus.polC.dna3 <- unique(genus.polC.dna3)
-genus.dnaE1.dnaE2 <- unique(genus.dnaE1.dnaE2)
+uniq.genus.dnaE1 <- unique(genus.dnaE1)
+uniq.genus.polC.dna3 <- unique(genus.polC.dna3)
+uniq.genus.dnaE1.dnaE2 <- unique(genus.dnaE1.dnaE2)
 
 
 which(genus.dnaE1 %in% genus.dnaE1.dnaE2)
 which(genus.dnaE1.dnaE2 %in% genus.dnaE1)
 
-# no duplicated species
+# duplicated gena?
+genus.dnaE1 %in% genus.dnaE1.dnaE2
 genus.dnaE1 %in% genus.polC.dna3
 genus.dnaE1.dnaE2 %in% genus.polC.dna3
 
 genus.dnaE1
 genus.polC.dna3
 genus.dnaE1.dnaE2
-
-
-
-  
 
 
 
@@ -92,18 +89,18 @@ length(genus)
 unique(genus$NCBI.Genus)
 table(genus[,2])
 
-# making a list of which 
-group.dnaE1 <- phyla[which(phyla$NCBI.Phylum %in% org.dnaE1), 1]
+# making a list of which of the organisms contain a certain polIII isoform
+group.dnaE1 <- genus[which(genus$NCBI.Genus %in% uniq.genus.dnaE1), 1]
 length(group.dnaE1)
-group.dnaE2.dnaE1 <- phyla[which(phyla$NCBI.Phylum %in% org.dnaE2.dnaE1), 1]
+group.dnaE2.dnaE1 <- genus[which(genus$NCBI.Genus %in% uniq.genus.dnaE1.dnaE2), 1]
 length(group.dnaE2.dnaE1)
-group.polC.dnaE3 <- phyla[which(phyla$NCBI.Phylum %in% org.polC.dnaE3), 1]
+group.polC.dnaE3 <- genus[which(genus$NCBI.Genus %in% uniq.genus.polC.dna3), 1]
 length(group.polC.dnaE3)
 
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
 genomecount = 0
-pdf("GCvsCAI_plot_itcount.pdf")
+#pdf("GCvsCAI_plot_polIIIgenus.pdf")
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -121,14 +118,14 @@ for (genomeID in genome.and.organisms[,1]){
     GCcont <- GC(seq.split)*100
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
-    if (genomeID %in% group.dnaE1){
+    if (genomeID %in% group.dnaE2.dnaE1){
       col = "blue"
-    } else if (genomeID %in% group.dnaE2.dnaE1){
+    } else if (genomeID %in%  group.dnaE1 ){
         col = "red"
     } else if(genomeID %in% group.polC.dnaE3) {
       col = "green"
     } else {
-      col = "grey"
+      col = rgb(1,1,1,alpha=0.1)
     }
     # then plot the GC content against the mean CAI
       # #if(genomeID %in% biased.genomes){
@@ -148,7 +145,7 @@ for (genomeID in genome.and.organisms[,1]){
            ylab = "Mean CAI")
       grid(NULL, NULL, lty = 6, col = "cornsilk2")
       legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
-            col=c("blue", "red", "green", "grey") , bty="n")
+            col=c("red", "blue", "green", "grey") , bty="n")
       genomecount = genomecount + 1
       } else {
       points(GCcont, mean.cai, col= col, pch = 18)
