@@ -86,8 +86,8 @@ dnaE_I,dnaE_II,,,PR,Bact035,Brucella_melitensis,0.5722,Bacteria,Proteobacteria,,
 dnaE_I,dnaE_II,,,PR,Bact036,Brucella_suis_1330,0.5725,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Brucellaceae,Brucella,Brucellamelitensis,BrucellamelitensisbiovarSuis
 dnaE_I,dnaE_II,,,PR,Bact034,Brucella_abortus_9-941,0.5721,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Brucellaceae,Brucella,Brucellamelitensis,BrucellamelitensisbiovarAbortus
 dnaE_I,dnaE_II,,,PR,Bact105,Mesorhizobium_loti,0.6274,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Phyllobacteriaceae,Mesorhizobium,,
-dnaE_I,dnaE_II(2),,,PR,Bact003,Agrobacterium_tumefaciens_C58_UWash,0.5933,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Rhizobiaceae,Rhizobium/Agrobacteriumgroup,Agrobacterium,Agrobacteriumtumefaciens
-dnaE_I,dnaE_II(2),,,PR,Bact168,Sinorhizobium_meliloti,0.6272,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Rhizobiaceae,Sinorhizobium/Ensifergroup,Sinorhizobium,
+dnaE_I,dnaE_II,,,PR,Bact003,Agrobacterium_tumefaciens_C58_UWash,0.5933,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Rhizobiaceae,Rhizobium/Agrobacteriumgroup,Agrobacterium,Agrobacteriumtumefaciens
+dnaE_I,dnaE_II,,,PR,Bact168,Sinorhizobium_meliloti,0.6272,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhizobiales,Rhizobiaceae,Sinorhizobium/Ensifergroup,Sinorhizobium,
 dnaE_I,dnaE_II,,,PR,Bact081,Gluconobacter_oxydans_621H,0.6107,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhodospirillales,Acetobacteraceae,Gluconobacter,Gluconobacteroxydans,
 dnaE_I,dnaE_II,,,PR,Bact167,Silicibacter_pomeroyi_DSS-3,0.6422,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rhodobacterales,Rhodobacteraceae,Silicibacter,Silicibacterpomeroyi,
 dnaE_I,,,,PR,Bact004,Anaplasma_marginale_St_Maries,0.4976,Bacteria,Proteobacteria,,Alphaproteobacteria,,Rickettsiales,Anaplasmataceae,Anaplasma,Anaplasmamarginale,
