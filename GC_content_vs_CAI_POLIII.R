@@ -163,8 +163,10 @@ for (genomeID in genome.and.organisms[,1]){
 }
 dev.off()
 
-write.table(GCneut, "GCneutralgenomes.csv")
-write.table(GCext, "GCextremegenomes.csv")
+write.table(GCneut, "GCneutralgenomes.csv", sep = ",", 
+            quote = FALSE, col.names = FALSE, row.names = FALSE)
+write.table(GCext, "GCextremegenomes.csv", sep = ",", 
+            quote = FALSE, col.names = FALSE, row.names = FALSE)
 
 
 
