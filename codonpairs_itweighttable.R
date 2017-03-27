@@ -3,10 +3,9 @@
 
 #############################################################################
 ####  Author: Melanie van den Bosch
-####  Title: Computing iterated reference weight tables 
-####  Purpose of script: Re-computation of weight tables by selecting the top 25
-####  domains with highest cai after each iteration is checked whether the top 25 
-####  domains are comparable to previous iteration
+####  Title: Computing iterated reference weight tables of codon pairs 
+####  Purpose of script: Computation of iterative weight tables 
+####  of codon pairs
 #################################################################################
 
 # install needed packages
@@ -33,7 +32,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open and read file with genomeIDs
 #genomeID <- "GCA_000003925"
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 
