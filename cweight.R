@@ -13,15 +13,15 @@
 
 
 
-# Packages that need to be installed
-source("http://bioconductor.org/biocLite.R")
-# ?BiocUpgrade
-biocLite("Biostrings")
+# # Packages that need to be installed
+# source("http://bioconductor.org/biocLite.R")
+# # ?BiocUpgrade
+# biocLite("Biostrings")
 # 
 # # loading required libraries
-library("Biostrings")
-library("seqinr")
-# 
+# library("Biostrings")
+# library("seqinr")
+#
 
 
 
