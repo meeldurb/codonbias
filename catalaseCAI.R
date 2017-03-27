@@ -160,9 +160,10 @@ for (genomeID in genome.and.organisms[,1]){
           } else {
             points(catalase.cai, mean.cai, col=col, pch = 18)
           }
+          abline(a=0, b=1)
         }
       }
   }
-}
+  }
 
 
