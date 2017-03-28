@@ -99,17 +99,6 @@ length(group.polC.dnaE3)
 
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
-# do the lm fitting
-
-# dnaE1
-lm.fit.mt = lm(group.dnaE1 ~ )
-summary(lm.fit.mt)
-par(mfrow = c(2,2))
-plot(lm.fit.mt)
-mean(lm.fit.mt$residuals^2)
-
-
-
 #GCneut <- NULL
 #GCext <- NULL
 genomeID.col <- NULL
@@ -134,6 +123,7 @@ for (genomeID in genome.and.organisms[,1]){
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
     GCcont.col <- c(GCcont.col, as.numeric(GCcont))
+    # split data on all the polIII groups and add into the dataframe
     if (genomeID %in% group.dnaE2.dnaE1){
       polIII.col <- c(polIII.col, "dnaE2/dnaE1")
     } else if (genomeID %in%  group.dnaE1 ){
@@ -145,6 +135,7 @@ for (genomeID in genome.and.organisms[,1]){
     }
   }
 }
+# combine all the columns in a dataframe and write to file
 data.CAIGCpolII <- data.frame(genomeID.col, mean.col, GCcont.col, 
                               polIII.col, stringsAsFactors = FALSE)
 
@@ -155,7 +146,7 @@ write.csv(data.CAIGCpolII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names 
     
     
 genomecount = 0
-pdf("GCvsCAI_plot_polIIIregline.pdf")
+#pdf("GCvsCAI_plot_polIIIregline.pdf")
     # if (GCcont > 65.0  | GCcont < 35.0){
     #   GCext <- c(GCext, genomeID)
     # }
@@ -201,10 +192,10 @@ pdf("GCvsCAI_plot_polIIIregline.pdf")
 }
 dev.off()
 
-write.table(GCneut, "GCneutralgenomes.csv", sep = ",", 
-            quote = FALSE, col.names = FALSE, row.names = FALSE)
-write.table(GCext, "GCextremegenomes.csv", sep = ",", 
-            quote = FALSE, col.names = FALSE, row.names = FALSE)
+#write.table(GCneut, "GCneutralgenomes.csv", sep = ",", 
+#            quote = FALSE, col.names = FALSE, row.names = FALSE)
+#write.table(GCext, "GCextremegenomes.csv", sep = ",", 
+#            quote = FALSE, col.names = FALSE, row.names = FALSE)
 
 
 
