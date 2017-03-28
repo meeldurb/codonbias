@@ -136,10 +136,10 @@ for (genomeID in genome.and.organisms[,1]){
   }
 }
 # combine all the columns in a dataframe and write to file
-data.CAIGCpolII <- data.frame(genomeID.col, mean.col, GCcont.col, 
+data.CAIGCpolIII <- data.frame(genomeID.col, mean.col, GCcont.col, 
                               polIII.col, stringsAsFactors = FALSE)
 
-write.csv(data.CAIGCpolII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names = FALSE)
+write.csv(data.CAIGCpolIII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names = FALSE)
     
 
     
