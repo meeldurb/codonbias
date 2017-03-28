@@ -42,7 +42,7 @@ genomeID.table <- NULL
 itcount.table <- NULL
 diffcount.table <- NULL
 
-for (genomeID in sample(genome.and.organisms[,1], 25)) { 
+for (genomeID in sample(genome.and.organisms[,1], 50)) { 
   cat (genomeID, "\n")
   fileout <- paste(outfolder, genomeID, "_robust_it.csv", sep="")
   if (!file.exists(fileout)) {
@@ -137,12 +137,74 @@ for (genomeID in sample(genome.and.organisms[,1], 25)) {
 }
 
 
-# fill dataframe of iteration count per genome after all weight tables were computed
-iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, 
-                           difference = diffcount.table, stringsAsFactors = FALSE)
+# # fill dataframe of iteration count per genome after all weight tables were computed
+# iteration.df <- data.frame(genomeID = genomeID.table, iterations = itcount.table, 
+#                            difference = diffcount.table, stringsAsFactors = FALSE)
+# 
+# write.table(iteration.df, file = "iterationcount.csv", append = FALSE, sep = ",", 
+#             row.names = FALSE, quote = FALSE, col.names = TRUE)
 
-write.table(iteration.df, file = "iterationcount.csv", append = FALSE, sep = ",", 
-            row.names = FALSE, quote = FALSE, col.names = TRUE)
+#######__________________________ comparing ribosomal vs random seed __________________________#######
+
+
+# read in both iteration count files, get only first 2 columns
+ribo.seed.iter <- read.csv("itcount_final.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
+ribo.seed.iter[ribo.seed.iter == 0] <- NA
+ribo.seed.iter <- na.omit(ribo.seed.iter)
+
+rand.seed.iter <- read.csv("itcount_rand_final.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
+rand.seed.iter[rand.seed.iter == 0] <- NA
+rand.seed.iter <- na.omit(rand.seed.iter)
+
+
+# open files and making suitable for analysis
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
+
+genomeID <- "GCA_000024425"
+
+# initialize empty colums to add data to it
+genomeID.col <- NULL
+diff.mean.w.col <- NULL
+diff.itcount.col <- NULL
+for (genomeID in genome.and.organisms[,1]) { 
+  cat (genomeID, "\n")
+  # get all the filenames
+  w.rand.files <- paste("robustnesscheck_iterated_weight_tables/", genomeID, "_robust_it.csv", sep = "")
+  w.ribo.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "")
+  if (file.exists(w.rand.files)){
+    # open weight files
+    rand.w <- read.csv(file = w.rand.files, sep = ",", header = FALSE, as.is = TRUE)
+    ribo.w <- read.csv(file = w.ribo.files, sep = ",", header = FALSE, as.is = TRUE)
+    # get the difference between codonweights of random seed and ribosomal seed tables
+    diff.w <- rand.w[,2] - ribo.w[,2]
+    # calculate the mean difference
+    diff.mean.w <- abs(mean(diff.w))
+    # add the mean difference to the column
+    diff.mean.w.col <- c(diff.mean.w.col, diff.mean.w)
+    genomeID.col <- c(genomeID.col, genomeID)
+    # get the difference between iteration counts to compute final weight table
+    # when input is ribosomal and random genes
+    if (genomeID %in% rand.seed.iter[,1]){
+      if (genomeID %in% ribo.seed.iter[,1]){
+      itcount.rand <- rand.seed.iter[which(rand.seed.iter[,1] == genomeID), 2]
+      itcount.ribo <- ribo.seed.iter[which(ribo.seed.iter[,1] == genomeID), 2]
+      diff.itcount <- itcount.rand - itcount.ribo
+      diff.itcount.col <- c(diff.itcount.col, diff.itcount)
+      } else { # if the genome IDs are not found fill the column with NA, 
+        # else dataframe will have unequal amount of rows when bound
+        diff.itcount.col <- c(diff.itcount.col, NA)
+        
+      }
+    } else {
+      diff.itcount.col <- c(diff.itcount.col, NA)
+    }
+  }
+}
+
+data.CAIGCpolII <- data.frame(genomeID.col, diff.mean.w.col,
+                              diff.itcount.col, stringsAsFactors = FALSE)
 
 
 
