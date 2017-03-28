@@ -99,10 +99,24 @@ length(group.polC.dnaE3)
 
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
-genomecount = 0
-pdf("GCvsCAI_plot_polIIIother.pdf")
-GCneut <- NULL
-GCext <- NULL
+# do the lm fitting
+
+# dnaE1
+lm.fit.mt = lm(group.dnaE1 ~ )
+summary(lm.fit.mt)
+par(mfrow = c(2,2))
+plot(lm.fit.mt)
+mean(lm.fit.mt$residuals^2)
+
+
+
+#GCneut <- NULL
+#GCext <- NULL
+genomeID.col <- NULL
+mean.col <- NULL
+GCcont.col <- NULL
+polIII.col <- NULL
+
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -111,19 +125,43 @@ for (genomeID in genome.and.organisms[,1]){
     cai.data <- read.csv(file = cai.files, sep = ",", header = TRUE, as.is = TRUE)
     seq.data <- read.csv(file = CDS.files, sep = ",", header = TRUE, as.is = TRUE)
     
+    genomeID.col <- c(genomeID.col, genomeID)
     # calculate mean of all the CAI values in the genome
     mean.cai <- mean(cai.data[,2])
-    
+    mean.col <- c(mean.col, as.numeric(mean.cai))
     # calculate the GC content of the genome
     all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
-    if (GCcont > 65.0  | GCcont < 35.0){
-      GCext <- c(GCext, genomeID)
+    GCcont.col <- c(GCcont.col, as.numeric(GCcont))
+    if (genomeID %in% group.dnaE2.dnaE1){
+      polIII.col <- c(polIII.col, "dnaE2/dnaE1")
+    } else if (genomeID %in%  group.dnaE1 ){
+      polIII.col <- c(polIII.col, "dnaE1")
+    } else if(genomeID %in% group.polC.dnaE3) {
+      polIII.col <- c(polIII.col, "polC/dnaE3")
+    } else {
+      polIII.col <- c(polIII.col, "Other")
     }
-    if (GCcont > 35.0 && GCcont < 65.0){
-      GCneut <- c(GCneut, genomeID)
-    }
+  }
+}
+data.CAIGCpolII <- data.frame(genomeID.col, mean.col, GCcont.col, 
+                              polIII.col, stringsAsFactors = FALSE)
+
+write.csv(data.CAIGCpolII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names = FALSE)
+    
+
+    
+    
+    
+genomecount = 0
+pdf("GCvsCAI_plot_polIIIregline.pdf")
+    # if (GCcont > 65.0  | GCcont < 35.0){
+    #   GCext <- c(GCext, genomeID)
+    # }
+    # if (GCcont > 35.0 && GCcont < 65.0){
+    #   GCneut <- c(GCneut, genomeID)
+    # }
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
     if (genomeID %in% group.dnaE2.dnaE1){
