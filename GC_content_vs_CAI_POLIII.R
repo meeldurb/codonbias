@@ -20,6 +20,7 @@ library("Biostrings")
 # loading required library to use CAI function
 library("seqinr")
 library("locfit")
+library("ggplot2")
 
 
 
@@ -30,13 +31,13 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# the 3 different groups of polIII isoforms and its groups belonging to it
-
+# read in the polIII data and the bacteria containings these isomers
 polIII.data <- read.csv("list_alphasubunitsPOLIII_bacteria.csv", header = TRUE,
                         as.is=TRUE)
 polIII.data <- na.omit(polIII.data)
 
 
+# making the groups which genus is associated to each polIII isomer
 genus.dnaE1 <- NULL
 genus.polC.dna3 <- NULL
 genus.dnaE1.dnaE2 <- NULL
@@ -99,13 +100,13 @@ length(group.polC.dnaE3)
 
 length(group.dnaE1) + length(group.dnaE2.dnaE1) + length(group.polC.dnaE3)
 
-#GCneut <- NULL
-#GCext <- NULL
+
+# filling a dataframe with all the information on meanCAI
+# GC content and polIII isomer per genome
 genomeID.col <- NULL
 mean.col <- NULL
 GCcont.col <- NULL
 polIII.col <- NULL
-
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -142,17 +143,54 @@ data.CAIGCpolIII <- data.frame(genomeID.col, mean.col, GCcont.col,
 write.csv(data.CAIGCpolIII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names = FALSE)
     
 
+data.CAIGCpolIII <- read.table("CAI_GCcont_POLIII_allgenomes.csv", sep = ",", header = TRUE)
+
+# remove genomes that have no polIII isomer
+data.CAIGCpolIII[data.CAIGCpolIII[,4] == "Other", 4] <- NA
+data.CAIGCpolIII <- na.omit(data.CAIGCpolIII)
     
-    
-    
+
+# draw the plot (normal R)
+plot(data.CAIGCpolIII[,3], data.CAIGCpolIII[,2], 
+      col = data.CAIGCpolIII$polIII.col,
+      main = "Average CAI vs. GC content",
+      xlab = "GC content (%)", 
+      ylab = "Mean CAI")
+grid(NULL, NULL, lty = 6, col = "cornsilk2")
+legend("bottomright" ,c("polC/dnaE3", "dnaE1", "dnaE2/dnaE1"), cex=1.5, pch=18,
+       col = unique(data.CAIGCpolIII$polIII.col), bty="n")
+abline(lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE1"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE1"]), col = "black")
+abline(lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"]), col = "red")
+abline(lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"]), col = "blue")
+
+# get the data frome the regression lines.
+
+lm.dnaE1 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE1"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE1"])
+lm.dnaE2.E1 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"])
+lm.polC.dnaE3 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"] ~ 
+            data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"])
+
+
+
+# draw the plot (ggplot)
+ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3], col = data.CAIGCpolIII$polIII.col)) +
+  geom_point() + geom_smooth(method = "lm", fill = NA)+
+  labs(title = "Average CAI vs. GC content", x = "GC content (%)", y = "Mean CAI",
+       color = "Polymerase III isomers")
+               
+
+      xlab = "GC content (%)", 
+      ylab = "Mean CAI", 
+      main = "Average CAI vs. GC content",
+      geom_point(), geom_smooth(method = "lm", fill = NA))
+
 genomecount = 0
 #pdf("GCvsCAI_plot_polIIIregline.pdf")
-    # if (GCcont > 65.0  | GCcont < 35.0){
-    #   GCext <- c(GCext, genomeID)
-    # }
-    # if (GCcont > 35.0 && GCcont < 65.0){
-    #   GCneut <- c(GCneut, genomeID)
-    # }
     xlim = c(20, 80)
     ylim = c(0.35, 0.8)
     if (genomeID %in% group.dnaE2.dnaE1){
