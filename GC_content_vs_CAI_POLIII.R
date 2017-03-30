@@ -4,7 +4,7 @@
 ##Author: Melanie van den Bosch
 ##Script for calculating the mean CAI vs the 
 ##GC content of all genomes grouped on phyla that are known
-##which polIII isoform they contain
+##which polIII isoform they contain, then drawing graphs
 ###################################################################
 
 # Packages needed to be installed to calculate the frequency of oligonucleotides
@@ -21,8 +21,11 @@ library("Biostrings")
 library("seqinr")
 library("locfit")
 library("ggplot2")
+library("grDevices")
 
 
+
+#####______________________________________ calculating & writing to file ______________________________________#####
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -140,8 +143,18 @@ for (genomeID in genome.and.organisms[,1]){
 data.CAIGCpolIII <- data.frame(genomeID.col, mean.col, GCcont.col, 
                               polIII.col, stringsAsFactors = FALSE)
 
-write.csv(data.CAIGCpolIII, file = "CAI_GCcont_POLIII_allgenomes.csv", row.names = FALSE)
+fileout = "CAI_GCcont_POLIII_allgenomes.csv"
+if (!file.exists(fileout)){
+  write.csv(data.CAIGCpolIII, file = fileout, row.names = FALSE)
+} else{ 
+  print ("file already exists")}
     
+
+
+
+
+#####________________________________draw the plots______________________________#####
+
 
 data.CAIGCpolIII <- read.table("CAI_GCcont_POLIII_allgenomes.csv", sep = ",", header = TRUE)
 
@@ -166,69 +179,89 @@ abline(lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"] 
 abline(lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"] ~ 
             data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"]), col = "blue")
 
-# get the data frome the regression lines.
+# get the data from the regression lines.
 
 lm.dnaE1 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE1"] ~ 
             data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE1"])
+eq.dnaE1 <- substitute(y == a + b %.% x*","~~r^2~"="~r2,
+                list(a = format(coef(lm.dnaE1)[1], digits = 2),
+                     b = format(coef(lm.dnaE1)[2], digits = 2),
+                     r2 = format(summary(lm.dnaE1)$r.squared, digits = 3)))
+
+eq.dnaE1 <- as.character(as.expression(eq.dnaE1))
+
 lm.dnaE2.E1 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"] ~ 
             data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="dnaE2/dnaE1"])
+eq.dnaE2 <- substitute(y == a + b %.% x*","~~r^2~"="~r2,
+                       list(a = format(coef(lm.dnaE2.E1)[1], digits = 2),
+                            b = format(coef(lm.dnaE2.E1)[2], digits = 2),
+                            r2 = format(summary(lm.dnaE2.E1)$r.squared, digits = 3)))
+
+eq.dnaE2 <- as.character(as.expression(eq.dnaE2))
+
 lm.polC.dnaE3 <- lm(data.CAIGCpolIII$mean.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"] ~ 
             data.CAIGCpolIII$GCcont.col[data.CAIGCpolIII$polIII.col=="polC/dnaE3"])
+eq.polC <- substitute(y == a + b %.% x*","~~r^2~"="~r2,
+                       list(a = format(coef(lm.polC.dnaE3)[1], digits = 2),
+                            b = format(coef(lm.polC.dnaE3)[2], digits = 2),
+                            r2 = format(summary(lm.polC.dnaE3)$r.squared, digits = 3)))
+
+eq.polC<- as.character(as.expression(eq.polC))
 
 
 
 # draw the plot (ggplot)
-ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3], col = data.CAIGCpolIII$polIII.col)) +
+p <- ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3], col = data.CAIGCpolIII$polIII.col)) +
   geom_point() + geom_smooth(method = "lm", fill = NA)+
+  geom_text(x = 60, y = 0.5, label=eq.dnaE1, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4) + 
+  geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#F8766D", family = "Helvetica", size = 4) + 
+  geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4) + 
   labs(title = "Average CAI vs. GC content", x = "GC content (%)", y = "Mean CAI",
        color = "Polymerase III isomers")
-               
 
-      xlab = "GC content (%)", 
-      ylab = "Mean CAI", 
-      main = "Average CAI vs. GC content",
-      geom_point(), geom_smooth(method = "lm", fill = NA))
+p         
 
-genomecount = 0
-#pdf("GCvsCAI_plot_polIIIregline.pdf")
-    xlim = c(20, 80)
-    ylim = c(0.35, 0.8)
-    if (genomeID %in% group.dnaE2.dnaE1){
-      col = "blue"
-    } else if (genomeID %in%  group.dnaE1 ){
-        col = "red"
-    } else if(genomeID %in% group.polC.dnaE3) {
-      col = "green"
-    } else {
-      col = rgb(1,1,1,alpha=0.1)
-    }
-    # then plot the GC content against the mean CAI
-      # #if(genomeID %in% biased.genomes){
-      #   print ("biased genome")
-      #   col = "blue"
-      #   } else if (genomeID %in% unbiased.genomes){
-      #     print ("unbiased genome")
-      #   col = "red"
-      #   } else {
-      #   col = "grey"
-      #   }
-    if (genomecount == 0){  
-      plot(GCcont, mean.cai, col=col, 
-                   type = "p", xlim = xlim, ylim = ylim,
-           pch = 18, main = "Average CAI vs. GC content",
-           xlab = "GC content (%)", 
-           ylab = "Mean CAI")
-      grid(NULL, NULL, lty = 6, col = "cornsilk2")
-      legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
-            col=c("red", "blue", "green", "grey") , bty="n")
-      genomecount = genomecount + 1
-      } else {
-      points(GCcont, mean.cai, col= col, pch = 18)
-      }
-
-    }
-}
-dev.off()
+# old script
+# genomecount = 0
+# #pdf("GCvsCAI_plot_polIIIregline.pdf")
+#     xlim = c(20, 80)
+#     ylim = c(0.35, 0.8)
+#     if (genomeID %in% group.dnaE2.dnaE1){
+#       col = "blue"
+#     } else if (genomeID %in%  group.dnaE1 ){
+#         col = "red"
+#     } else if(genomeID %in% group.polC.dnaE3) {
+#       col = "green"
+#     } else {
+#       col = rgb(1,1,1,alpha=0.1)
+#     }
+#     # then plot the GC content against the mean CAI
+#       # #if(genomeID %in% biased.genomes){
+#       #   print ("biased genome")
+#       #   col = "blue"
+#       #   } else if (genomeID %in% unbiased.genomes){
+#       #     print ("unbiased genome")
+#       #   col = "red"
+#       #   } else {
+#       #   col = "grey"
+#       #   }
+#     if (genomecount == 0){  
+#       plot(GCcont, mean.cai, col=col, 
+#                    type = "p", xlim = xlim, ylim = ylim,
+#            pch = 18, main = "Average CAI vs. GC content",
+#            xlab = "GC content (%)", 
+#            ylab = "Mean CAI")
+#       grid(NULL, NULL, lty = 6, col = "cornsilk2")
+#       legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
+#             col=c("red", "blue", "green", "grey") , bty="n")
+#       genomecount = genomecount + 1
+#       } else {
+#       points(GCcont, mean.cai, col= col, pch = 18)
+#       }
+# 
+#     }
+# }
+# dev.off()
 
 #write.table(GCneut, "GCneutralgenomes.csv", sep = ",", 
 #            quote = FALSE, col.names = FALSE, row.names = FALSE)
