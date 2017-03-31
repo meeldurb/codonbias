@@ -206,16 +206,16 @@ eq.polC <- substitute(y == a + b %.% x*","~~r^2~"="~r2,
                             b = format(coef(lm.polC.dnaE3)[2], digits = 2),
                             r2 = format(summary(lm.polC.dnaE3)$r.squared, digits = 3)))
 
-eq.polC<- as.character(as.expression(eq.polC))
+eq.polC <- as.character(as.expression(eq.polC))
 
 
 
 # draw the plot (ggplot)
 p <- ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3], col = data.CAIGCpolIII$polIII.col)) +
   geom_point() + geom_smooth(method = "lm", fill = NA)+
-  geom_text(x = 60, y = 0.5, label=eq.dnaE1, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4) + 
-  geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#F8766D", family = "Helvetica", size = 4) + 
-  geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4) + 
+  geom_text(x = 60, y = 0.5, label=eq.dnaE1, parse=TRUE, color = "#F8766D", family = "Helvetica", size = 4) + 
+  geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4) + 
+  geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4) + 
   labs(title = "Average CAI vs. GC content", x = "GC content (%)", y = "Mean CAI",
        color = "Polymerase III isomers")
 
