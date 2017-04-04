@@ -23,8 +23,8 @@ library("seqinr")
 library("stringr")
 
 #loading my own functions
-source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cweight.R")
-source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
+#source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cweight.R")
+#source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/ccodpairsweight.R")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAIpairs.R")
 
@@ -42,9 +42,16 @@ genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE
 outfolderw <- "codonpairs_weight/"  
 if (!file.exists(outfolderw))dir.create(outfolderw)
 
+outfolderitw <- "codonpairs_itweight/"
+if (!file.exists(outfolderitw))dir.create(outfolderitw)
+
+outfolder100 <- "top100genesit_results/"
+if (!file.exists(outfolder100))dir.create(outfolder100)
+
 # looping through all the genomes
 for (genomeID in genome.and.organisms[,1]) { 
   cat (genomeID, "\n")
+  w.it.files <- paste(outfolderitw, genomeID, "_witcodpairs.csv", sep="")
   w.files <- paste(outfolderw, genomeID, "_wcodpairs.csv", sep="")
   # if the initial w table is not written yet, do so
   if (!file.exists(w.files)) {
@@ -107,6 +114,8 @@ for (genomeID in genome.and.organisms[,1]) {
     write.table(w.codpairtable, file = w.files, append = F, sep = ",", row.names = F, quote = F, col.names = F)
   } 
   # if the initial w table exists, open it
+  if (!file.exists(w.it.files)) {
+    
   if(file.exists(w.files)) {
     gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
     if (file.exists(gene.files)){
@@ -148,10 +157,8 @@ for (genomeID in genome.and.organisms[,1]) {
         gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
         
         # then re-compute weight tables 
-        w.table <- compute.codpairs.weight(gene.match[,2], genomeID)
-        ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
-        # only leaving numbers
-        w <- ordered.w[,2]
+        new.w.table <- compute.codpairs.weight(gene.match[,2], genomeID)
+
         
         # We re-calculate the CAI of all the gene_IDs 
         cai.res <- compute.codpairs.cai(gene.data, new.w.table, genomeID)
@@ -167,20 +174,16 @@ for (genomeID in genome.and.organisms[,1]) {
         # keep a count of the iterations, loop needs to stop after 20
         it.count <- sum(it.count, 1)
       }
-      # save count of iterations for each genome
-      genomeID.table <- c(genomeID.table, genomeID)
-      itcount.table <- c(itcount.table, it.count)
-      diffcount.table <- c(diffcount.table, diff.count)
-      
-      
+
       # write weight table to file
-      write.table(w.table, file = fileout, append = FALSE, sep = ",", 
+      write.table(new.w.table, file = w.it.files, append = FALSE, sep = ",", 
                   row.names = FALSE, quote = FALSE, col.names = FALSE)
       write.table(res.top100, file = paste(outfolder100, genomeID, "_restop100.csv", sep=""),
                   append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+      }
     }
   }
-  }
+}
 
 
 

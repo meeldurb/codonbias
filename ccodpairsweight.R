@@ -30,7 +30,7 @@
 
 
     
-compute.codpairs.weight <- function(genomeID){
+compute.codpairs.weight <- function(w.seqs.df, genomeID){
   
 #####~~~~~~~~~~~~~~~~~~~~~~~~~ Retrieving codon tables ~~~~~~~~~~~~~~~~~~~~~~~~~#####
   
@@ -78,64 +78,6 @@ compute.codpairs.weight <- function(genomeID){
   
   
   
-#####~~~~~~~~~~~~~~~~~~~~~~~~~ Retrieving ribosomal protein genes ~~~~~~~~~~~~~~~~~~~~~~~~~#####
-  
-  # based on ribosomal protein domains
-  # We will go through all the genomes and the weight tables 
-  # will be written to a file
-  # creating a variable to store all the ribosomal proteins from all genomes
-  
-  query.ribosomal.seqs <- '
-  PREFIX gbol: <http://gbol.life#>
-  SELECT DISTINCT ?domain_id ?d_begin ?d_end ?CDS
-  WHERE {
-  VALUES ?sample { <http://gbol.life#xxx> }    
-  ?sample a gbol:Sample .
-  ?contig gbol:sample ?sample .
-  ?contig gbol:feature ?gene .
-  ?gene gbol:transcript ?transcript .
-  ?transcript gbol:sequence ?CDS .
-  ?gene gbol:origin ?origin .
-  ?origin <http://www.w3.org/ns/prov#provo:wasAttributedTo> ?annotation .
-  ?annotation gbol:name "prodigal" .
-  ?annotation gbol:version "2.6.3".
-  ?transcript gbol:feature ?cds .
-  ?cds gbol:protein ?protein .
-  ?protein gbol:feature ?feature .
-  ?feature gbol:provenance ?provenance .
-  ?provenance gbol:signature_description ?domain_description .
-  ?feature gbol:location ?location .
-  ?location gbol:begin ?beginiri .
-  ?beginiri gbol:position ?d_begin .
-  ?location gbol:end ?endiri .
-  ?endiri gbol:position ?d_end .
-  ?feature gbol:origin <http://gbol.life#/interproscan/interproscan-5.21-60.0> .
-  ?feature gbol:xref ?xref .
-  ?xref gbol:PrimaryAccession ?domain_id .
-  ?xref gbol:db <http://identifiers.org/pfam/> .
-  FILTER(regex(?domain_description, "ribosomal protein", "i"))
-  }
-  '
-  
-  ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
-  
-  
-
-  
-  # looping through all the genomes
-
-      sub.query.ribosomal.seqs <- sub("xxx", genomeID, query.ribosomal.seqs)
-      # running curl from command line
-      curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",sub.query.ribosomal.seqs,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
-      curl <- gsub(pattern = "\n", replacement = " ", x = curl)
-      system(curl)
-      output.riboseqs <- rbind(sub.query.ribosomal.seqs, read.csv("tmp.txt", sep = "\t"))
-      # slice off 1st row which contains NA values
-      ribosomal.seqs.data <- output.riboseqs[-1,]
-      #some genomes do not have ribosomal domain data, we should skip these
-      if (length(ribosomal.seqs.data) == 0) {
-        next 
-      }
       # Searching for Mycoplasma and Spiroplasma, which use other genetic codon table
       match.words <- c("Mycoplasma", "Spiroplasma")
       # i contains the indices where Myco/Spiro is found
@@ -152,7 +94,7 @@ compute.codpairs.weight <- function(genomeID){
       counter <- rep(0, length(codonpair.table[,1]))
       codonpair.table$count <- counter
       # keeping seqcount to know at which DNAseq the loop is
-      for (DNAseq in ribosomal.seqs.data[,4]){
+      for (DNAseq in w.seqs.df){
         # between every codon place an "_"
         sq <- gsub("(.{3})", "\\1 ", DNAseq)
         sq <- sub("\\s+$", "", sq)
