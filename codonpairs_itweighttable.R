@@ -26,29 +26,161 @@ library("stringr")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cweight.R")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/ccodpairsweight.R")
-
+source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAIpairs.R")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
+
+
+
 # open and read file with genomeIDs
-#genomeID <- "GCA_000003925"
-genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+genomeID <- "GCA_000003925"
+genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 
-outfolder <- "codonpairs_weight/"  
-if (!file.exists(outfolder))dir.create(outfolder)
+outfolderw <- "codonpairs_weight/"  
+if (!file.exists(outfolderw))dir.create(outfolderw)
 
 # looping through all the genomes
 for (genomeID in genome.and.organisms[,1]) { 
-  fileout <- paste(outfolder, genomeID, "_wcodpairs.csv", sep="")
-  if (!file.exists(fileout)) {
-    cat (genomeID, "\n")
-    w.codpairtable <- compute.codpairs.weight(genomeID)
-    write.table(w.codpairtable, file = fileout, append = F, sep = ",", row.names = F, quote = F, col.names = F)
-  }
-}
+  cat (genomeID, "\n")
+  w.files <- paste(outfolderw, genomeID, "_wcodpairs.csv", sep="")
+  # if the initial w table is not written yet, do so
+  if (!file.exists(w.files)) {
+    #####~~~~~~~~~~~~~~~~~~~~~~~~~ Retrieving ribosomal protein genes ~~~~~~~~~~~~~~~~~~~~~~~~~#####
+    
+    # based on ribosomal protein domains
+    # We will go through all the genomes and the weight tables 
+    # will be written to a file
+    # creating a variable to store all the ribosomal proteins from all genomes
+    
+    query.ribosomal.seqs <- '
+    PREFIX gbol: <http://gbol.life#>
+    SELECT DISTINCT ?domain_id ?d_begin ?d_end ?CDS
+    WHERE {
+    VALUES ?sample { <http://gbol.life#xxx> }    
+    ?sample a gbol:Sample .
+    ?contig gbol:sample ?sample .
+    ?contig gbol:feature ?gene .
+    ?gene gbol:transcript ?transcript .
+    ?transcript gbol:sequence ?CDS .
+    ?gene gbol:origin ?origin .
+    ?origin <http://www.w3.org/ns/prov#provo:wasAttributedTo> ?annotation .
+    ?annotation gbol:name "prodigal" .
+    ?annotation gbol:version "2.6.3".
+    ?transcript gbol:feature ?cds .
+    ?cds gbol:protein ?protein .
+    ?protein gbol:feature ?feature .
+    ?feature gbol:provenance ?provenance .
+    ?provenance gbol:signature_description ?domain_description .
+    ?feature gbol:location ?location .
+    ?location gbol:begin ?beginiri .
+    ?beginiri gbol:position ?d_begin .
+    ?location gbol:end ?endiri .
+    ?endiri gbol:position ?d_end .
+    ?feature gbol:origin <http://gbol.life#/interproscan/interproscan-5.21-60.0> .
+    ?feature gbol:xref ?xref .
+    ?xref gbol:PrimaryAccession ?domain_id .
+    ?xref gbol:db <http://identifiers.org/pfam/> .
+    FILTER(regex(?domain_description, "ribosomal protein", "i"))
+    }
+    '
+  
+    ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
+  
+    sub.query.ribosomal.seqs <- sub("xxx", genomeID, query.ribosomal.seqs)
+    # running curl from command line
+    curl <- paste0("curl -s -X POST ",ENDPOINT," --data-urlencode 'query=",sub.query.ribosomal.seqs,"' -H 'Accept:text/tab-separated-values' > tmp.txt")
+    curl <- gsub(pattern = "\n", replacement = " ", x = curl)
+    system(curl)
+    output.riboseqs <- rbind(sub.query.ribosomal.seqs, read.csv("tmp.txt", sep = "\t"))
+    # slice off 1st row which contains NA values
+    ribosomal.seqs.data <- output.riboseqs[-1,]
+    #some genomes do not have ribosomal domain data, we should skip these
+    if (length(ribosomal.seqs.data) == 0) {
+      next 
+      print ("no ribosomal seqs found")
+    }
+    print ("new w table will be written")
+    w.codpairtable <- compute.codpairs.weight(ribosomal.seqs.data[,4], genomeID)
+    write.table(w.codpairtable, file = w.files, append = F, sep = ",", row.names = F, quote = F, col.names = F)
+  } 
+  # if the initial w table exists, open it
+  if(file.exists(w.files)) {
+    gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+    if (file.exists(gene.files)){
+      w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+      gene.data <- read.csv(file = gene.files, header = TRUE, 
+                            as.is=TRUE) #as.is to keep the it as char 
+      cai.ini <- compute.codpairs.cai(gene.data, w.data, genomeID)
+      
+      # sort on CAI value and take top 100
+      #sort.cai <- cai.data[order(-cai.data[,2]),]
+      ini.sort.cai <- cai.ini[order(-cai.ini[,2]),]
+      ini.top100 <- head(ini.sort.cai, 100)
+      
+      # We retrieve only the CDS of the gene_IDs that are in the top 100
+      match.id <- as.vector(ini.top100[,1])
+      gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
+      
+      # then re-compute weight tables 
+      new.w.table <- compute.codpairs.weight(gene.match[,2], genomeID)
 
+      # We re-calculate the CAI of all the gene_IDs 
+      cai.res <- compute.codpairs.cai(gene.data, new.w.table, genomeID)
+      
+      # and take the top 100 again
+      res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+      res.top100 <- head(res.sort.cai, 100)
+      
+      #compare initial and result top 100
+      diff.count <- length(setdiff(ini.top100[,1], res.top100[,1]))
+      cat(paste("differences between tables is ", diff.count, "\n"))
+      
+      # if the difference between both lists is lower than 5, run the analysis again
+      # else save the resulting weight table
+      it.count = 1
+      while (diff.count > 0 && it.count <= 20){
+        ini.top100 <- res.top100
+        # We retrieve only the CDS of the gene_IDs that are in the top 100
+        match.id <- as.vector(ini.top100[,1])
+        gene.match <- gene.data[gene.data[,1] %in% match.id, ] 
+        
+        # then re-compute weight tables 
+        w.table <- compute.codpairs.weight(gene.match[,2], genomeID)
+        ordered.w <- w.table[with(w.table, order(w.table[,1])), ]
+        # only leaving numbers
+        w <- ordered.w[,2]
+        
+        # We re-calculate the CAI of all the gene_IDs 
+        cai.res <- compute.codpairs.cai(gene.data, new.w.table, genomeID)
+        
+        # and take the top 100 again
+        res.sort.cai <- cai.res[order(-cai.res[,2]),] 
+        res.top100 <- head(res.sort.cai, 100)
+        
+        #compare initial and result top 100
+        diff.count <- length(setdiff(ini.top100[,1], res.top100[,1]))
+        cat(paste("differences between tables is ", diff.count, "\n"))
+        
+        # keep a count of the iterations, loop needs to stop after 20
+        it.count <- sum(it.count, 1)
+      }
+      # save count of iterations for each genome
+      genomeID.table <- c(genomeID.table, genomeID)
+      itcount.table <- c(itcount.table, it.count)
+      diffcount.table <- c(diffcount.table, diff.count)
+      
+      
+      # write weight table to file
+      write.table(w.table, file = fileout, append = FALSE, sep = ",", 
+                  row.names = FALSE, quote = FALSE, col.names = FALSE)
+      write.table(res.top100, file = paste(outfolder100, genomeID, "_restop100.csv", sep=""),
+                  append = FALSE, sep = ",", row.names = FALSE, quote = FALSE, col.names = FALSE)
+    }
+  }
+  }
 
 
 
