@@ -144,134 +144,129 @@ for (genomeID in genome.and.organisms[,1]) {
 # write.table(iteration.df, file = "iterationcount.csv", append = FALSE, sep = ",", 
 #             row.names = FALSE, quote = FALSE, col.names = TRUE)
 
-# #######__________________________ comparing ribosomal vs random seed __________________________#######
-# 
-# 
-# # read in both iteration count files, get only first 2 columns
-# ribo.seed.iter <- read.csv("itcount_final.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
-# ribo.seed.iter[ribo.seed.iter == 0] <- NA
-# ribo.seed.iter <- na.omit(ribo.seed.iter)
-# 
-# rand.seed.iter <- read.csv("itcount_rand_final1.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
-# rand.seed.iter[rand.seed.iter == 0] <- NA
-# rand.seed.iter <- na.omit(rand.seed.iter)
-# 
-# 
-# # open files and making suitable for analysis
-# # reading a .csv file containing the genome names in the first column
-# genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
-#                                  as.is=TRUE) #as.is to keep the it as char
-# 
-# genomeID <- "GCA_000024425"
-# 
-# # initialize empty colums to add data to it
-# genomeID.col <- NULL
-# diff.mean.w.col <- NULL
-# diff.itcount.col <- NULL
-# diff.sum.w.col <- NULL
-# for (genomeID in genome.and.organisms[,1]) { 
-#   cat (genomeID, "\n")
-#   # get all the filenames
-#   w.rand.files <- paste("robustnesscheck_iterated_weight_tables/", genomeID, "_robust_it.csv", sep = "")
-#   w.ribo.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "")
-#   if (file.exists(w.rand.files)){
-#     # open weight files
-#     rand.w <- read.csv(file = w.rand.files, sep = ",", header = FALSE, as.is = TRUE)
-#     ribo.w <- read.csv(file = w.ribo.files, sep = ",", header = FALSE, as.is = TRUE)
-#     # get the difference between codonweights of random seed and ribosomal seed tables
-#     diff.w <- rand.w[,2] - ribo.w[,2]
-#     # calculate the mean difference
-#     diff.mean.w <- mean(diff.w)
-#     diff.sum.w <- sum(diff.w)
-#     # add the mean difference to the column
-#     diff.mean.w.col <- c(diff.mean.w.col, diff.mean.w)
-#     diff.sum.w.col <- c(diff.sum.w.col, diff.sum.w)
-#     genomeID.col <- c(genomeID.col, genomeID)
-#     # get the difference between iteration counts to compute final weight table
-#     # when input is ribosomal and random genes
-#     if (genomeID %in% rand.seed.iter[,1]){
-#       if (genomeID %in% ribo.seed.iter[,1]){
-#       itcount.rand <- rand.seed.iter[which(rand.seed.iter[,1] == genomeID), 2]
-#       itcount.ribo <- ribo.seed.iter[which(ribo.seed.iter[,1] == genomeID), 2]
-#       diff.itcount <- itcount.rand - itcount.ribo
-#       diff.itcount.col <- c(diff.itcount.col, diff.itcount)
-#       } else { # if the genome IDs are not found fill the column with NA, 
-#         # else dataframe will have unequal amount of rows when bound
-#         diff.itcount.col <- c(diff.itcount.col, NA)
-#         
-#       }
-#     } else {
-#       diff.itcount.col <- c(diff.itcount.col, NA)
-#     }
-#   }
-# }
-# 
-# data.CAIGCpolII <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
-#                               diff.itcount.col, stringsAsFactors = FALSE)
-# 
-# 
-# 
-# # drawing the histograms 
-# # 1st for iteration count difference
-# # just the difference
-# xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
-# 
-# 
-# hist.itcount <- hist(data.CAIGCpolII[,3], breaks=seq(xlim[1], xlim[2]), xlim = xlim, 
-#      main = "Difference iteration counts ribosomal vs. random seed", 
-#      xlab = "itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
-#      col = rgb(0,0,1,1/4))
-# 
-# # get the amount of genomes per difference
-# itcount.diff.hist.info <- data.frame(hist.itcount$breaks[-23], hist.itcount$counts)
-# more.it <- sum(itcount.diff.hist.info[1:10,2])/sum(itcount.diff.hist.info[,2])*100
-# less.it <- sum(itcount.diff.hist.info[12:22,2])/sum(itcount.diff.hist.info[,2])*100
-# no.diff <- itcount.diff.hist.info[11,2]/sum(itcount.diff.hist.info[,2])*100
-# 
-# xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
-# 
-# 
-# hist.itcount <- hist(data.CAIGCpolII[,3], breaks=seq(xlim[1], xlim[2]), xlim = xlim, 
-#                      main = "Difference iteration counts ribosomal vs. random seed", 
-#                      xlab = "itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
-#                      col = rgb(0,0,1,1/4))
-# 
-# # absolute differnce
-# xlim <- range(abs(data.CAIGCpolII[,4]), na.rm = TRUE)
-# 
-# 
-# hist(abs(data.CAIGCpolII[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim, 
-#      main = "Difference iteration counts ribosomal vs. random seed", 
-#      xlab = "abs(itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
-#      col = rgb(0,0,1,1/4))
-# 
-# 
-# # drawing the histograms 
-# # 2nd for weight table absolute difference
-# xlim <- range(abs(data.CAIGCpolII[,2]), na.rm = TRUE)
-# nbins <- 8
-# 
-# 
-# hist.wdiff<- hist(abs(data.CAIGCpolII[,2]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim, 
-#      main = "Absolute mean difference codon weights ribosomal vs. random seed", 
-#      xlab = "mean(abs(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
-#      col = rgb(0,0,1,1/4))
-# hist.wdiff$breaks
-# hist.wdiff$count
-# 
-# 
-# 
-# 
-# # drawing the histograms 
-# # 3nd for weight table summed/cumultative difference
-# xlim <- range(abs(data.CAIGCpolII[,3]), na.rm = TRUE)
-# nbins <- 11
-# 
-# 
-# hist.wdiff<- hist(abs(data.CAIGCpolII[,3]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim, 
-#                   main = "Cumultative difference codon weights ribosomal vs. random seed", 
-#                   xlab = "sum(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
-#                   col = rgb(0,0,1,1/4))
-# hist.wdiff$breaks
-# hist.wdiff$count
+#######__________________________ comparing ribosomal vs random seed __________________________#######
+
+
+# read in both iteration count files, get only first 2 columns
+ribo.seed.iter <- read.csv("itcount_final.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
+ribo.seed.iter[ribo.seed.iter == 0] <- NA
+ribo.seed.iter <- na.omit(ribo.seed.iter)
+
+rand.seed.iter <- read.csv("itcount_rand_final1.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)[, 1:2]
+rand.seed.iter[rand.seed.iter == 0] <- NA
+rand.seed.iter <- na.omit(rand.seed.iter)
+
+
+# open files and making suitable for analysis
+# reading a .csv file containing the genome names in the first column
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
+                                 as.is=TRUE) #as.is to keep the it as char
+
+genomeID <- "GCA_000024425"
+
+# initialize empty colums to add data to it
+genomeID.col <- NULL
+diff.mean.w.col <- NULL
+diff.itcount.col <- NULL
+diff.sum.w.col <- NULL
+for (genomeID in genome.and.organisms[,1]) {
+  cat (genomeID, "\n")
+  # get all the filenames
+  w.rand.files <- paste("robustnesscheck_iterated_weight_tables/", genomeID, "_robust_it.csv", sep = "")
+  w.ribo.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "")
+  if (file.exists(w.rand.files)){
+    # open weight files
+    rand.w <- read.csv(file = w.rand.files, sep = ",", header = FALSE, as.is = TRUE)
+    ribo.w <- read.csv(file = w.ribo.files, sep = ",", header = FALSE, as.is = TRUE)
+    # get the difference between codonweights of random seed and ribosomal seed tables
+    diff.w <- rand.w[,2] - ribo.w[,2]
+    # calculate the mean difference
+    diff.mean.w <- mean(diff.w)
+    diff.sum.w <- sum(diff.w)
+    # add the mean difference to the column
+    diff.mean.w.col <- c(diff.mean.w.col, diff.mean.w)
+    diff.sum.w.col <- c(diff.sum.w.col, diff.sum.w)
+    genomeID.col <- c(genomeID.col, genomeID)
+    # get the difference between iteration counts to compute final weight table
+    # when input is ribosomal and random genes
+    if (genomeID %in% rand.seed.iter[,1]){
+      if (genomeID %in% ribo.seed.iter[,1]){
+      itcount.rand <- rand.seed.iter[which(rand.seed.iter[,1] == genomeID), 2]
+      itcount.ribo <- ribo.seed.iter[which(ribo.seed.iter[,1] == genomeID), 2]
+      diff.itcount <- itcount.rand - itcount.ribo
+      diff.itcount.col <- c(diff.itcount.col, diff.itcount)
+      } else { # if the genome IDs are not found fill the column with NA,
+        # else dataframe will have unequal amount of rows when bound
+        diff.itcount.col <- c(diff.itcount.col, NA)
+
+      }
+    } else {
+      diff.itcount.col <- c(diff.itcount.col, NA)
+    }
+  }
+}
+
+data.CAIGCpolII <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
+                              diff.itcount.col, stringsAsFactors = FALSE)
+
+
+
+# drawing the histograms
+# 1st for iteration count difference
+# just the difference
+xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
+
+
+hist.itcount <- hist(data.CAIGCpolII[,3], xlim = xlim,
+     main = "Difference iteration counts ribosomal vs. random seed",
+     xlab = "itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
+     col = rgb(0,0,1,1/4))
+
+# get the amount of genomes per difference
+itcount.diff.hist.info <- data.frame(hist.itcount$breaks[-18], hist.itcount$counts)
+more.it <- sum(itcount.diff.hist.info[1:11,2])/sum(itcount.diff.hist.info[,2])*100
+less.it <- sum(itcount.diff.hist.info[13:17,2])/sum(itcount.diff.hist.info[,2])*100
+no.diff <- itcount.diff.hist.info[12,2]/sum(itcount.diff.hist.info[,2])*100
+
+xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
+
+
+# absolute differnce
+xlim <- range(abs(data.CAIGCpolII[,4]), na.rm = TRUE)
+
+
+hist(abs(data.CAIGCpolII[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim,
+     main = "Difference iteration counts ribosomal vs. random seed",
+     xlab = "abs(itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
+     col = rgb(0,0,1,1/4))
+
+
+# drawing the histograms
+# 2nd for weight table absolute difference
+xlim <- range(abs(data.CAIGCpolII[,2]), na.rm = TRUE)
+nbins <- 8
+
+
+hist.wdiff<- hist(abs(data.CAIGCpolII[,2]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
+     main = "Absolute mean difference codon weights ribosomal vs. random seed",
+     xlab = "mean(abs(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
+     col = rgb(0,0,1,1/4))
+hist.wdiff$breaks
+hist.wdiff$count
+
+
+
+
+# drawing the histograms
+# 3nd for weight table summed/cumultative difference
+xlim <- range(abs(data.CAIGCpolII[,3]), na.rm = TRUE)
+nbins <- 11
+
+
+hist.wdiff<- hist(abs(data.CAIGCpolII[,3]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
+                  main = "Cumultative difference codon weights ribosomal vs. random seed",
+                  xlab = "sum(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
+                  col = rgb(0,0,1,1/4))
+hist.wdiff$breaks
+hist.wdiff$count
 
