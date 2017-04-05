@@ -227,8 +227,9 @@ itcount.diff.hist.info <- data.frame(hist.itcount$breaks[-18], hist.itcount$coun
 more.it <- sum(itcount.diff.hist.info[1:11,2])/sum(itcount.diff.hist.info[,2])*100
 less.it <- sum(itcount.diff.hist.info[13:17,2])/sum(itcount.diff.hist.info[,2])*100
 no.diff <- itcount.diff.hist.info[12,2]/sum(itcount.diff.hist.info[,2])*100
+sum(itcount.diff.hist.info[,2])
 
-xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
+
 
 
 # absolute differnce
@@ -252,7 +253,7 @@ hist.wdiff<- hist(abs(data.CAIGCpolII[,2]), breaks=seq(xlim[1], xlim[2], length 
      xlab = "mean(abs(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
 hist.wdiff$breaks
-hist.wdiff$count
+sum(hist.wdiff$count)
 
 
 
