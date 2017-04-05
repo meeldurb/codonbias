@@ -31,6 +31,7 @@
 
     
 compute.codpairs.weight <- function(w.seqs.df, genomeID){
+  print ("starting computation weight tables")
   
 #####~~~~~~~~~~~~~~~~~~~~~~~~~ Retrieving codon tables ~~~~~~~~~~~~~~~~~~~~~~~~~#####
   
@@ -124,7 +125,7 @@ compute.codpairs.weight <- function(w.seqs.df, genomeID){
       for (aa in unique.aa){
         aapair.count <- codonpair.table[which(codonpair.table[,1] == aa), ]
         totcount.aa <- sum(aapair.count[,3])
-        print (aa)
+        #print (aa)
         #print (totcount.aa)
         # then for every codonpair associated to an aa pair,
         # calculate the frequency of the codonpair (count/total count)
