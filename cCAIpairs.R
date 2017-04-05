@@ -181,7 +181,7 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
 
 
 
-meh <- compute.codpairs.cai(gene.data, w.data, genomeID)
+#meh <- compute.codpairs.cai(gene.data, w.data, genomeID)
 
 
 
