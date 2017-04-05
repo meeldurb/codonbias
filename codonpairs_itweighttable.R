@@ -35,7 +35,7 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open and read file with genomeIDs
 genomeID <- "GCA_000003925"
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 
