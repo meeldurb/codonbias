@@ -152,10 +152,14 @@ length(aerobe.cai)
 anaerobe.cai <- oxygen.df[which(oxygen.df$oxy == "Anaerobe"), 3]
 length(anaerobe.cai)
 facul.cai <- oxygen.df[which(oxygen.df$oxy == "Facultative"), 3]
+length(facul.cai)
 micr.cai <- oxygen.df[which(oxygen.df$oxy == "Microaerophilic"), 3]
 length(micr.cai)
 oblaerobe.cai <- oxygen.df[which(oxygen.df$oxy == "Obligate aerobe"), 3]
+length(oblaerobe.cai)
 oblanaerobe.cai <- oxygen.df[which(oxygen.df$oxy == "Obligate anaerobe"), 3]
+length(oblanaerobe.cai)
+
 
 # draw the histogram plot
 xlim <- range(oxygen.df[,3], na.rm = TRUE)
@@ -204,23 +208,151 @@ legend("topleft", c("Aerobe", "Anearobe", "Facultative", "Microareophilic",
                rgb(0,1,0,1/4), rgb(0,1,1,1/2), rgb(1,1/4,1,1/2)), bty = "n", cex=1.5)
 
 
-plot(stenohal.hist, col = rgb(0,1,1,1/4), 
-     main = "CAI distribution of salinity requirements",
-     xlab = "mean CAI",
-     ylab = "Bacterial frequency")
 
-plot(halophile.hist, col = rgb(1,0,0,1/4), add = TRUE)
-plot(euryhal.hist, col = rgb(1,1,1/4,1/2), add = TRUE)
-plot(halotol.hist, col = rgb(0,0,1,1/4), add = TRUE)
-legend("topright", c("Halophile", "Euryhaline", "Halotolerant", "Stenohaline"), pch = 15,
-       col = c(rgb(1,0,0,1/4), rgb(1,1,1/4,1/2), rgb(0,0,1,1/4), rgb(0,1,1,1/4)) , bty = "n", cex=1.5)
+# splitting oxygen requirement in 2 groups, one that can live without one that cannot live without
+noox <- c(oblanaerobe.cai, facul.cai, anaerobe.cai)
+proox <- c(micr.cai, aerobe.cai, oblaerobe.cai)
 
 
+# draw the histogram plot
+xlim <- range(oxygen.df[,3], na.rm = TRUE)
+breakpoints <- seq(xlim[1], xlim[2], length.out = 20)
 
-# removed eury- and stenohaline
+# get the histograms and calculate percentages
 par(mfrow = c(1,1))
-plot(halotol.hist, col = rgb(1,0,0,1/4))
-plot(halophile.hist, col = rgb(0,0,1,1/4), add = TRUE)
-legend("topleft", c("Halophile", "Halotolerant"), pch = 15,
-       col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4)) , bty = "n", cex=1.5)
+noox.hist <- hist(noox,
+                    breaks = breakpoints, plot = F)
+noox.hist$counts = noox.hist$counts/sum(noox.hist$counts)
+
+proox.hist <- hist(proox,
+                  breaks = breakpoints, plot = F)
+proox.hist$counts = proox.hist$counts/sum(proox.hist$counts)
+
+
+plot(proox.hist, col = rgb(1,0,0,1/4),
+     main = "CAI distribution of oxygen requirements",
+     xlab = "mean CAI",
+     ylab = "Bacterial frequency") 
+plot(noox.hist, col = rgb(0,0,1,1/4), add = TRUE)
+
+legend("topleft", c("no oxygen", "pro oxygen"), pch = 15,
+       col = c(rgb(0,0,1,1/4), rgb(1,0,0,1/4)), bty = "n", cex=1.5)
+
+
+
+##############_______________________________temperature requirement_______________________________#####################
+# taking the genomeIDs that have oxygen information
+temp <- as.data.frame(c(gold.data[1], gold.data[which(colnames(gold.data) == "Temperature.Range")]))
+temp <- na.omit(temp)
+length(temp$Temperature.Range)
+# check which groups are there and how large they are
+unique(temp$Temperature.Range)
+table(temp[,2])
+
+# changing the temperature classifiers because of no uniformity
+also.meso <- c("25-37", "26", "28", "28 - 30 C", "28-32", "28 C", 
+              "30", "30 C", "35 C", "Apr-37", "May-37", "mesophile")
+temp$Temperature.Range <- as.character(temp$Temperature.Range)
+for (elem in also.meso){
+  temp$Temperature.Range[temp$Temperature.Range == elem] <- "Mesophile"
+}
+temp$Temperature.Range[temp$Temperature.Range == "15-20 C, Psychrophile"] <- "Psychrophile"
+temp$Temperature.Range[temp$Temperature.Range == "to 93 C"] <- "Thermophile"
+
+means = numeric()
+genID = character() 
+t = character()
+gencount = 1
+for (genomeID in temp[,1]){
+  cat (genomeID, "\n")
+  cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
+  if (file.exists(cai.files)){
+    if (genomeID %in% NeutGen){
+      data <- read.csv(file = cai.files, sep = ",", 
+                       header = TRUE, as.is = TRUE)
+      mean.cai <- mean(data[,2])
+      # setting properties for drawing the graphs
+      genID <- c(as.character(genomeID), genID)
+      means <- c(mean.cai, means)
+      t <- c(as.character(temp[gencount,2]), t)
+      gencount = sum(gencount, 1)
+    }
+  }
+}
+# write all the data to a dataframe and remove NA rows
+temp.df <- data.frame(genID, t, means, stringsAsFactors = FALSE)
+temp.df <- na.omit(temp.df)
+length(temp.df[,1])
+
+# retrieving CAI values of each of the conditions
+meso.cai <- temp.df[which(temp.df$t == "Mesophile"), 3]
+length(meso.cai)
+hypther.cai <- temp.df[which(temp.df$t == "Hyperthermophile"), 3]
+length(hypther.cai)
+psychro.cai <- temp.df[which(temp.df$t == "Psychrophile"), 3]
+length(psychro.cai)
+psychrotol.cai <- temp.df[which(temp.df$t == "Psychrotolerant"), 3]
+length(psychrotol.cai)
+psychrotrop.cai <- temp.df[which(temp.df$t == "Psychrotrophic"), 3]
+length(psychrotrop.cai)
+thermo.cai <- temp.df[which(temp.df$t == "Thermophile"), 3]
+length(thermo.cai)
+thermotol.cai <- temp.df[which(temp.df$t == "Thermotolerant"), 3]
+length(thermotol.cai)
+
+
+# draw the histogram plot
+xlim <- range(temp.df[,3], na.rm = TRUE)
+breakpoints <- seq(xlim[1], xlim[2], length.out = 20)
+
+# get the histograms and calculate percentages
+par(mfrow = c(1,1))
+meso.hist <- hist(meso.cai,
+                    breaks = breakpoints, plot = F)
+meso.hist$counts = meso.hist$counts/sum(meso.hist$counts)
+
+hypther.hist <- hist(hypther.cai,
+                      breaks = breakpoints, plot = F)
+hypther.hist$counts = hypther.hist$counts/sum(hypther.hist$counts)
+
+psychro.hist <- hist(psychro.cai,
+                   breaks = breakpoints, plot = F)
+psychro.hist$counts = psychro.hist$counts/sum(psychro.hist$counts)
+
+psychrotol.hist <- hist(psychrotol.cai,
+                   breaks = breakpoints, plot = F)
+psychrotol.hist$counts = psychrotol.hist$counts/sum(psychrotol.hist$counts)
+
+psychrotrop.hist <- hist(psychrotrop.cai,
+                       breaks = breakpoints, plot = F)
+psychrotrop.hist$counts = psychrotrop.hist$counts/sum(psychrotrop.hist$counts)
+
+thermo.hist <- hist(thermo.cai,
+                         breaks = breakpoints, plot = F)
+thermo.hist$counts = thermo.hist$counts/sum(thermo.hist$counts)
+
+thermotol.hist <- hist(thermotol.cai,
+                    breaks = breakpoints, plot = F)
+thermotol.hist$counts = thermo.hist$counts/sum(thermotol.hist$counts)
+
+
+
+plot(thermo.hist, col = rgb(1,0,0,1/4),
+     main = "CAI distribution of temperature requirements",
+     xlab = "mean CAI",
+     ylab = "Bacterial frequency") 
+plot(meso.hist, col = rgb(0,0,1,1/4), add = TRUE)
+plot(micro.hist, col = rgb(0,1,0,1/4), add = TRUE)
+plot(aerobe.hist, col = rgb(1,1,1/4,1/2), add = TRUE)
+plot(oblaerobe.hist, col = rgb(0,1,1,1/2), add = TRUE)
+plot(oblanaerobe.hist, col = rgb(1,1/4,1,1/2), add = TRUE)
+
+
+legend("topleft", c("Thermophile", "Mesophile"), pch = 15,
+       col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4), bty = "n", cex=1.5))
+
+legend("topleft", c("Aerobe", "Anearobe", "Facultative", "Microareophilic", 
+                    "Obligate aerobe", "Obligate anaerobe"), pch = 15,
+       col = c(rgb(1,1,1/4,1/2), rgb(0,0,1,1/4), rgb(1,0,0,1/4), 
+               rgb(0,1,0,1/4), rgb(0,1,1,1/2), rgb(1,1/4,1,1/2)), bty = "n", cex=1.5)
 
