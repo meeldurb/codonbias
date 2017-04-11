@@ -14,10 +14,12 @@ library(ggplot2)
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open files and making suitable for analysis
-genomeID <- "GCA_000003925"
+genomeID <- "GCA_000008185"
+genomeID <- "GCA_000008205"
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_ENA_nodupl.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                 as.is=TRUE) #as.is to keep the it as char
+genome.and.organisms <- genome.and.organisms[,1:2]
 
 
 
@@ -27,40 +29,62 @@ n = 0
 c = 0
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")  
-  w.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "") 
+  w.files <- paste("codonpairs_itweight/", genomeID, "_witcodpairs.csv", sep = "") 
   if (file.exists(w.files)){
-    n <- n + 1
-    w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-    # order on codon because of cai function
-    ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-    # only leaving numbers
-    w <- ordered.w[,2]
-    if (genomecount == 0){
-    codgendf <- data.frame(row.names=ordered.w[,1])
-    codgendf <- cbind(codgendf, w)
-    colnames(codgendf)[n] <- genomeID
-    genomecount = genomecount + 1
-    } else {
-      codgendf <- cbind(codgendf, w)
-      colnames(codgendf)[n] <- genomeID
-    } 
-    } else {
-      print(paste("genomefile", genomeID, "does not exist"))
-      c <- c + 1
+    # Searching for Mycoplasma and Spiroplasma, which use other genetic codon table
+    match.words <- c("Mycoplasma", "Spiroplasma")
+    # i contains the indices where Myco/Spiro is found
+    i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
+    genomesMycoSpiro <- genome.and.organisms[i,1]
+    # when the genome number of myc/spir is not found it will combine the genomeID in the dataframe
+    # else the dataframe is too short (less stop codons are omitted)
+    # so it will not complain anymore
+    if(!(genomeID %in% genomesMycoSpiro)) {
+      n <- n + 1
+      w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
+      # order on codon because of cai function
+      ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
+      # removing all codon pairs which start with stop codon
+      # for weight tables
+      stop.pair.i <- grep("\\*_", w.data[,1])
+      length(w.data[,1]) - length(stop.pair.i)
+      w.pair <- w.data[-stop.pair.i, ]
+      length(w.pair[,1])
+      # only leaving numbers
+      w <- w.pair[,3]
+      length(w)
+      # getting dataframe of codons and weight values
+      if (genomecount == 0){
+        codgendf <- data.frame(row.names=w.pair[,2])
+        codgendf <- cbind(codgendf, w)
+        colnames(codgendf)[n] <- genomeID
+        genomecount = genomecount + 1
+      } else {
+        codgendf <- cbind(codgendf, w)
+        colnames(codgendf)[n] <- genomeID
+      } 
+    } else { 
+      print(paste("genomefile", genomeID, "is myco/spiro genome"))
+      # c <- c + 1
     }
+  } else {
+    print(paste("genomefile", genomeID, "does not exist"))
+    #  c <- c + 1
+  }
 }
-save(codgendf, file = "codonGenomeDataSet.RData")
+save(codgendf, file = "codonpairsGenomeDataSet.RData")
 
 
 ####________________________ Do the PCA of all genomes and codon weights ________________________####
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-load("codonGenomeDataSet.RData")
+load("codonpairsGenomeDataSet.RData")
 colnames(codgendf)
 codgen <- t(codgendf)
 rownames(codgen)
 str(codgen)
+codgen[is.na(codgen)] <- 0
 
 gold.data= read.table(file = "gold_gca.tsv", sep="\t" , header=TRUE,
                       row.names=1,as.is=TRUE)
@@ -76,7 +100,7 @@ str(codgen)
 
 # do the PCA
 m.codgen <- as.matrix(codgen)
-m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
+#m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
 
 codgen.pca <- prcomp(m.codgen, scale = TRUE)
 pca.summary <- summary(codgen.pca)
@@ -94,7 +118,7 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- order.count$values[which(order.count$length>200)]   
+selected <- order.count$values[which(order.count$length>5)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
 group[which(!group%in% selected)] <- NA
@@ -120,7 +144,7 @@ title <- "ggplot of Classes"
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 phylum.count <- rle(sort(gold.data$NCBI.Phylum))
-selected <- phylum.count$values[which(phylum.count$length>100)]   
+selected <- phylum.count$values[which(phylum.count$length>1)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Phylum
 group[which(!group%in% selected)] <- NA
@@ -172,7 +196,7 @@ title <- "ggplot of oxygen requirement"
 
 
 ### Draw plot
-myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
+myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands create the plot, but nothing appears
   geom_point(size=2, shape=18)+
   theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
   theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
