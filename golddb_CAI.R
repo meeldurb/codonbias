@@ -342,13 +342,52 @@ plot(thermo.hist, col = rgb(1,0,0,1/4),
      xlab = "mean CAI",
      ylab = "Bacterial frequency") 
 plot(meso.hist, col = rgb(0,0,1,1/4), add = TRUE)
-plot(micro.hist, col = rgb(0,1,0,1/4), add = TRUE)
-plot(aerobe.hist, col = rgb(1,1,1/4,1/2), add = TRUE)
-plot(oblaerobe.hist, col = rgb(0,1,1,1/2), add = TRUE)
-plot(oblanaerobe.hist, col = rgb(1,1/4,1,1/2), add = TRUE)
-
 
 legend("topleft", c("Thermophile", "Mesophile"), pch = 15,
+       col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4), bty = "n", cex=1.5))
+
+
+# getting graphs with extremophiles
+plot(thermo.hist, col = rgb(1,0,0,1/4),
+     main = "CAI distribution of temperature requirements",
+     xlab = "mean CAI",
+     ylab = "Bacterial frequency") 
+plot(meso.hist, col = rgb(0,0,1,1/4), add = TRUE)
+plot(hypther.hist, col = rgb(1,1,1/4,1/2), add = TRUE)
+plot(psychrotrop.hist, col = rgb(0,1,0,1/4), add = TRUE)
+
+legend("topleft", c("Thermophile", "Mesophile", "Hyperthermophile", "Psychrotrophic"), pch = 15,
+       col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4), rgb(1,1,1/4,1/2), rgb(0,1,0,1/4), bty = "n", cex=1.5))
+
+
+# pooling extremophiles
+extreme <- c(hypther.cai, psychrotrop.cai, psychro.cai)
+nonextreme <- c(meso.cai, thermo.cai)
+
+
+
+# draw the histogram plot
+xlim <- range(temp.df[,3], na.rm = TRUE)
+breakpoints <- seq(xlim[1], xlim[2], length.out = 20)
+
+# get the histograms and calculate percentages
+par(mfrow = c(1,1))
+extreme.hist <- hist(extreme,
+                  breaks = breakpoints, plot = F)
+extreme.hist$counts = extreme.hist$counts/sum(extreme.hist$counts)
+
+nonextreme.hist <- hist(nonextreme,
+                   breaks = breakpoints, plot = F)
+nonextreme.hist$counts = nonextreme.hist$counts/sum(nonextreme.hist$counts)
+
+
+plot(extreme.hist, col = rgb(1,0,0,1/4),
+     main = "CAI distribution of temperature requirements",
+     xlab = "mean CAI",
+     ylab = "Bacterial frequency") 
+plot(nonextreme.hist, col = rgb(0,0,1,1/4), add = TRUE)
+
+legend("topleft", c("extremophiles", "non-extremophile"), pch = 15,
        col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4), bty = "n", cex=1.5))
 
 legend("topleft", c("Aerobe", "Anearobe", "Facultative", "Microareophilic", 
