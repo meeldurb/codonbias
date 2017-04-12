@@ -27,8 +27,8 @@ source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/cCAI.R")
 source("/home/melanie/Documents/Master_Thesis_SSB/git_scripts/ccodpairsweight.R")
 
 
-#genomeID <- "GCA_000003925"
-genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
+genomeID <- "GCA_000003925"
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                   as.is=TRUE) #as.is to keep the it as char
 
 #outfolder <- "codonpairs_iter_weight/"  
@@ -42,7 +42,7 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
   
   #####~~~~~~~~~~~~~~~~~~~~~~~~~ Retrieving gene data ~~~~~~~~~~~~~~~~~~~~~~~~~#####
   
-  # gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
+  #gene.files <- paste("CDS_data/", genomeID, "_CDS.csv", sep = "")
   # if (file.exists(gene.files)){
   #   gene.data <- read.csv(file = gene.files, sep = ",", header = TRUE, as.is = TRUE)
   
@@ -52,7 +52,7 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
   # # get files and open initial weight tables of codon pairs
   # w.files <- paste("codonpairs_weight/", genomeID, "_wcodpairs.csv", sep = "")
   # if (file.exists(w.files)){
-  #   w.data <- read.csv(file = w.files, sep = ",", header = FALSE, as.is = TRUE)
+  # w.data <- read.csv(file = w.files, sep = ",", header = FALSE, as.is = TRUE)
   #   
   # }
 
