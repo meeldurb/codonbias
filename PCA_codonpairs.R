@@ -144,7 +144,7 @@ title <- "ggplot of Classes"
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 phylum.count <- rle(sort(gold.data$NCBI.Phylum))
-selected <- phylum.count$values[which(phylum.count$length>1)]   
+selected <- phylum.count$values[which(phylum.count$length>5)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Phylum
 group[which(!group%in% selected)] <- NA
@@ -152,7 +152,7 @@ group[which(!group%in% selected)] <- NA
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
 
-title <- "ggplot of Phyla"
+title <- "Principal components analysis of Phyla"
 
 
 ### ggplot SHAPE
@@ -197,7 +197,7 @@ title <- "ggplot of oxygen requirement"
 
 ### Draw plot
 myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands create the plot, but nothing appears
-  geom_point(size=2, shape=18)+
+  geom_point(size=4, shape=18)+
   theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
   theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
   theme_bw()+
