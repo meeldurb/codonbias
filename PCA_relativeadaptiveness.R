@@ -14,9 +14,9 @@ library(ggplot2)
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 # open files and making suitable for analysis
-genomeID <- "GCA_000003925"
+genomeID <- "GCA_000008205"
 # reading a .csv file containing the genome names in the first column
-genome.and.organisms <- read.csv(file = "genomes_ENA_nodupl.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                 as.is=TRUE) #as.is to keep the it as char
 
 
@@ -49,7 +49,7 @@ for (genomeID in genome.and.organisms[,1]){
       c <- c + 1
     }
 }
-save(codgendf, file = "codonGenomeDataSet.RData")
+save(codgendf, file = "GenomeDataSet.RData")
 
 
 ####________________________ Do the PCA of all genomes and codon weights ________________________####
