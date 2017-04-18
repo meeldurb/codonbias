@@ -42,7 +42,7 @@ for (genomeID in genome.and.organisms[,1]){
     if(!(genomeID %in% genomesMycoSpiro)) {
       n <- n + 1
       w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-      # order on codon because of cai function
+      # order on codon to get better readability
       ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
       # removing all codon pairs which start with stop codon
       # for weight tables
@@ -118,14 +118,14 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- order.count$values[which(order.count$length>5)]   
+selected <- order.count$values[which(order.count$length>10)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
 group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of Orders"
+title <- "Principal components analysis of Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -138,7 +138,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of Classes"
+title <- "Principal components analysis of Classes"
 
 ### ggplot PHYLUM
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -166,7 +166,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
-title <- "ggplot of organim shape"
+title <- "Principal components analysis of organim shape"
 
 ### ggplot GRAM STAIN
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -179,7 +179,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of gram stain"
+title <- "Principal components analysis of gram stain"
 
 ### ggplot OXYGEN REQUIREMENT
 df <-data.frame(PC1.codgen, PC2.codgen)
