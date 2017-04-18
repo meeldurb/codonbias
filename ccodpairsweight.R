@@ -16,11 +16,14 @@
 # source("http://bioconductor.org/biocLite.R")
 # # ?BiocUpgrade
 # biocLite("Biostrings")
+# for strings
+# install.packages("stringr", repos="http://cran.rstudio.com/")
 # 
 # # loading required libraries
 # library("Biostrings")
 # library("seqinr")
-# 
+# library("stringr")
+
 # 
 # genome.and.organisms <- read.csv(file = "test_genomes_ENA10.csv", header = FALSE, 
 #                                  as.is=TRUE) #as.is to keep the it as char
@@ -28,6 +31,7 @@
 # outfolder <- "codonpairs_weight/"  
 # if (!file.exists(outfolder))dir.create(outfolder)
 
+#w.seqs.df <- gene.data[1:10,2]
 
     
 compute.codpairs.weight <- function(w.seqs.df, genomeID){
@@ -92,14 +96,14 @@ compute.codpairs.weight <- function(w.seqs.df, genomeID){
         codonpair.table = aa4.codonpair.table
       }
       # adding extra column to df for the counting of codonpairs
-      counter <- rep(0, length(codonpair.table[,1]))
-      codonpair.table$count <- counter
-      # keeping seqcount to know at which DNAseq the loop is
+      codonpair.table$count <- rep(0, length(codonpair.table[,1]))
       for (DNAseq in w.seqs.df){
+        print (DNAseq)
         # between every codon place an "_"
         sq <- gsub("(.{3})", "\\1 ", DNAseq)
         sq <- sub("\\s+$", "", sq)
         sq <- gsub(" ", "_", sq)
+        print(sq)
         # count the number of times a codon pair is present in the sequence
         for (codonpair in codonpair.table[,2]){
           pair.count <- str_count(sq, pattern=codonpair)
@@ -107,6 +111,8 @@ compute.codpairs.weight <- function(w.seqs.df, genomeID){
           # it is first added to the df row of the associated codonpair
           # when there was already a count, the counts are added
           if (pair.count > 0){
+            print(codonpair)
+            print (pair.count)
             # take the codonpair from data that is the same as this one
             sel <- which(codonpair == codonpair.table[,2])
             codonpair.table[sel,3] <- sum(codonpair.table[sel,3], pair.count)
