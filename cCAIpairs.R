@@ -127,17 +127,18 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
   # for cai tables
   codonpair.cai <- codonpair.cai[order(codonpair.cai[,1]), ]
   codonpair.cai <- codonpair.cai[-stop.pair.i, ]
+  # codonpair.cai and w.pair are now of the same length and contain the same codonpairs
   
-  #counter <- rep(0, length(codonpair.cai[,1]))
-  #codonpair.cai$count <- counter
   caicalc <- rep(0, length(gene.data[,1]))
   gene.data$cai <- caicalc
   # counting RSCU of codon pairs
   seqcount = 1
   for (DNAseq in gene.data[,2]){
+    # keeping the codonpair count in the codonpair.cai table
+    # for each DNA seq in gene.data a new frame is made
+    # and the codons are counted
     # add column to df to keep the codonpair count
-    counter <- rep(0, length(codonpair.cai[,1]))
-    codonpair.cai$count <- counter
+    codonpair.cai$count <- rep(0, length(codonpair.cai[,1]))
     if ((seqcount %% 500) == 0){
     cat (seqcount, "\n")
     }
@@ -157,12 +158,12 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
       }
     }
     # change all NA's to 0 in cai df and w df
-    codonpair.cai[is.na(codonpair.cai)] <- 0
+    #codonpair.cai[is.na(codonpair.cai)] <- 0
     w.pair[is.na(w.pair)] <- 0
     
     # set all the codonpairs that have weight of 0 to 0.0001
-    zero.threshold <- 0.000001
-    zero.to <- 0.0001
+    zero.threshold <- 0.000000001
+    zero.to <- 0.0000001
     w.pair[w.pair[,3] < zero.threshold, 3] <- zero.to
     
     # calculating the sigma per sequence and then the CAI value
@@ -178,8 +179,6 @@ compute.codpairs.cai <- function(gene.data, w.data, genomeID){
   pair.cai <- gene.data[, c("name", "CAI")]
   return(pair.cai)
   }
-
-
 
 #meh <- compute.codpairs.cai(gene.data, w.data, genomeID)
 
