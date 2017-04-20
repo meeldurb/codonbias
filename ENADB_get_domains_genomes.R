@@ -61,7 +61,7 @@ VALUES ?sample { <http://gbol.life#GCA_000005825> }
 ENDPOINT = "http://ssb2.wurnet.nl:7201/repositories/ENA"
 
 # creating the folder to save the data in
-outfolder <- "Domain_data_ENA_description/"  
+outfolder <- "Domain_data_ENA/"  
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
