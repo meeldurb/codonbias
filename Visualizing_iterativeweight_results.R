@@ -24,7 +24,7 @@ xlim <- range(itcountdf[,2], na.rm = TRUE)
 nbins = 21
 
 
-hist(itcountdf[,2], breaks=seq(xlim[1], xlim[2], length = nbins), xlim = xlim, 
+hist <- hist(itcountdf[,2], breaks=seq(0, 21, 1), xlim = xlim, 
      main = "Iteration counts to compute weight tables for all genomes", 
      xlab = "number of iterations per resulting weight table", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
