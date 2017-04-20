@@ -3,7 +3,7 @@ Scripts written during my Master thesis @ systems and synthetic biology WUR
 
 ## Explanation of scripts
 
-calculate_CAI_CDS.R: Calculates the CAI of complete CDS of all genomes in ENA db.
+calculate_CAI_CDS.R: Calculates the CAI of complete CDS with iterative weight tables of all genomes in ENA db and writes files to new_CAI_CDS/
 
 calculate_CAI_complete_ENA.R: Calculates CAI of CDS associated to domains
 
@@ -27,11 +27,11 @@ count_itweight.py: from the tmp files produced from "iterated_refweighttables_EN
 
 cweight.R: Script with function to calculate weight tables
 
-ENADB_get_CDS_genomes.R: retrieves all the genomes with its complete CDS from ENA db
+ENADB_get_CDS_genomes.R: retrieves all the genomes with its complete CDS from ENA db written to CDS_data/ folder
 
 ENADB_get_CDS_genomes_andnames.R: retrieves all the genomes with its complete CDS and gene names from ENA db
 
-ENADB_get_domains_genomes.R: retrieves all the genomes with its associated domains and DNA sequence fom ENA db
+ENADB_get_domains_genomes.R: retrieves all the genomes with its associated domains and DNA sequence fom ENA db and writes domain data to folder Domain_data_ENA/
 
 finding_top25_genefunctions.R: Finds the top 25 obtained from "iterated_refweighttables_ENA.R" and links the genefunctions obtained from "ENADB_get_CDS_genomes_andnames.R" to it.
 
@@ -76,9 +76,7 @@ GCextremegenomes.csv: genomes with gc content below 35% and higher than 65%
 
 GCneutralgenomes.csv: genomes with gc content between 35% and 65%
 
-genomes_ENA.csv: all the genomes with organism obtained from the ENA db
-
-genomes_ENA_nodupl.csv: all the genomes with organism, but without duplicated genomeIDs from ENA db
+genomes_ENA.csv: all the genomes with organism obtained from the ENA db, used in almost all R scripts.
 
 gold_gca.tsv: gold database containing more information associated to the genomes in ENAdb
 
