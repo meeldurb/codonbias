@@ -118,33 +118,33 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- order.count$values[which(order.count$length>10)]   
+selected <- order.count$values[which(order.count$length>15)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
 group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of Orders"
+title <- "Principal components analysis of codonpairs weight in Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 class.count <- rle(sort(gold.data$NCBI.Class))
-selected <- class.count$values[which(class.count$length>200)]   
+selected <- class.count$values[which(class.count$length>15)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Class
 group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of Classes"
+title <- "Principal components analysis of codonpairs weight in Classes"
 
 ### ggplot PHYLUM
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 phylum.count <- rle(sort(gold.data$NCBI.Phylum))
-selected <- phylum.count$values[which(phylum.count$length>5)]   
+selected <- phylum.count$values[which(phylum.count$length>10)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Phylum
 group[which(!group%in% selected)] <- NA
@@ -152,7 +152,7 @@ group[which(!group%in% selected)] <- NA
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
 
-title <- "Principal components analysis of Phyla"
+title <- "Principal components analysis of codonpairs weight in Phyla"
 
 
 ### ggplot SHAPE
@@ -166,7 +166,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
-title <- "Principal components analysis of organim shape"
+title <- "Principal components analysis of codonpairs weight in organim shape"
 
 ### ggplot GRAM STAIN
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -179,7 +179,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of gram stain"
+title <- "Principal components analysis of codonpairs weight in gram stain"
 
 ### ggplot OXYGEN REQUIREMENT
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -192,7 +192,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of oxygen requirement"
+title <- "Principal components analysis of codonpairs weight in oxygen requirement"
 
 
 ### Draw plot
@@ -206,8 +206,6 @@ myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these command
   xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
   ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
   ggtitle(title) 
-
-
 
 print(myplot)   #have a look at the plot 
 
