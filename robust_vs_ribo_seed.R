@@ -97,13 +97,21 @@ data.itcount <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
 # drawing the histograms
 # 1st for iteration count difference
 # just the difference
-xlim <- range(data.itcount[,3], na.rm = TRUE)
+xlim <- range(data.itcount[,4], na.rm = TRUE)
 
 
-hist.itcount <- hist(data.itcount[,3], xlim = xlim,
+hist.itcount <- hist(data.itcount[,4], breaks = seq(xlim[1], xlim[2], by=1),
                      main = "Difference iteration counts ribosomal vs. random seed",
                      xlab = "itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
                      col = rgb(0,0,1,1/4))
+
+
+ggplot(data = data.itcount, aes(data.itcount[,4])) +
+  geom_histogram(breaks = seq(xlim[1], xlim[2], by=1),
+                 col = "black") +
+  labs(x = "itcount random seed - itcount ribosomal seed", 
+       y = "number of genomes")
+
 
 # get the amount of genomes per difference
 itcount.diff.hist.info <- data.frame(hist.itcount$breaks[-18], hist.itcount$counts)
@@ -124,6 +132,11 @@ hist(abs(data.itcount[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim,
      xlab = "abs(itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
 
+ggplot(data = data.itcount, aes(abs(data.itcount[,4]))) +
+  geom_histogram(breaks = seq(0, 19, by=1),
+                col = "black") +
+  labs(x = "abs(itcount random seed - itcount ribosomal seed)", 
+       y = "number of genomes")
 
 # drawing the histograms
 # 2nd for weight table absolute difference
