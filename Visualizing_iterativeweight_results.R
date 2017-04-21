@@ -13,6 +13,11 @@
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
+
+install.packages(c("ggplot2","RColorBrewer","scales"))
+library(ggplot2); library(scales); library(grid); library(RColorBrewer)
+
+
 # open iterationcount file
 itcountdf <- read.csv(file = "itcount_final.csv", header = TRUE, sep=",")
 itcountdf <- itcountdf[,1:2]
@@ -24,8 +29,14 @@ xlim <- range(itcountdf[,2], na.rm = TRUE)
 nbins = 21
 
 
+ggplot(data = itcountdf, aes(itcountdf[,2])) +
+      geom_histogram(breaks = seq(0, 21, by=0.5),
+                     col = "black") +
+      labs(x = "number of iterations per resulting weight table", 
+           y = "number of genomes")
+
 hist <- hist(itcountdf[,2], breaks=seq(0, 21, 1), xlim = xlim, 
-     main = "Iteration counts to compute weight tables for all genomes", 
+     main = NA, 
      xlab = "number of iterations per resulting weight table", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
 
