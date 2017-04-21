@@ -89,7 +89,7 @@ for (genomeID in genome.and.organisms[,1]) {
   }
 }
 
-data.CAIGCpolII <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
+data.itcount <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
                               diff.itcount.col, stringsAsFactors = FALSE)
 
 
@@ -97,10 +97,10 @@ data.CAIGCpolII <- data.frame(genomeID.col, diff.mean.w.col, diff.sum.w.col,
 # drawing the histograms
 # 1st for iteration count difference
 # just the difference
-xlim <- range(data.CAIGCpolII[,3], na.rm = TRUE)
+xlim <- range(data.itcount[,3], na.rm = TRUE)
 
 
-hist.itcount <- hist(data.CAIGCpolII[,3], xlim = xlim,
+hist.itcount <- hist(data.itcount[,3], xlim = xlim,
                      main = "Difference iteration counts ribosomal vs. random seed",
                      xlab = "itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
                      col = rgb(0,0,1,1/4))
@@ -116,10 +116,10 @@ sum(itcount.diff.hist.info[,2])
 
 
 # absolute differnce
-xlim <- range(abs(data.CAIGCpolII[,4]), na.rm = TRUE)
+xlim <- range(abs(data.itcount[,4]), na.rm = TRUE)
 
 
-hist(abs(data.CAIGCpolII[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim,
+hist(abs(data.itcount[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim,
      main = "Difference iteration counts ribosomal vs. random seed",
      xlab = "abs(itcount random seed - itcount ribosomal seed", ylab = "number of genomes",
      col = rgb(0,0,1,1/4))
@@ -127,11 +127,11 @@ hist(abs(data.CAIGCpolII[,4]), breaks=seq(xlim[1], xlim[2]), xlim = xlim,
 
 # drawing the histograms
 # 2nd for weight table absolute difference
-xlim <- range(abs(data.CAIGCpolII[,2]), na.rm = TRUE)
+xlim <- range(abs(data.itcount[,2]), na.rm = TRUE)
 nbins <- 8
 
 
-hist.wdiff<- hist(abs(data.CAIGCpolII[,2]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
+hist.wdiff<- hist(abs(data.itcount[,2]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
                   main = "Absolute mean difference codon weights ribosomal vs. random seed",
                   xlab = "mean(abs(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
                   col = rgb(0,0,1,1/4))
@@ -143,11 +143,11 @@ sum(hist.wdiff$count)
 
 # drawing the histograms
 # 3nd for weight table summed/cumultative difference
-xlim <- range(abs(data.CAIGCpolII[,3]), na.rm = TRUE)
+xlim <- range(abs(data.itcount[,3]), na.rm = TRUE)
 nbins <- 11
 
 
-hist.wdiff<- hist(abs(data.CAIGCpolII[,3]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
+hist.wdiff<- hist(abs(data.itcount[,3]), breaks=seq(xlim[1], xlim[2], length = nbins), xlim=xlim,
                   main = "Cumultative difference codon weights ribosomal vs. random seed",
                   xlab = "sum(codonweights ribosomal seed - codonweights random seed)", ylab = "number of genomes",
                   col = rgb(0,0,1,1/4))
