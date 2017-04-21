@@ -21,6 +21,8 @@ library(ggplot2); library(scales); library(grid); library(RColorBrewer)
 # open iterationcount file
 itcountdf <- read.csv(file = "itcount_final.csv", header = TRUE, sep=",")
 itcountdf <- itcountdf[,1:2]
+# remove the genomes that have value 0, and were not recorded
+itcountdf[itcountdf == 0] <- NA
 itcountdf <- na.omit(itcountdf)
 
 
