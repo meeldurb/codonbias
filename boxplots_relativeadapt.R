@@ -40,9 +40,52 @@ load("GenomeDataSet.RData")
 
 ####_______ separating the codons based on aa  _______####
 
+# get the codontable 1 and convert it to a dataframe
 aa1 <- getGeneticCode("SGC0")
+aatable <- data.frame(keyName = aa1, value = names(aa1), 
+                      row.names = NULL, stringsAsFactors = FALSE)
+colnames(aatable) <- c("aa", "codon")
+aatable[aatable == "*"] <- "Stp"
+order.aa <- aatable[with(aatable, order(aatable[,1], aatable[,2])), ]
 
-unique.aa <- unique(codpairs[,1])
+# get the positons of the codons belonging to which amino acid
+# in the big dataframe with all the genomes
+
+ordered.aa <- NULL
+for (codon in rownames(codgendf)){
+  print (codon)
+  position <- which(codon == aatable[,2])
+  ordered.aa <- c(ordered.aa, aatable[position,1])
+  print(aatable[position,1])
+  
+}
+
+mar.default <- c(4,2,2,1) + 0.1
+par(mar = mar.default + c(0, 1, 0, 0))
+par(mfrow = c(1,1))
+par(cex.axis = 0.5)
+
+boxplot(t(codgendf), col = rainbow(20),
+        xlab = "relative adaptiveness", 
+        main = "Boxplots of relative adaptiveness of 6000 genomes",
+        horizontal = TRUE, las = 1)
+
+for (aa in unique.aa){
+  # is drawing boxplots in one frame per amino acid. Want it in one screen
+  aa.count <- aatable[which(aatable[,1] == aa), ]
+  print (aa)
+  cod.rows <- NULL
+  for (codon in aa.count[,2]){
+    cod.count <- which(rownames(codgendf) == codon )
+    cod.rows <- c(cod.count,cod.rows)
+  }
+  boxplot(t(codgendf[cod.rows, ]), col = rainbow(20),
+          xlab = "relative adaptiveness", 
+          main = paste("Boxplots of codon weights", aa,
+          horizontal = T, las = 1)
+  )
+}
+
 
 # keep which plot it is drawing, to keep all plots
 plot = 1
