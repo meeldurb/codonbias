@@ -10,6 +10,7 @@
 # install packages to draw plots
 install.packages("ggplot2", repos="http://cran.rstudio.com/")
 install.packages("plotly", repos="http://cran.rstudio.com/")
+install.packages("ggplot2", repos= "http://cran.rstudio.com/")
 source("http://bioconductor.org/biocLite.R")
 biocLite("Biostrings")
 
@@ -19,6 +20,8 @@ biocLite("Biostrings")
 library("Biostrings")
 library(ggplot2)
 library(plotly)
+library(ggplot2)
+library("RColorBrewer")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
@@ -45,80 +48,75 @@ aa1 <- getGeneticCode("SGC0")
 aatable <- data.frame(keyName = aa1, value = names(aa1), 
                       row.names = NULL, stringsAsFactors = FALSE)
 colnames(aatable) <- c("aa", "codon")
+# changing aa abbreviations from 1 to 3 letters
+aatable[aatable == "A"] <- "Ala"
+aatable[aatable == "R"] <- "Arg"
+aatable[aatable == "N"] <- "Asn"
+aatable[aatable == "D"] <- "Asp"
+aatable[aatable == "C"] <- "Cys"
+aatable[aatable == "E"] <- "Glu"
+aatable[aatable == "Q"] <- "Gln"
+aatable[aatable == "G"] <- "Gly"
+aatable[aatable == "H"] <- "His"
+aatable[aatable == "I"] <- "Ile"
+aatable[aatable == "L"] <- "Leu"
+aatable[aatable == "K"] <- "Lys"
+aatable[aatable == "M"] <- "Met"
+aatable[aatable == "F"] <- "Phe"
+aatable[aatable == "P"] <- "Pro"
+aatable[aatable == "S"] <- "Ser"
+aatable[aatable == "T"] <- "Thr"
+aatable[aatable == "W"] <- "Trp"
+aatable[aatable == "Y"] <- "Tyr"
+aatable[aatable == "V"] <- "Val"
 aatable[aatable == "*"] <- "Stp"
-order.aa <- aatable[with(aatable, order(aatable[,1], aatable[,2])), ]
 
-# get the positons of the codons belonging to which amino acid
-# in the big dataframe with all the genomes
+# and order on aa and then on codon
+ordered.aa <- aatable[with(aatable, order(aatable[,1], aatable[,2])), ]
 
-ordered.aa <- NULL
-for (codon in rownames(codgendf)){
-  print (codon)
-  position <- which(codon == aatable[,2])
-  ordered.aa <- c(ordered.aa, aatable[position,1])
-  print(aatable[position,1])
-  
-}
+# paste the aa names to the dataframe
+codgendf <- data.frame(ordered.aa[,1], codgendf)
+#codgendf <- data.frame(rownames(codgendf), codgendf)
 
-mar.default <- c(4,2,2,1) + 0.1
+
+mar.default <- c(4,3,1,1) + 0.1
 par(mar = mar.default + c(0, 1, 0, 0))
 par(mfrow = c(1,1))
 par(cex.axis = 0.5)
 
-boxplot(t(codgendf), col = rainbow(20),
+
+# setting custom colors
+palette(brewer.pal(length(unique(codgendf[,1])), "Accent"))(n)
+boxplot(t(codgendf[,2:ncol(codgendf)]), col = codgendf[,1],
         xlab = "relative adaptiveness", 
-        main = "Boxplots of relative adaptiveness of 6000 genomes",
+        # main = "Boxplots of relative adaptiveness of 6000 genomes",
         horizontal = TRUE, las = 1)
 
-for (aa in unique.aa){
-  # is drawing boxplots in one frame per amino acid. Want it in one screen
-  aa.count <- aatable[which(aatable[,1] == aa), ]
-  print (aa)
-  cod.rows <- NULL
-  for (codon in aa.count[,2]){
-    cod.count <- which(rownames(codgendf) == codon )
-    cod.rows <- c(cod.count,cod.rows)
-  }
-  boxplot(t(codgendf[cod.rows, ]), col = rainbow(20),
-          xlab = "relative adaptiveness", 
-          main = paste("Boxplots of codon weights", aa,
-          horizontal = T, las = 1)
-  )
-}
+
+### Draw plot
+myplot <- ggplot(codgendf, 
+                 aes(x = codgendf[,1], 
+                     y = codgendf[,3:ncol(codgendf)], color=codgendf[,2]))+   
+  #these commands create the plot, but nothing appears
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
+  theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
+  theme_bw()+
+  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  theme(legend.text = element_text(size = 10))  +
+  #xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
+  #ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
+  ggtitle(title) 
+
+print(myplot)   #have a look at the plot 
 
 
-# keep which plot it is drawing, to keep all plots
-plot = 1
-# for every aa pair calculate the total of counts in every codon pair
-for (aa in unique.aa){
-  aapair.count <- codpairs[which(codpairs[,1] == aa), ]
-  print (aa)
-  codonrows <- NULL
-  for (codpair in aapair.count[,2]){
-    codpair.count <- which(rownames(codgendf) == codpair )
-    codonrows <- c(codonrows, codpair.count)
-  }
-  filename <- paste(outfolder, "boxplot_codpairs_", plot, ".jpg", sep = "")
-  if (plot == 1){
-    jpeg(file=filename)
-    # setting the format of screen, so that codonpairs are not drawn out of screen
-    mar.default <- c(2,4,2,2) + 0.1
-    par(mar = mar.default + c(0, 2, 0, 0))
-    par(mfrow = c(3,2)) 
-  }
-  boxplot(t(codgendf[codonrows, ]), col = rainbow(20),
-          xlab = "relative adaptiveness", 
-          main = paste("Boxplots of codon pairs of aa pair ", aa, sep = "" ),
-          horizontal = T, las = 1)
-  plot = sum(plot, 1)
-  if (plot %% 6 == 0 ){
-    dev.off()
-    jpeg(file=filename)
-    # setting the format of screen, so that codonpairs are not drawn out of screen
-    mar.default <- c(2,4,2,2) + 0.1
-    par(mar = mar.default + c(0, 2, 0, 0))
-    par(mfrow = c(3,2))
-  }
-}
+
+
+
+
+
+
+
 
 
