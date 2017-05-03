@@ -68,7 +68,7 @@ save(codgendf, file = "GenomeDataSet.RData")
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
-load("codonGenomeDataSet.RData")
+load("GenomeDataSet.RData")
 colnames(codgendf)
 codgen <- t(codgendf)
 rownames(codgen)
@@ -76,7 +76,7 @@ str(codgen)
 
 gold.data= read.table(file = "gold_gca.tsv", sep="\t" , header=TRUE,
                       row.names=1,as.is=TRUE)
-str(gold.data)
+#str(gold.data)
 
 # shorten gold.data for genomeIDs we have in codgendf
 gold.data <- gold.data[gold.data$GCA %in% rownames(codgen), ]
@@ -88,7 +88,9 @@ str(codgen)
 
 # do the PCA
 m.codgen <- as.matrix(codgen)
+# remove codons that have only value 1, Met and Trp
 m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
+m.codgen<- m.codgen[, which(colnames(m.codgen)!="TGG")]
 
 codgen.pca <- prcomp(m.codgen, scale = TRUE)
 pca.summary <- summary(codgen.pca)
@@ -109,11 +111,11 @@ order.count <- rle(sort(gold.data$NCBI.Order))
 selected <- order.count$values[which(order.count$length>200)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
-group[which(!group%in% selected)] <- NA
+group[which(!group%in% selected)] <- "Other"
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of Orders"
+title <- "Principal components analysis of relative adaptiveness in Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -122,11 +124,11 @@ class.count <- rle(sort(gold.data$NCBI.Class))
 selected <- class.count$values[which(class.count$length>200)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Class
-group[which(!group%in% selected)] <- NA
+group[which(!group%in% selected)] <- "Other"
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "ggplot of Classes"
+title <- "Principal components analysis of relative adaptiveness in Classes"
 
 ### ggplot PHYLUM
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -140,7 +142,7 @@ group[which(!group%in% selected)] <- NA
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
 
-title <- "ggplot of Phyla"
+title <- "Principal components analysis of relative adaptiveness in Phyla"
 
 
 ### ggplot SHAPE
@@ -193,8 +195,8 @@ myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these command
   theme(legend.text = element_text(size = 10))  +
   xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
   ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
-  ggtitle(title) 
-
+  ggtitle(title) +
+  scale_fill_brewer(palette = "Spectral")
 
 
 print(myplot)   #have a look at the plot 
