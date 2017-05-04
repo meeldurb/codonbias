@@ -115,7 +115,7 @@ group[which(!group%in% selected)] <- "Other"
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of relative adaptiveness in Orders"
+legendtitle <- "Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -195,7 +195,8 @@ myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these command
   theme(legend.text = element_text(size = 10))  +
   xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
   ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
-  ggtitle(title) +
+  #ggtitle(title) +
+  scale_colour_discrete(name = legendtitle) +
   scale_fill_brewer(palette = "Spectral")
 
 
