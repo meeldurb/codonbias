@@ -103,6 +103,18 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
      ylab=paste("PC2 (", format(pca.summary$importance[2,2]*100, digits=2),"%)", sep=""))
 
 
+### ggplot FAMILY
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+order.count <- rle(sort(gold.data$NCBI.Family))
+selected <- order.count$values[which(order.count$length>150)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Family
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+legendtitle <- "Families"
 
 ### ggplot ORDER
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -128,7 +140,7 @@ group[which(!group%in% selected)] <- "Other"
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of relative adaptiveness in Classes"
+legendtitle <- "Classes"
 
 ### ggplot PHYLUM
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -142,7 +154,7 @@ group[which(!group%in% selected)] <- NA
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
 
-title <- "Principal components analysis of relative adaptiveness in Phyla"
+legendtitle <- "Phyla"
 
 
 ### ggplot SHAPE
