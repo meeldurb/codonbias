@@ -86,7 +86,14 @@ par(cex.axis = 0.5)
 
 
 # setting custom colors
-palette(brewer.pal(length(unique(codgendf[,1])), "Accent"))(n)
+palette(rainbow(length(unique(codgendf[,1]))))
+palette(brewer.pal(length(unique(codgendf[,1])), "Spectral")(length(unique(codgendf[,1]))))
+n <- length(unique(codgendf[,1]))
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+palette(sample(col_vector, n))
+
+# draw boxplot
 boxplot(t(codgendf[,2:ncol(codgendf)]), col = codgendf[,1],
         xlab = "relative adaptiveness", 
         # main = "Boxplots of relative adaptiveness of 6000 genomes",
