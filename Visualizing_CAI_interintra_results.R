@@ -11,9 +11,12 @@
 install.packages("fBasics", repos="http://cran.rstudio.com/")
 install.packages("pwr", repos="http://cran.rstudio.com/")
 install.packages("effsize", repos="http://cran.rstudio.com/")
+install.packages("ggplot2", repos="http://cran.rstudio.com/")
 library("fBasics")
 library("pwr")
 library("effsize")
+library(ggplot2)
+
 
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
@@ -21,12 +24,54 @@ setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 # intra = inside, within
 # inter = between/among groups
 
+# open and read file with genomeIDs
+genomeID <- "GCA_000003925"
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
+                                 as.is=TRUE) #as.is to keep the it as char
 
 
-#####________Mean CAI of inter and intra domains________#####
+#####__________Make df with inter intra results________####
+
+
+genomecount = 0
+for (genomeID in genome.and.organisms[,1]){
+  cat (genomeID, "\n")
+  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
+  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
+  if (file.exists(cai.inter.files)){
+    if (file.exists(cai.intra.files)){
+      # read data and omit NA's
+      data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
+      data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
+      data.intra <- na.omit(data.intra)
+      data.inter <- na.omit(data.inter)
+      
+      intra.cai <- mean(data.intra[,2])
+      inter.cai <- mean(data.inter[,2])
+      
+      if (genomecount == 0){
+        #interintradf <- data.frame()
+        interintradf <- data.frame(genomeID, intra.cai, inter.cai)
+        genomecount = genomecount + 1
+      } else {
+        interintrarow <- cbind(genomeID, intra.cai, inter.cai)
+        interintradf <- rbind(interintradf, interintrarow)
+      }
+    }
+  }
+}
+interintradf$genomeID <- data.frame(lapply(interintradf, as.character), stringsAsFactors=FALSE)
+interintradf$intra.cai <- as.numeric(interintradf$intra.cai)
+interintradf$inter.cai <- as.numeric(interintradf$inter.cai)
+save(interintradf, file = "InterIntraMeans.RData")
+load("InterIntraMeans.RData")
+
+
+#####________calculate p-adjusted values for inter/inter domains________#####
 
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
+genomeID <- "GCA_000008205"
 
 # first run the loop to create a vector with adjusted p values
 pvec = numeric()
@@ -35,6 +80,7 @@ for (genomeID in genome.and.organisms[,1]){
   cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
   cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
+    if (file.exists(cai.intra.files)){
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -52,61 +98,65 @@ for (genomeID in genome.and.organisms[,1]){
     # by calculating the p adjusted values we correct for multiple hypothesis testing
     padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
     }
-}
-    
-# then loop again with using the p-values of the padj vector
-genomecount = 0
-significant = 0
-nonsignificant = 0
-pvalcount = 1
-
-for (genomeID in genome.and.organisms[,1]){
-  cat (genomeID, "\n")
-  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
-  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
-  if (file.exists(cai.inter.files)){
-    # read data and omit NA's
-    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
-    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
-    data.intra <- na.omit(data.intra)
-    data.inter <- na.omit(data.inter)
-    
-    intra.cai <- mean(data.intra[,2])
-    inter.cai <- mean(data.inter[,2])
-
-    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
-    # values to the significancy of a genome
-    if (padj[pvalcount] < 0.05){
-      col.plot = 'blue'
-      significant = significant + 1
-      pvalcount = pvalcount + 1
-    } 
-    else {
-      col.plot = 'red'
-      nonsignificant = nonsignificant + 1
-      pvalcount = pvalcount + 1
-    }
-    xlim <- c(0.3, 1)
-    if (genomecount == 0){
-      plot(intra.cai, inter.cai, type = 'p', xlim = xlim, ylim = xlim,
-           main = "Mean CAI values of inter and intra domains",
-           xlab = "Mean CAI intra domains",
-           ylab = "Mean CAI inter domains",
-           col = col.plot)
-      genomecount = genomecount + 1
-    }
-    else {
-      points(intra.cai, inter.cai, col=col.plot)
-      legend ('topright', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
-              col = c('blue', 'red'), bty='n')
-    }
   }
 }
+   
+### bind the p adjusted values to the dataframe
+padj.interintradf <- cbind(interintradf, padj)
+save(padj.interintradf, file = "InterIntraMeansAndPadj.RData")
+
+### add factor yes/no to the df 
+padj.interintradf$significant <- ifelse(padj.interintradf$padj > 0.05, "No", "Yes")
+save(padj.interintradf, file = "InterIntraMeansPadjSign.RData")
+
+
+########____________ draw the graph with using the p adjusted values ___________#######
+load("InterIntraMeansPadjSign.RData")
+
+color <- palette(c("brown3", "green4"))
+palette(c("brown3", "green4"))
+xlim <- c(0.3, 1)
+ylim <- c(0.3, 1)
+
+plot(padj.interintradf[,2], padj.interintradf[,3], pch = 18, 
+     xlim = xlim, ylim = ylim,
+     #main = "Mean CAI values of inter and intra domains",
+     xlab = "Mean CAI intra domains",
+     ylab = "Mean CAI inter domains",
+     cex.axis = 1,
+     cex.lab = 1.5,
+     col = as.factor(padj.interintradf[,5]))
+
+legend ('bottomright', c('Non-significant', 'Significant'), cex = 2, pch = 18,
+        col = color, bty='n')
 abline(a=0, b=1)
 
+print(paste(length(which(padj.interintradf[,5] == "Yes" )), "out of", 
+            length(padj.interintradf[,5]), 
+            "samples are found to have a significant difference"))
 
-total = significant + nonsignificant
-print(paste(significant, "out of", total, "samples are found to have a significant difference "))
+plotinterintra <- ggplot(padj.interintradf, aes(intra.cai, inter.cai)) +
+  geom_point(color = as.factor(padj.interintradf[,5]))
+
+
+padj.interintradf <- padj.interintradf[, c(2,3,5)]
+
+
+
+myplot <- ggplot(padj.interintradf, aes(intra.cai, inter.cai, color=significant))+ #these commands creat the plot, but nothing appears
+ geom_point()
+  #theme_bw(base_size = 13)
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  #theme(legend.text = element_text(size = 13))  +
+  #xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
+  #ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
+  #ggtitle(title) +
+  #guides(color = guide_legend(override.aes = list(size=6))) +
+  #scale_colour_discrete(name = legendtitle) +
+  #scale_fill_brewer(palette = "Spectral")
+
+myplot   #have a look at the plot 
+
 
 
 #####_______Mean CAI of inter and intra domains, with sampling the data________#####
