@@ -93,7 +93,32 @@ m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
 m.codgen<- m.codgen[, which(colnames(m.codgen)!="TGG")]
 
 codgen.pca <- prcomp(m.codgen, scale = TRUE)
+# draw biplot
+biplot(codgen.pca, scale = 0)
+
+PCbiplot <- function(PC, x="PC1", y="PC2") {
+  # PC being a prcomp object
+  data <- data.frame(obsnames=row.names(PC$x), PC$x)
+  plot <- ggplot(data, aes_string(x=x, y=y)) + geom_text(alpha=.4, size=3, aes(label=obsnames))
+  plot <- plot + geom_hline(aes(0), size=.2) + geom_vline(aes(0), size=.2)
+  datapc <- data.frame(varnames=rownames(PC$rotation), PC$rotation)
+  mult <- min(
+    (max(data[,y]) - min(data[,y])/(max(datapc[,y])-min(datapc[,y]))),
+    (max(data[,x]) - min(data[,x])/(max(datapc[,x])-min(datapc[,x])))
+  )
+  datapc <- transform(datapc,
+                      v1 = .7 * mult * (get(x)),
+                      v2 = .7 * mult * (get(y))
+  )
+  plot <- plot + coord_equal() + geom_text(data=datapc, aes(x=v1, y=v2, label=varnames), size = 5, vjust=1, color="red")
+  plot <- plot + geom_segment(data=datapc, aes(x=0, y=0, xend=v1, yend=v2), arrow=arrow(length=unit(0.2,"cm")), alpha=0.75, color="red")
+  plot
+}
+
+PCbiplot(codgen.pca)
+
 pca.summary <- summary(codgen.pca)
+
 
 #easy plot
 PC1.codgen <- as.numeric(codgen.pca$x[,1])
@@ -102,12 +127,25 @@ PC2.codgen <- as.numeric(codgen.pca$x[,2])
 plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2,1]*100, digits=2),"%)", sep=""), 
      ylab=paste("PC2 (", format(pca.summary$importance[2,2]*100, digits=2),"%)", sep=""))
 
+### ggplot Genus
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+order.count <- rle(sort(gold.data$NCBI.Genus))
+selected <- order.count$values[which(order.count$length>100)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Genus
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+legendtitle <- "Genera"
+
 
 ### ggplot FAMILY
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Family))
-selected <- order.count$values[which(order.count$length>150)]   
+selected <- order.count$values[which(order.count$length>100)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Family
 group[which(!group%in% selected)] <- "Other"
@@ -200,14 +238,13 @@ title <- "ggplot of oxygen requirement"
 ### Draw plot
 myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
   geom_point(size=2, shape=18)+
-  theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
-  theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
-  theme_bw()+
+  theme_bw(base_size = 13)+
   theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
-  theme(legend.text = element_text(size = 10))  +
+  theme(legend.text = element_text(size = 13))  +
   xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
   ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
   #ggtitle(title) +
+  guides(color = guide_legend(override.aes = list(size=6))) +
   scale_colour_discrete(name = legendtitle) +
   scale_fill_brewer(palette = "Spectral")
 
