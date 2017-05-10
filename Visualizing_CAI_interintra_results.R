@@ -33,6 +33,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 #####__________Make df with inter intra results________####
 
 
+# make empty columns to later bind them to dataframe
 genomeIDcol = NULL
 intercol = NULL
 intracol = NULL
@@ -47,18 +48,19 @@ for (genomeID in genome.and.organisms[,1]){
       data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
       data.intra <- na.omit(data.intra)
       data.inter <- na.omit(data.inter)
-      
+      # get mean CAI of protein domains and part in betweeen
       intra.mean <- mean(data.intra[,2])
       inter.mean <- mean(data.inter[,2])
-      
+      # fill the columns by each iteration
       genomeIDcol <- c(genomeIDcol, genomeID)
       intracol <- c(intracol, intra.mean)
       intercol <- c(intercol, inter.mean)
     }
   }
 }
-
-
+# bind the filled columns into a dataframe
+interintradf <- data.frame(genomeIDcol, intracol, intercol,
+                           stringsAsFactors = FALSE)
 
 save(interintradf, file = "InterIntraMeans.RData")
 load("InterIntraMeans.RData")
@@ -87,6 +89,8 @@ for (genomeID in genome.and.organisms[,1]){
     
     intra.cai <- mean(data.intra[,2])
     inter.cai <- mean(data.inter[,2])
+    sd(data.intra[,2])
+    sd(data.inter[,2])
     # Do a t-test to get the pvalues
     ttest <- t.test(data.intra[,2], data.inter[,2])
     pval <- ttest$p.value
@@ -104,10 +108,11 @@ save(padj.interintradf, file = "InterIntraMeansAndPadj.RData")
 
 ### add factor yes/no to the df 
 padj.interintradf$significant <- ifelse(padj.interintradf$padj > 0.05, "No", "Yes")
+padj.interintradf$significant <- as.factor(padj.interintradf$significant)
 save(padj.interintradf, file = "InterIntraMeansPadjSign.RData")
 
 
-########____________ draw the graph with using the p adjusted values ___________#######
+########____________ Results and draw the graph with using the p adjusted values ___________#######
 load("InterIntraMeansPadjSign.RData")
 
 color <- palette(c("brown3", "green4"))
@@ -132,24 +137,24 @@ print(paste(length(which(padj.interintradf[,5] == "Yes" )), "out of",
             length(padj.interintradf[,5]), 
             "samples are found to have a significant difference"))
 
-plotinterintra <- ggplot(padj.interintradf, aes(intra.cai, inter.cai)) +
-  geom_point(color = as.factor(padj.interintradf[,5]))
-
 
 padj.interintradf <- padj.interintradf[, c(2,3,5)]
 
 
 
-myplot <- ggplot(padj.interintradf, aes(intra.cai, inter.cai, color=significant))+ #these commands creat the plot, but nothing appears
- geom_point()
-  #theme_bw(base_size = 13)
-  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
-  #theme(legend.text = element_text(size = 13))  +
-  #xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
-  #ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
+myplot <- ggplot(padj.interintradf, aes(padj.interintradf[,1], 
+                                        padj.interintradf[,2], 
+                                        color=padj.interintradf[,3]))+ #these commands creat the plot, but nothing appears
+  geom_point(size = 2, shape = 18) +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  theme(legend.text = element_text(size = 15))  +
+  xlab("mean CAI protein domains") +   
+  ylab("mean CAI in between protein domains") +
   #ggtitle(title) +
-  #guides(color = guide_legend(override.aes = list(size=6))) +
-  #scale_colour_discrete(name = legendtitle) +
+  guides(color = guide_legend(override.aes = list(size=6))) +
+  scale_colour_discrete(name = "Significant")
   #scale_fill_brewer(palette = "Spectral")
 
 myplot   #have a look at the plot 
@@ -158,16 +163,23 @@ myplot   #have a look at the plot
 
 #####_______Mean CAI of inter and intra domains, with sampling the data________#####
 
+
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 # first run the loop to create a vector with adjusted p values
-pvec = numeric()
+pvalcol = NULL
+genomeIDcol <- NULL
+intercol <- NULL
+intracol <- NULL
+#padj <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
   cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
   if (file.exists(cai.inter.files)){
+    if (file.exists(cai.intra.files)){
+      
     # read data and omit NA's
     data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
     data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
@@ -180,78 +192,71 @@ for (genomeID in genome.and.organisms[,1]){
     samplesize=500
     sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
     sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
+    sd(sampled.intra.cai)
+    sd(sampled.inter.cai)
     sampled.intra.mean <- mean(sampled.intra.cai)
     sampled.inter.mean <- mean(sampled.inter.cai)
+    
+    # fill the columns by each iteration
+    genomeIDcol <- c(genomeIDcol, genomeID)
+    intracol <- c(intracol, sampled.intra.mean)
+    intercol <- c(intercol, sampled.inter.mean)
+    
     # Do a t-test to get the pvalues
     ttest <- t.test(sampled.intra.cai, sampled.inter.cai)
     pval <- ttest$p.value
     # make a vector with all the pvalues
-    pvec <- c(pvec, pval)
+    pvalcol <- c(pvalcol, pval)
     # by calculating the p adjusted values we correct for multiple hypothesis testing
-    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
-  }
-}
-    
-    
-
-# then loop again over the genomes to calculate the significance by using the adjusted p-values
-genomecount = 0
-significant = 0
-nonsignificant = 0
-pvalcount = 1
-for (genomeID in genome.and.organisms[,1]){
-  cat (genomeID, "\n")
-  cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
-  cai.inter.files <- paste("new_CAI_interdomains_ENA/", genomeID, "_CAI_inter.csv", sep = "")
-  if (file.exists(cai.inter.files)){
-    # read data and omit NA's
-    data.intra <- read.csv(file = cai.intra.files, sep = ",", header = FALSE, as.is = TRUE)
-    data.inter <- read.csv(file = cai.inter.files, sep = ",", header = FALSE, as.is = TRUE)
-    data.intra <- na.omit(data.intra)
-    data.inter <- na.omit(data.inter)
-    
-    # the sample sizes are too different, and because a lot of observations we will get significant 
-    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
-    # and also increase the effect size. In this way, the significant difference is actually meaningfull
-    samplesize=500
-    sampled.intra.cai <- sample(data.intra[,2], size = samplesize, replace = TRUE)
-    sampled.inter.cai <- sample(data.inter[,2], size = samplesize, replace = TRUE)
-    sampled.intra.mean <- mean(sampled.intra.cai)
-    sampled.inter.mean <- mean(sampled.inter.cai)
-    
-    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
-    # values to the significancy of a genome
-
-    if (padj[pvalcount] < 0.05){
-      col.plot = 'blue'
-      significant = significant + 1
-      pvalcount = pvalcount + 1
-      } 
-    else {
-      col.plot = 'red'
-      nonsignificant = nonsignificant + 1
-      pvalcount = pvalcount + 1
-    }
-    xlim <- c(0.3, 1)
-    if (genomecount == 0){
-      plot(sampled.intra.mean, sampled.inter.mean, type = 'p', xlim = xlim, ylim = xlim,
-           main = "Mean CAI values of inter and intra domains (sampled data)",
-           xlab = "Mean CAI intra domains",
-           ylab = "Mean CAI inter domains",
-           col = col.plot)
-      genomecount = genomecount + 1
-      }
-    else {
-      points(sampled.intra.mean, sampled.inter.mean, col=col.plot)
-      legend ('topright', c('Significant', 'Non-significant'), cex = 1.5, pch = 1,
-              col = c('blue', 'red'), bty='n')
     }
   }
 }
 
-abline(a=0, b=1)
-total = significant + nonsignificant
-print(paste(significant, "out of", total, "samples are found to have a significant difference "))
+padj <- round(p.adjust(pvalcol, method = "BH", n = length(genome.and.organisms[,1])), 4)
+
+
+# bind the filled columns into a dataframe
+sampled.interintradf <- data.frame(genomeIDcol, intracol, intercol, padj,
+                           stringsAsFactors = FALSE)
+### add factor yes/no to the df 
+sampled.interintradf$significant <- ifelse(sampled.interintradf$padj > 0.05, "No", "Yes")
+sampled.interintradf$significant <- as.factor(sampled.interintradf$significant)
+
+save(sampled.interintradf, file = "InterIntraSampledPadj.RData")
+
+    
+########____________ Results and draw the graph with sampled data ___________#######
+
+
+load("InterIntraSampledPadj.RData")
+
+print(paste(length(which(sampled.interintradf[,5] == "Yes" )), "out of", 
+            length(sampled.interintradf[,5]), 
+            "samples are found to have a significant difference"))
+
+
+sampled.interintradf <- sampled.interintradf[, c(2,3,5)]
+
+
+
+myplot <- ggplot(sampled.interintradf, aes(sampled.interintradf[,1], 
+                                        sampled.interintradf[,2], 
+                                        color=sampled.interintradf[,3]))+ #these commands creat the plot, but nothing appears
+  geom_point(size = 2, shape = 18) +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  theme(legend.text = element_text(size = 15))  +
+  xlab("mean CAI protein domains") +   
+  ylab("mean CAI in between protein domains") +
+  #ggtitle(title) +
+  guides(color = guide_legend(override.aes = list(size=6))) +
+  scale_colour_discrete(name = "Significant")
+#scale_fill_brewer(palette = "Spectral")
+
+myplot   #have a look at the plot 
+
+
 
 
 #####________difference between CAI of inter and intra domains, computed for all protein domains________#####
