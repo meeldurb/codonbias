@@ -33,7 +33,9 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 #####__________Make df with inter intra results________####
 
 
-genomecount = 0
+genomeIDcol = NULL
+intercol = NULL
+intracol = NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
@@ -46,23 +48,18 @@ for (genomeID in genome.and.organisms[,1]){
       data.intra <- na.omit(data.intra)
       data.inter <- na.omit(data.inter)
       
-      intra.cai <- mean(data.intra[,2])
-      inter.cai <- mean(data.inter[,2])
+      intra.mean <- mean(data.intra[,2])
+      inter.mean <- mean(data.inter[,2])
       
-      if (genomecount == 0){
-        #interintradf <- data.frame()
-        interintradf <- data.frame(genomeID, intra.cai, inter.cai)
-        genomecount = genomecount + 1
-      } else {
-        interintrarow <- cbind(genomeID, intra.cai, inter.cai)
-        interintradf <- rbind(interintradf, interintrarow)
-      }
+      genomeIDcol <- c(genomeIDcol, genomeID)
+      intracol <- c(intracol, intra.mean)
+      intercol <- c(intercol, inter.mean)
     }
   }
 }
-interintradf$genomeID <- data.frame(lapply(interintradf, as.character), stringsAsFactors=FALSE)
-interintradf$intra.cai <- as.numeric(interintradf$intra.cai)
-interintradf$inter.cai <- as.numeric(interintradf$inter.cai)
+
+
+
 save(interintradf, file = "InterIntraMeans.RData")
 load("InterIntraMeans.RData")
 
