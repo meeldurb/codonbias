@@ -34,9 +34,7 @@ length(genome.and.organisms[,1])
 # make empty columns to later bind them to dataframe
 genomeIDcol <- NULL
 unique.col <- NULL
-duplicated.col <- NULL
-effcol <- NULL
-pwrcol <- NULL
+dupl.col <- NULL
 pvec <- numeric()
 
 for (genomeID in genome.and.organisms[,1]){
@@ -55,19 +53,9 @@ for (genomeID in genome.and.organisms[,1]){
     duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
     duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
     duplicated.domains.mean <- mean(duplicated.domains.cai)
+    sd(duplicated.domains.cai)
+    sd(unique.domains.cai)
     
-    
-    # calculating effectsize and power of the test
-    samplesize <- length(unique.domains.cai)
-    effsize <- cohen.d(unique.domains.cai, duplicated.domains.cai, pooled = F, paired = F, conf.level = 0.95)
-    effsize$estimate
-    pwr <- pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.05,
-               alternative = "two.sided")
-    
-    
-    # fill columns of eff size and power
-    effcol <- c(effcol, effsize$estimate)
-    pwrcol <- c(pwrcol, pwr$power)
     # fill the columns with each iteration
     genomeIDcol <- c(genomeIDcol, genomeID)
     unique.col <- c(unique.col, unique.domains.mean)
@@ -86,10 +74,6 @@ padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])
 # bind the filled columns into a dataframe
 unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
                                    padj, stringsAsFactors = FALSE)
-
-unique.duplicated.df2 <- data.frame(genomeIDcol, unique.col, dupl.col,
-                                   padj, effcol, pwrcol, stringsAsFactors = FALSE)
-
 
 ### add factor yes/no to the df 
 unique.duplicated.df$significant <- ifelse(unique.duplicated.df$padj > 0.05, "No", "Yes")
@@ -121,8 +105,8 @@ myplot <- ggplot(unique.duplicated.df, aes(unique.duplicated.df[,1],
   theme_bw(base_size = 15) +
   #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
   theme(legend.text = element_text(size = 15))  +
-  xlab("mean CAI protein domains") +   
-  ylab("mean CAI in between protein domains") +
+  xlab("mean CAI unique protein domains") +   
+  ylab("mean CAI duplicated protein domains") +
   #ggtitle(title) +
   guides(color = guide_legend(override.aes = list(size=6))) +
   scale_colour_discrete(name = "Significant")
@@ -142,8 +126,6 @@ pvalcol <- NULL
 genomeIDcol <- NULL
 unique.col <- NULL
 duplicated.col <- NULL
-effcol <- NULL
-pwrcol <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
@@ -169,18 +151,8 @@ for (genomeID in genome.and.organisms[,1]){
     # calculate means of sampled domains
     unique.sampled.mean <- mean(sampled.uniq.dom.cai)
     duplicated.sampled.mean <- mean(sampled.dupl.dom.cai)
-    
-    # calculating effectsize and power of the test
-    effsize <- cohen.d(sampled.uniq.dom.cai, sampled.dupl.dom.cai, pooled = F, paired = F, conf.level = 0.95)
-    effsize$estimate
-    pwr <- pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.05,
-                      alternative = "two.sided")
-    
-    
-    # fill columns of eff size and power
-    effcol <- c(effcol, effsize$estimate)
-    pwrcol <- c(pwrcol, pwr$power)
-    
+    sd(sampled.uniq.dom.cai)
+    sd(sampled.dupl.dom.cai)
     # fill the columns with each iteration
     unique.col <- c(unique.col, unique.sampled.mean)
     duplicated.col <- c(duplicated.col, duplicated.sampled.mean)
@@ -201,8 +173,6 @@ padj <- round(p.adjust(pvalcol, method = "BH", n = length(genome.and.organisms[,
 # bind the filled columns into a dataframe
 sampled.unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
                                    padj, stringsAsFactors = FALSE)
-sampled.unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
-                                    padj, effcol, pwrcol, stringsAsFactors = FALSE)
 
 ### add factor yes/no to the df 
 sampled.unique.duplicated.df$significant <- ifelse(sampled.unique.duplicated.df$padj > 0.05, "No", "Yes")
@@ -216,7 +186,7 @@ save(sampled.unique.duplicated.df, file = "SampledUniqueDuplicatedPadjSign.RData
 ########____________ Results and draw the graph with sampled data ___________#######
 
 
-load("UniqueDuplicatedPadjSign.RData")
+load("SampledUniqueDuplicatedPadjSign.RData")
 
 print(paste(length(which(sampled.unique.duplicated.df[,5] == "Yes" )), "out of", 
             length(sampled.unique.duplicated.df[,5]), 
@@ -235,8 +205,8 @@ myplot <- ggplot(sampled.unique.duplicated.df, aes(sampled.unique.duplicated.df[
   theme_bw(base_size = 15) +
   #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
   theme(legend.text = element_text(size = 15))  +
-  xlab("mean CAI protein domains") +   
-  ylab("mean CAI in between protein domains") +
+  xlab("mean CAI unique protein domains") +   
+  ylab("mean CAI duplicated protein domains") +
   #ggtitle(title) +
   guides(color = guide_legend(override.aes = list(size=6))) +
   scale_colour_discrete(name = "Significant")
