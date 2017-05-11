@@ -34,9 +34,11 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 
 
 # make empty columns to later bind them to dataframe
-genomeIDcol = NULL
-intercol = NULL
-intracol = NULL
+genomeIDcol <- NULL
+intercol <- NULL
+intracol <- NULL
+effcol <- NULL
+pwrcol <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.intra.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
@@ -51,6 +53,19 @@ for (genomeID in genome.and.organisms[,1]){
       # get mean CAI of protein domains and part in betweeen
       intra.mean <- mean(data.intra[,2])
       inter.mean <- mean(data.inter[,2])
+      sd(data.intra[,2])
+      sd(data.inter[,2])
+      
+      # calculating effectsize and power of the test
+      samplesize <- length(data.intra[,1])
+      effsize <- cohen.d(data.intra[,2], data.inter[,2], pooled = F, paired = F, conf.level = 0.95)
+      effsize$estimate
+      pwr <- pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.05,
+                        alternative = "two.sided")
+      
+      # fill columns of eff size and power
+      effcol <- c(effcol, effsize$estimate)
+      pwrcol <- c(pwrcol, pwr$power)
       # fill the columns by each iteration
       genomeIDcol <- c(genomeIDcol, genomeID)
       intracol <- c(intracol, intra.mean)
@@ -61,6 +76,9 @@ for (genomeID in genome.and.organisms[,1]){
 # bind the filled columns into a dataframe
 interintradf <- data.frame(genomeIDcol, intracol, intercol,
                            stringsAsFactors = FALSE)
+
+interintradf2 <- data.frame(genomeIDcol, intracol, intercol,
+                            effcol, pwrcol, stringsAsFactors = FALSE)
 
 save(interintradf, file = "InterIntraMeans.RData")
 load("InterIntraMeans.RData")
@@ -133,14 +151,13 @@ legend ('bottomright', c('Non-significant', 'Significant'), cex = 2, pch = 18,
         col = color, bty='n')
 abline(a=0, b=1)
 
-print(paste(length(which(padj.interintradf[,3] == "Yes" )), "out of", 
-            length(padj.interintradf[,3]), 
+print(paste(length(which(padj.interintradf[,5] == "Yes" )), "out of", 
+            length(padj.interintradf[,5]), 
             "samples are found to have a significant difference"))
 
 
+# decrease dataframe so it can be plotted by ggplot
 padj.interintradf <- padj.interintradf[, c(2,3,5)]
-
-
 
 myplot <- ggplot(padj.interintradf, aes(padj.interintradf[,1], 
                                         padj.interintradf[,2], 
@@ -235,6 +252,7 @@ print(paste(length(which(sampled.interintradf[,5] == "Yes" )), "out of",
             "samples are found to have a significant difference"))
 
 
+# decrease dataframe so it can be plotted by ggplot
 sampled.interintradf <- sampled.interintradf[, c(2,3,5)]
 
 
