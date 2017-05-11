@@ -26,12 +26,19 @@ data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
 #####________difference between unique and duplicated domains, without sampling________#####
 
 
-genome.and.organisms <- read.csv(file = "it1_4genomes.csv", header = FALSE, 
+genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
 length(genome.and.organisms[,1])
 
-pvec = numeric()
+# make empty columns to later bind them to dataframe
+genomeIDcol <- NULL
+unique.col <- NULL
+duplicated.col <- NULL
+effcol <- NULL
+pwrcol <- NULL
+pvec <- numeric()
+
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
@@ -40,12 +47,31 @@ for (genomeID in genome.and.organisms[,1]){
                      header = FALSE, as.is = TRUE)
     # how many times domains occur
     domain.occurence <- rle(sort(data[,1]))
-    # retrieving CAI values of duplicated and unique domains
+    # retrieving CAI values and mean CAI values of duplicated and unique domains
     unique.domains <- domain.occurence$values[which(domain.occurence$lengths==1)]
     unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
+    unique.domains.mean <- mean(unique.domains.cai)
     
     duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
     duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
+    duplicated.domains.mean <- mean(duplicated.domains.cai)
+    
+    
+    # calculating effectsize and power of the test
+    samplesize <- length(unique.domains.cai)
+    effsize <- cohen.d(unique.domains.cai, duplicated.domains.cai, pooled = F, paired = F, conf.level = 0.95)
+    effsize$estimate
+    pwr <- pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.05,
+               alternative = "two.sided")
+    
+    
+    # fill columns of eff size and power
+    effcol <- c(effcol, effsize$estimate)
+    pwrcol <- c(pwrcol, pwr$power)
+    # fill the columns with each iteration
+    genomeIDcol <- c(genomeIDcol, genomeID)
+    unique.col <- c(unique.col, unique.domains.mean)
+    dupl.col <- c(dupl.col, duplicated.domains.mean)
     
     # Do a t-test to get the pvalues
     ttest <- t.test(unique.domains.cai, duplicated.domains.cai)
@@ -53,77 +79,71 @@ for (genomeID in genome.and.organisms[,1]){
     # make a vector with all the pvalues
     pvec <- c(pvec, pval)
     # by calculating the p adjusted values we correct for multiple hypothesis testing
-    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
   }
 }
+padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
 
-# then loop again over the genomes to calculate the significance by using the adjusted p-values
+# bind the filled columns into a dataframe
+unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
+                                   padj, stringsAsFactors = FALSE)
 
-genomecount = 0
-significant = 0
-nonsignificant = 0
-pvalcount = 1
-for (genomeID in genome.and.organisms[,1]){
-  cat (genomeID, "\n")
-  cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
-  if (file.exists(cai.files)){
-    data <- read.csv(file = cai.files, sep = ",", 
-                     header = FALSE, as.is = TRUE)
-    # how many times domains occur
-    domain.occurence <- rle(sort(data[,1]))
-    # retrieving CAI values of duplicated and unique domains
-    unique.domains <- domain.occurence$values[which(domain.occurence$lengths==1)]
-    unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
-    
-    duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
-    duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
-    unique.mean <- mean(unique.domains.cai)
-    duplicated.mean <- mean(duplicated.domains.cai)
-    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
-    # values to the significancy of a genome
-    if (padj[pvalcount] < 0.05){
-      col.plot = 'blue'
-      significant = significant + 1
-      pvalcount = pvalcount + 1
-    } 
-    else {
-      col.plot = 'red'
-      nonsignificant = nonsignificant + 1
-      pvalcount = pvalcount + 1
-    }
-    if (genomecount == 0){
-    plot(duplicated.mean, unique.mean, type = "p", xlim = c(0.3, 1), ylim = c(0.3, 1),
-         main = "Mean CAI values of duplicated and unique protein domains",
-         xlab = "Mean CAI duplicated", 
-         ylab = "Mean CAI unique", 
-         col = col.plot)
-      genomecount = genomecount + 1
-    } 
-    else {
-      points(duplicated.mean, unique.mean, col = col.plot)
-      legend("topright" ,c("Significant", "Non-significant"), cex=1.5, pch=1,
-             col=c("blue", "red") , bty="n")
-    } 
-  }
-}
-abline(a=0, b=1)
+unique.duplicated.df2 <- data.frame(genomeIDcol, unique.col, dupl.col,
+                                   padj, effcol, pwrcol, stringsAsFactors = FALSE)
 
-total = significant + nonsignificant
-print(paste(significant, "out of", total, "samples are found to be significant"))
+
+### add factor yes/no to the df 
+unique.duplicated.df$significant <- ifelse(unique.duplicated.df$padj > 0.05, "No", "Yes")
+unique.duplicated.df$significant <- as.factor(unique.duplicated.df$significant)
+
+
+
+save(unique.duplicated.df, file = "UniqueDuplicatedPadjMeanCAI.RData")
+
+
+########____________ Results and draw the graph with using the p adjusted values ___________#######
+load("UniqueDuplicatedPadjMeanCAI.RData")
+
+
+print(paste(length(which(unique.duplicated.df[,5] == "Yes" )), "out of", 
+            length(unique.duplicated.df[,5]),
+            "samples are found to have a significant difference"))
+
+
+unique.duplicated.df <- unique.duplicated.df[, c(2,3,5)]
+
+
+
+myplot <- ggplot(unique.duplicated.df, aes(unique.duplicated.df[,1], 
+                                           unique.duplicated.df[,2], 
+                                        color=unique.duplicated.df[,3]))+ #these commands creat the plot, but nothing appears
+  geom_point(size = 2, shape = 18) +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  theme(legend.text = element_text(size = 15))  +
+  xlab("mean CAI protein domains") +   
+  ylab("mean CAI in between protein domains") +
+  #ggtitle(title) +
+  guides(color = guide_legend(override.aes = list(size=6))) +
+  scale_colour_discrete(name = "Significant")
+#scale_fill_brewer(palette = "Spectral")
+
+myplot   #have a look at the plot 
+
 
 
 #####________difference between unique and duplicated domains, with sampling the data________#####
 
-setwd("~/Documents/Master_Thesis_SSB/git_scripts")
-
-#genomeID <- "GCA_000003645"
-#cai.files <- paste("CAI_domains_ENA/", genomeID, "_CAI.csv", sep = "")
-#data <- read.csv(file = cai.files, sep = ",", header = FALSE, as.is = TRUE)
-
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-pvec <- numeric()
+# set empty columns, these are filled in each iteration of the for loop
+pvalcol <- NULL
+genomeIDcol <- NULL
+unique.col <- NULL
+duplicated.col <- NULL
+effcol <- NULL
+pwrcol <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
@@ -145,75 +165,84 @@ for (genomeID in genome.and.organisms[,1]){
     samplesize=500
     sampled.uniq.dom.cai <- sample(unique.domains.cai, size = samplesize, replace = TRUE)
     sampled.dupl.dom.cai <- sample(duplicated.domains.cai, size = samplesize, replace = TRUE)
-
+    
+    # calculate means of sampled domains
+    unique.sampled.mean <- mean(sampled.uniq.dom.cai)
+    duplicated.sampled.mean <- mean(sampled.dupl.dom.cai)
+    
+    # calculating effectsize and power of the test
+    effsize <- cohen.d(sampled.uniq.dom.cai, sampled.dupl.dom.cai, pooled = F, paired = F, conf.level = 0.95)
+    effsize$estimate
+    pwr <- pwr.t.test(samplesize, d = effsize$estimate, sig.level = 0.05,
+                      alternative = "two.sided")
+    
+    
+    # fill columns of eff size and power
+    effcol <- c(effcol, effsize$estimate)
+    pwrcol <- c(pwrcol, pwr$power)
+    
+    # fill the columns with each iteration
+    unique.col <- c(unique.col, unique.sampled.mean)
+    duplicated.col <- c(duplicated.col, duplicated.sampled.mean)
+    genomeIDcol <- c(genomeIDcol, genomeID)
+    
     # Do a t-test to get the pvalues
     ttest <- t.test(sampled.uniq.dom.cai, sampled.dupl.dom.cai)
     pval <- ttest$p.value
     # make a vector with all the pvalues
-    pvec <- c(pvec, pval)
+    pvalcol <- c(pvalcol, pval)
     # by calculating the p adjusted values we correct for multiple hypothesis testing
-    padj <- round(p.adjust(pvec, method = "BH", n = length(genome.and.organisms[,1])), 4)
   }
 }
-    
-genomecount = 0
-significant = 0
-nonsignificant = 0
-pvalcount = 1
-for (genomeID in genome.and.organisms[,1]){
-  cat (genomeID, "\n")
-  cai.files <- paste("new_CAI_intradomains_ENA/", genomeID, "_intradom_CAI.csv", sep = "")
-  if (file.exists(cai.files)){
-    data <- read.csv(file = cai.files, sep = ",", 
-                     header = FALSE, as.is = TRUE)
-    # how many times domains occur
-    domain.occurence <- rle(sort(data[,1]))
-    # retrieving CAI values of duplicated and unique domains
-    unique.domains <- domain.occurence$values[which(domain.occurence$lengths==1)]
-    unique.domains.cai <- data[which(data[,1]%in% unique.domains),2]
-    
-    duplicated.domains <- domain.occurence$values[which(domain.occurence$lengths!=1)]
-    duplicated.domains.cai <- data[which(data[,1]%in% duplicated.domains),2]
-    
-    # the sample sizes are too different, and because a lot of observations we will get significant 
-    # results alway. We therefore sample the unique and duplicated domains to reduce the power of the test
-    # and also increase the effect size. In this way, the significant difference is actually meaningfull
-    samplesize=500
-    sampled.uniq.dom.cai <- sample(unique.domains.cai, size = samplesize, replace = TRUE)
-    sampled.dupl.dom.cai <- sample(duplicated.domains.cai, size = samplesize, replace = TRUE)
-    sampled.unique.mean <- mean(sampled.uniq.dom.cai)
-    sampled.duplicated.mean <- mean(sampled.dupl.dom.cai)
-    # go through all the p adjusted values, by using an iterator it will go through the padj vector and link these
-    # values to the significancy of a genome
-    if (padj[pvalcount] < 0.05){
-      col.plot = 'blue'
-      significant = significant + 1
-      pvalcount = pvalcount + 1
-    } 
-    else {
-      col.plot = 'red'
-      nonsignificant = nonsignificant + 1
-      pvalcount = pvalcount + 1
-    }
-    if (genomecount == 0){
-      plot(sampled.duplicated.mean, sampled.unique.mean, type = "p", xlim = c(0.3, 1), ylim = c(0.3, 1),
-           main = "Mean CAI values of duplicated and unique protein domains (sampled data)",
-           xlab = "Mean CAI duplicated", 
-           ylab = "Mean CAI unique", 
-           col = col.plot)
-      genomecount = genomecount + 1
-    } 
-    else {
-      points(sampled.duplicated.mean, sampled.unique.mean, col = col.plot)
-      legend("topright" ,c("Significant", "Non-significant"), cex=1.5, pch=1,
-             col=c("blue", "red") , bty="n")
-    } 
-  }
-}
-abline(a=0, b=1)
 
-total = significant + nonsignificant
-print(paste(significant, "out of", total, "samples are found to be significant in the sampled dataset"))
+padj <- round(p.adjust(pvalcol, method = "BH", n = length(genome.and.organisms[,1])), 4)
+
+
+# bind the filled columns into a dataframe
+sampled.unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
+                                   padj, stringsAsFactors = FALSE)
+sampled.unique.duplicated.df <- data.frame(genomeIDcol, unique.col, dupl.col,
+                                    padj, effcol, pwrcol, stringsAsFactors = FALSE)
+
+### add factor yes/no to the df 
+sampled.unique.duplicated.df$significant <- ifelse(sampled.unique.duplicated.df$padj > 0.05, "No", "Yes")
+sampled.unique.duplicated.df$significant <- as.factor(sampled.unique.duplicated.df$significant)
+
+
+
+save(sampled.unique.duplicated.df, file = "SampledUniqueDuplicatedPadjSign.RData")
+
+
+########____________ Results and draw the graph with sampled data ___________#######
+
+
+load("UniqueDuplicatedPadjSign.RData")
+
+print(paste(length(which(sampled.unique.duplicated.df[,5] == "Yes" )), "out of", 
+            length(sampled.unique.duplicated.df[,5]), 
+            "samples are found to have a significant difference"))
+
+
+sampled.unique.duplicated.df <- sampled.unique.duplicated.df[, c(2,3,5)]
+
+
+
+myplot <- ggplot(sampled.unique.duplicated.df, aes(sampled.unique.duplicated.df[,1], 
+                                           sampled.unique.duplicated.df[,2], 
+                                           color=sampled.unique.duplicated.df[,3]))+ #these commands creat the plot, but nothing appears
+  geom_point(size = 2, shape = 18) +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  theme(legend.text = element_text(size = 15))  +
+  xlab("mean CAI protein domains") +   
+  ylab("mean CAI in between protein domains") +
+  #ggtitle(title) +
+  guides(color = guide_legend(override.aes = list(size=6))) +
+  scale_colour_discrete(name = "Significant")
+#scale_fill_brewer(palette = "Spectral")
+
+myplot   #have a look at the plot  
 
 
 
