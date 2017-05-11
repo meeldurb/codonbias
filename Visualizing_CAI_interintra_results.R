@@ -72,7 +72,7 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
                                  as.is=TRUE) #as.is to keep the it as char
 genomeID <- "GCA_000008205"
 
-# first run the loop to create a vector with adjusted p values
+# first run the loop to create a vector with p values
 pvec = numeric()
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
@@ -133,8 +133,8 @@ legend ('bottomright', c('Non-significant', 'Significant'), cex = 2, pch = 18,
         col = color, bty='n')
 abline(a=0, b=1)
 
-print(paste(length(which(padj.interintradf[,5] == "Yes" )), "out of", 
-            length(padj.interintradf[,5]), 
+print(paste(length(which(padj.interintradf[,3] == "Yes" )), "out of", 
+            length(padj.interintradf[,3]), 
             "samples are found to have a significant difference"))
 
 
@@ -167,8 +167,8 @@ myplot   #have a look at the plot
 genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE, 
                                  as.is=TRUE) #as.is to keep the it as char
 
-# first run the loop to create a vector with adjusted p values
-pvalcol = NULL
+# set empty columns, these are filled in each iteration of the for loop
+pvalcol <- NULL
 genomeIDcol <- NULL
 intercol <- NULL
 intracol <- NULL
