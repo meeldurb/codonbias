@@ -10,6 +10,9 @@
 # install packages to draw plots
 install.packages("ggplot2", repos="http://cran.rstudio.com/")
 library(ggplot2)
+library("Biostrings")
+library("RColorBrewer")
+
 
 
 
@@ -65,3 +68,133 @@ mean(rtop.biplot.GC)
 mean(ltop.biplot.GC)
 
 
+
+####________________________ Retrieve data of all the codon weights ________________________####
+
+setwd("~/Documents/Master_Thesis_SSB/git_scripts")
+
+load("GenomeDataSet.RData")
+
+
+####_______ separating the codons based on aa  _______####
+
+# get the codontable 1 and convert it to a dataframe
+aa1 <- getGeneticCode("SGC0")
+aatable <- data.frame(keyName = aa1, value = names(aa1), 
+                      row.names = NULL, stringsAsFactors = FALSE)
+colnames(aatable) <- c("aa", "codon")
+# changing aa abbreviations from 1 to 3 letters
+aatable[aatable == "A"] <- "Ala"
+aatable[aatable == "R"] <- "Arg"
+aatable[aatable == "N"] <- "Asn"
+aatable[aatable == "D"] <- "Asp"
+aatable[aatable == "C"] <- "Cys"
+aatable[aatable == "E"] <- "Glu"
+aatable[aatable == "Q"] <- "Gln"
+aatable[aatable == "G"] <- "Gly"
+aatable[aatable == "H"] <- "His"
+aatable[aatable == "I"] <- "Ile"
+aatable[aatable == "L"] <- "Leu"
+aatable[aatable == "K"] <- "Lys"
+aatable[aatable == "M"] <- "Met"
+aatable[aatable == "F"] <- "Phe"
+aatable[aatable == "P"] <- "Pro"
+aatable[aatable == "S"] <- "Ser"
+aatable[aatable == "T"] <- "Thr"
+aatable[aatable == "W"] <- "Trp"
+aatable[aatable == "Y"] <- "Tyr"
+aatable[aatable == "V"] <- "Val"
+aatable[aatable == "*"] <- "Stp"
+
+# and order on aa and then on codon
+ordered.aa <- aatable[with(aatable, order(aatable[,1], aatable[,2])), ]
+
+# paste the aa names to the dataframe
+codgendf <- data.frame(ordered.aa[,1], codgendf)
+#codgendf <- data.frame(rownames(codgendf), codgendf)
+
+
+
+# splitting the genomes that are left and right in the PCA plot
+length(genomes.rtop.biplot)
+length(genomes.ltop.biplot)
+codgen.rtop <- codgendf[, genomes.rtop.biplot]
+codgen.ltop <- codgendf[, genomes.ltop.biplot]
+codgen.rtop <- data.frame(ordered.aa[,1], codgen.rtop)
+codgen.ltop <- data.frame(ordered.aa[,1], codgen.ltop)
+
+
+# setting plotting frame
+mar.default <- c(4,3,1,1) + 0.1
+par(mar = mar.default + c(0, 1, 0, 0))
+par(mfrow = c(2,2))
+par(cex.axis = 0.5)
+
+
+# setting custom colors
+#palette(rainbow(length(unique(codgendf[,1]))))
+#palette(brewer.pal(length(unique(codgendf[,1])), "Spectral")(length(unique(codgendf[,1]))))
+n <- length(unique(codgendf[,1]))
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+palette(sample(col_vector, n))
+
+
+
+# draw boxplots
+# right top of PCA
+boxplot(t(codgen.rtop[,2:ncol(codgen.rtop)]), col = codgen.rtop[,1],
+        xlab = "relative adaptiveness", 
+        main = "righttop, should have bias towards ending with C",
+        horizontal = TRUE, las = 1)
+
+boxplot(t(codgen.ltop[,2:ncol(codgen.ltop)]), col = codgen.ltop[,1],
+        xlab = "relative adaptiveness", 
+        main = "lefttop, should have bias towards ending with T/A",
+        horizontal = TRUE, las = 1)
+
+
+# draw boxplots for genomes based on end position of codon
+codgenrtop.G <- codgen.rtop[grepl("G$", rownames(codgen.rtop)), ]
+codgenrtop.C <- codgen.rtop[grepl("C$", rownames(codgen.rtop)), ]
+codgenrtop.A <- codgen.rtop[grepl("A$", rownames(codgen.rtop)), ]
+codgenrtop.T <- codgen.rtop[grepl("T$", rownames(codgen.rtop)), ]
+
+boxplot(t(codgenrtop.C[,2:ncol(codgenrtop.C)]),
+        ylab = "relative adaptiveness", 
+        main = "C-end",
+        col = "blue")
+boxplot(t(codgenrtop.G[,2:ncol(codgenrtop.G)]),
+        ylab = "relative adaptiveness", 
+        main = "G-end",
+        col = "grey")
+boxplot(t(codgenrtop.A[,2:ncol(codgenrtop.A)]),
+        ylab = "relative adaptiveness", 
+        main = "A-end",
+        col = "green")
+boxplot(t(codgenrtop.T[,2:ncol(codgenrtop.T)]),
+        ylab = "relative adaptiveness", 
+        main = "T-end",
+        col = "red")
+
+codgenltop.G <- codgen.ltop[grepl("G$", rownames(codgen.ltop)), ]
+codgenltop.C <- codgen.ltop[grepl("C$", rownames(codgen.ltop)), ]
+codgenltop.A <- codgen.ltop[grepl("A$", rownames(codgen.ltop)), ]
+codgenltop.T <- codgen.ltop[grepl("T$", rownames(codgen.ltop)), ]
+
+boxplot(t(codgenltop.C[,2:ncol(codgenltop.C)]),
+        ylab = "relative adaptiveness", 
+        main = "C-end",
+        col = "blue")
+boxplot(t(codgenltop.G[,2:ncol(codgenltop.G)]),
+        ylab = "relative adaptiveness", 
+        main = "G-end",
+        col = "grey")
+boxplot(t(codgenltop.A[,2:ncol(codgenltop.A)]),
+        ylab = "relative adaptiveness", 
+        main = "A-end",
+        col = "green")
+boxplot(t(codgenltop.T[,2:ncol(codgenltop.T)]),
+        ylab = "relative adaptiveness", 
+        main = "T-end",
+        col = "red")
