@@ -78,7 +78,7 @@ ordered.aa <- aatable[with(aatable, order(aatable[,1], aatable[,2])), ]
 codgendf <- data.frame(ordered.aa[,1], codgendf)
 #codgendf <- data.frame(rownames(codgendf), codgendf)
 
-
+# setting plotting frame
 mar.default <- c(4,3,1,1) + 0.1
 par(mar = mar.default + c(0, 1, 0, 0))
 par(mfrow = c(1,1))
