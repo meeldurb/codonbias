@@ -113,8 +113,8 @@ load("catalase_cai.RData")
 # decrease dataframe so it can be plotted by ggplot
 
 
-myplot <- ggplot(catalase.df, aes(catalase.df[,2], 
-          catalase.df[,3] ))+ #these commands creat the plot, but nothing appears
+myplot <- ggplot(catalase.df, aes(x=catalase.df[,2], 
+          y=catalase.df[,3] ))+ #these commands creat the plot, but nothing appears
   geom_point(size = 2, shape = 18, color = "dodgerblue2") +
   geom_abline(intercept = 0, slope = 1) +
   theme_bw(base_size = 15) +
