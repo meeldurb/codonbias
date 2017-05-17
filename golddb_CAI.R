@@ -92,6 +92,7 @@ stenohal.hist$counts = stenohal.hist$counts/sum(stenohal.hist$counts)
 plot(stenohal.hist, col = rgb(0,1,1,1/4), 
      main = "CAI distribution of salinity requirements",
      xlab = "mean CAI",
+     cex.axis = 1,
      ylab = "Bacterial frequency")
 
 plot(halophile.hist, col = rgb(1,0,0,1/4), add = TRUE)
@@ -104,7 +105,11 @@ legend("topright", c("Halophile", "Euryhaline", "Halotolerant", "Stenohaline"), 
 
 # removed eury- and stenohaline
 par(mfrow = c(1,1))
-plot(halotol.hist, col = rgb(1,0,0,1/4))
+plot(halotol.hist, col = rgb(1,0,0,1/4), 
+     main = "CAI distribution of salinity requirements",
+     xlab = "mean CAI", 
+     ylab = "Bacterial frequency",
+     cex.axis = 1)
 plot(halophile.hist, col = rgb(0,0,1,1/4), add = TRUE)
 legend("topleft", c("Halophile", "Halotolerant"), pch = 15,
        col = c(rgb(1,0,0,1/4), rgb(0,0,1,1/4)) , bty = "n", cex=1.5)
@@ -191,8 +196,8 @@ oblanaerobe.hist <- hist(oblanaerobe.cai,
                    breaks = breakpoints, plot = F)
 oblanaerobe.hist$counts = oblanaerobe.hist$counts/sum(oblanaerobe.hist$counts)
 
-plot(facul.hist, col = rgb(1,0,0,1/4),  add = TRUE,
-     main = "CAI distribution of oxygen requirements",
+plot(facul.hist, col = rgb(1,0,0,1/4),
+     main = "CAI distribution of oxygen requirement",
      xlab = "mean CAI",
      ylab = "Bacterial frequency") 
 plot(anaerobe.hist, col = rgb(0,0,1,1/4), add = TRUE)
@@ -230,9 +235,10 @@ proox.hist$counts = proox.hist$counts/sum(proox.hist$counts)
 
 
 plot(proox.hist, col = rgb(1,0,0,1/4),
-     main = "CAI distribution of oxygen requirements",
+     main = "CAI distribution of oxygen requirement",
      xlab = "mean CAI",
-     ylab = "Bacterial frequency") 
+     ylab = "Bacterial frequency",
+     cex.axis = 1) 
 plot(noox.hist, col = rgb(0,0,1,1/4), add = TRUE)
 
 legend("topleft", c("no oxygen", "pro oxygen"), pch = 15,
@@ -340,7 +346,8 @@ thermotol.hist$counts = thermo.hist$counts/sum(thermotol.hist$counts)
 plot(thermo.hist, col = rgb(1,0,0,1/4),
      main = "CAI distribution of temperature requirements",
      xlab = "mean CAI",
-     ylab = "Bacterial frequency") 
+     ylab = "Bacterial frequency",
+     cex.axis = 1) 
 plot(meso.hist, col = rgb(0,0,1,1/4), add = TRUE)
 
 legend("topleft", c("Thermophile", "Mesophile"), pch = 15,
