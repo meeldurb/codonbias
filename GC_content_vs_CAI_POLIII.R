@@ -217,7 +217,7 @@ p <- ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3
   geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4) + 
   geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4) + 
   labs(x = "GC content (%)", y = "Mean CAI",
-       color = "Polymerase III isomers")
+       color = "Polymerase III subunit isoforms")
 
 p         
 
