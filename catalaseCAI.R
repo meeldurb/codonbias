@@ -33,6 +33,9 @@ if (!file.exists(outfolder))dir.create(outfolder)
 ####__________________after catalase seq files were written, calculate CAI and draw plot______________________#####
 
 genomecount = 0
+genome.col <- NULL
+meancai.col <- NULL
+catacai.col <- NULL
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
   cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
@@ -84,28 +87,64 @@ for (genomeID in genome.and.organisms[,1]){
         
         cai.output <- compute.cai(catalase.seqs.CDS, genomeID, w, "tmpcatadomain.csv", "tmpcatadomain.fasta")
         catalase.cai <- mean(cai.output[,2])
-        # draw the plot of mean cai and mean catalase cai
-        xlim = c(0.1, 0.9)
-        ylim = c(0.1, 0.9)
-        col = "blue"
-        if (genomecount == 0){  
-          plot(catalase.cai, mean.cai, col=col, 
-               xlim = xlim, ylim = ylim,
-               pch = 18, main = "CAI complete genome vs. CAI catalase genes",
-               xlab = "catalase CAI", 
-               ylab = "Mean CAI")
-          grid(NULL, NULL, lty = 6, col = "cornsilk2")
-          #legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
-          #    col=c("red", "blue", "green", "grey") , bty="n")
-          genomecount = genomecount + 1
-        } else {
-          points(catalase.cai, mean.cai, col=col, pch = 18)
-        }
-        abline(a=0, b=1)
+        # fill the columns with genomeID, mean cai and mean catalase cai to later form df
+        genome.col <- c(genome.col, genomeID)
+        meancai.col <- c(meancai.col, mean.cai)
+        catacai.col <- c(catacai.col, catalase.cai)
+        
       }
     }
   }
 }
 
+catalase.df <- data.frame(genome.col, meancai.col, catacai.col,
+                          stringsAsFactors = FALSE)
 
 
+save(catalase.df, file = "catalase_cai.RData")
+
+
+########____________ Results and draw the graph with sampled data ___________#######
+
+
+load("catalase_cai.RData")
+
+
+# decrease dataframe so it can be plotted by ggplot
+
+
+myplot <- ggplot(catalase.df, aes(catalase.df[,2], 
+          catalase.df[,3] ))+ #these commands creat the plot, but nothing appears
+  geom_point(size = 2, shape = 18, color = "dodgerblue2") +
+  geom_abline(intercept = 0, slope = 1) +
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  #theme(legend.text = element_text(size = 15))  +
+  xlab("mean CAI all genes") +   
+  ylab("catalase CAI") +
+  theme(legend.position="none")
+  #ggtitle(title) +
+#scale_fill_brewer(palette = "Spectral")
+
+myplot   #have a look at the plot 
+
+
+
+
+xlim = c(0.1, 0.9)
+ylim = c(0.1, 0.9)
+col = "blue"
+if (genomecount == 0){  
+  plot(catalase.cai, mean.cai, col=col, 
+       xlim = xlim, ylim = ylim,
+       pch = 18, main = "CAI complete genome vs. CAI catalase genes",
+       xlab = "catalase CAI", 
+       ylab = "Mean CAI")
+  grid(NULL, NULL, lty = 6, col = "cornsilk2")
+  #legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
+  #    col=c("red", "blue", "green", "grey") , bty="n")
+  genomecount = genomecount + 1
+} else {
+  points(catalase.cai, mean.cai, col=col, pch = 18)
+}
+abline(a=0, b=1)
