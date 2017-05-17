@@ -212,10 +212,16 @@ eq.polC <- as.character(as.expression(eq.polC))
 par(mfrow = c(1,1))
 # draw the plot (ggplot)
 p <- ggplot(data.CAIGCpolIII, aes(y=data.CAIGCpolIII[,2], x= data.CAIGCpolIII[,3], col = data.CAIGCpolIII$polIII.col)) +
-  geom_point() + geom_smooth(method = "lm", fill = NA)+
-  geom_text(x = 60, y = 0.5, label=eq.dnaE1, parse=TRUE, color = "#F8766D", family = "Helvetica", size = 4) + 
-  geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4) + 
-  geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4) + 
+  geom_point(size = 2, shape = 18) + 
+  geom_smooth(method = "lm", fill = NA)+
+  theme_bw(base_size = 15) +
+  #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
+  theme(legend.text = element_text(size = 15))  +
+  guides(color = guide_legend(override.aes = list(linetype = c(rep("blank", 3)), 
+                                                  size=5))) +
+  geom_text(x = 60, y = 0.5, label=eq.dnaE1, parse=TRUE, color = "#F8766D", family = "Helvetica", size = 4.5) + 
+  geom_text(x = 60, y = 0.475, label=eq.dnaE2, parse=TRUE, color = "#00BA38", family = "Helvetica", size = 4.5) + 
+  geom_text(x = 59, y = 0.45, label=eq.polC, parse=TRUE, color = "#619CFF", family = "Helvetica", size = 4.5) + 
   labs(x = "GC content (%)", y = "Mean CAI",
        color = "Polymerase III subunit isoforms")
 
