@@ -103,6 +103,11 @@ m.codgen <- as.matrix(codgen)
 #m.codgen<- m.codgen[, which(colnames(m.codgen)!="ATG")]
 
 codgen.pca <- prcomp(m.codgen, scale = TRUE)
+
+par(mar = c(5, 4, 4, 4))
+palette(c("White", "Red"))
+biplot(codgen.pca, scale = 0)
+
 pca.summary <- summary(codgen.pca)
 
 #easy plot
@@ -114,18 +119,49 @@ plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2
 
 
 
+
+### ggplot Genus
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+order.count <- rle(sort(gold.data$NCBI.Genus))
+selected <- order.count$values[which(order.count$length>15)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Genus
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+legendtitle <- "Genera"
+
+
+### ggplot FAMILY
+df <-data.frame(PC1.codgen, PC2.codgen)
+
+order.count <- rle(sort(gold.data$NCBI.Family))
+selected <- order.count$values[which(order.count$length>20)]   
+##put colors in those for which we have more than 5 (increase for a "real" example)
+group <- gold.data$NCBI.Family
+group[which(!group%in% selected)] <- "Other"
+
+df$Group <- group
+df$Group <- factor(df$Group, levels=c(selected))
+legendtitle <- "Families"
+
+
+
+
 ### ggplot ORDER
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Order))
-selected <- order.count$values[which(order.count$length>15)]   
+selected <- order.count$values[which(order.count$length>25)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Order
 group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of codonpairs weight in Orders"
+legendtitle <- "Orders"
 
 ### ggplot CLASS
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -138,7 +174,7 @@ group[which(!group%in% selected)] <- NA
 
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected))
-title <- "Principal components analysis of codonpairs weight in Classes"
+legendtitle <- "Classes"
 
 ### ggplot PHYLUM
 df <-data.frame(PC1.codgen, PC2.codgen)
@@ -152,7 +188,7 @@ group[which(!group%in% selected)] <- NA
 df$Group <- group
 df$Group <- factor(df$Group, levels=c(selected) )
 
-title <- "Principal components analysis of codonpairs weight in Phyla"
+legendtitle <- "Phyla"
 
 
 ### ggplot SHAPE
@@ -198,16 +234,22 @@ title <- "Principal components analysis of codonpairs weight in oxygen requireme
 ### Draw plot
 myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands create the plot, but nothing appears
   geom_point(size=4, shape=18)+
+  theme_bw(base_size = 13)+
   theme(axis.text.x = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5)) + 
   theme(axis.text.y = element_text(angle = 0, vjust = 0,  size = 12, hjust = 0.5))+
   theme_bw()+
   theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
-  theme(legend.text = element_text(size = 10))  +
+  theme(legend.text = element_text(size = 13))  +
   xlab(paste("PC1 (", format(pca.summary$importance[2,1]*100, digits = 2),"%)", sep = "")) +   
   ylab(paste("PC2 (", format(pca.summary$importance[2,2]*100, digits = 2),"%)", sep = "")) +
-  ggtitle(title) 
+  guides(color = guide_legend(override.aes = list(size=6))) +
+  scale_colour_discrete(name = legendtitle) +
+  scale_fill_brewer(palette = "Spectral")
+  #ggtitle(title) 
 
 print(myplot)   #have a look at the plot 
+
+
 
 ggsave(file="test.pdf", myplot, width=8, height=8)  #save to a file (change extensdion for tiff, png..)
 
