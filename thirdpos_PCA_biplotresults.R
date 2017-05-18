@@ -154,6 +154,12 @@ boxplot(t(codgen.ltop[,2:ncol(codgen.ltop)]), col = codgen.ltop[,1],
         horizontal = TRUE, las = 1)
 
 
+# setting plotting frame
+mar.default <- c(4,3,1,1) + 0.1
+par(mar = mar.default + c(0, 1, 0, 0))
+par(mfrow = c(2,2))
+par(cex.axis = 0.5)
+
 # draw boxplots for genomes based on end position of codon
 codgenrtop.G <- codgen.rtop[grepl("G$", rownames(codgen.rtop)), ]
 codgenrtop.C <- codgen.rtop[grepl("C$", rownames(codgen.rtop)), ]
@@ -161,21 +167,21 @@ codgenrtop.A <- codgen.rtop[grepl("A$", rownames(codgen.rtop)), ]
 codgenrtop.T <- codgen.rtop[grepl("T$", rownames(codgen.rtop)), ]
 
 boxplot(t(codgenrtop.C[,2:ncol(codgenrtop.C)]),
-        ylab = "relative adaptiveness", 
-        main = "C-end",
-        col = "blue")
+        col = "blue",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenrtop.G[,2:ncol(codgenrtop.G)]),
-        ylab = "relative adaptiveness", 
-        main = "G-end",
-        col = "grey")
+        col = "grey",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenrtop.A[,2:ncol(codgenrtop.A)]),
-        ylab = "relative adaptiveness", 
-        main = "A-end",
-        col = "green")
+        col = "green",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenrtop.T[,2:ncol(codgenrtop.T)]),
-        ylab = "relative adaptiveness", 
-        main = "T-end",
-        col = "red")
+        col = "red",
+        cex.axis = 1.5,
+        las = 2)
 
 codgenltop.G <- codgen.ltop[grepl("G$", rownames(codgen.ltop)), ]
 codgenltop.C <- codgen.ltop[grepl("C$", rownames(codgen.ltop)), ]
@@ -183,18 +189,18 @@ codgenltop.A <- codgen.ltop[grepl("A$", rownames(codgen.ltop)), ]
 codgenltop.T <- codgen.ltop[grepl("T$", rownames(codgen.ltop)), ]
 
 boxplot(t(codgenltop.C[,2:ncol(codgenltop.C)]),
-        ylab = "relative adaptiveness", 
-        main = "C-end",
-        col = "blue")
+        col = "blue",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenltop.G[,2:ncol(codgenltop.G)]),
-        ylab = "relative adaptiveness", 
-        main = "G-end",
-        col = "grey")
+        col = "grey",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenltop.A[,2:ncol(codgenltop.A)]),
-        ylab = "relative adaptiveness", 
-        main = "A-end",
-        col = "green")
+        col = "green",
+        cex.axis = 1.5,
+        las = 2)
 boxplot(t(codgenltop.T[,2:ncol(codgenltop.T)]),
-        ylab = "relative adaptiveness", 
-        main = "T-end",
-        col = "red")
+        col = "red",
+        cex.axis = 1.5,
+        las = 2)
