@@ -168,7 +168,7 @@ myplot <- ggplot(padj.interintradf, aes(padj.interintradf[,1],
   #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
   theme(legend.text = element_text(size = 15))  +
   xlab("mean CAI protein domains") +   
-  ylab("mean CAI in between protein domains") +
+  ylab("mean CAI non-domains") +
   #ggtitle(title) +
   guides(color = guide_legend(override.aes = list(size=6))) +
   scale_colour_discrete(name = "Significant")
@@ -266,7 +266,7 @@ myplot <- ggplot(sampled.interintradf, aes(sampled.interintradf[,1],
   #theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) 
   theme(legend.text = element_text(size = 15))  +
   xlab("mean CAI protein domains") +   
-  ylab("mean CAI in between protein domains") +
+  ylab("mean CAI non-domains") +
   #ggtitle(title) +
   guides(color = guide_legend(override.aes = list(size=6))) +
   scale_colour_discrete(name = "Significant")
@@ -336,8 +336,8 @@ for (genomeID in genomes.sampled){
     if (genomecount == 0){
       plot(data.intra[,2], data.inter[,2], type = 'p', xlim = xlim, ylim = xlim, 
            main = "CAI values of inter and intra domains",
-           xlab = "CAI intra domains",
-           ylab = "CAI inter domains",
+           xlab = "mean CAI intra domains",
+           ylab = "mean CAI non-domains,
            col = col.plot)
       genomecount = genomecount + 1
     }
