@@ -69,7 +69,34 @@ save(meancaiGCcontdf, file = "GCcontMeanCAI.RData")
 load("GCcontMeanCAI.RData")
 
 
-GC######______________________________For 1 genome______________________________######
+
+
+
+stenohal.hist <- hist(stenohal.cai,
+                      breaks = breakpoints, plot = F)
+stenohal.hist$counts = stenohal.hist$counts/sum(stenohal.hist$counts)
+
+
+
+qplot(x = meancaiGCcontdf[,2], fill = ..count../sum(..count..), 
+      geom = "histogram")
+
+
+ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,2])) +
+  geom_histogram(aes(y=..count../sum(..count..)), col = "darkgrey", fill = "black") +
+  theme_bw(base_size = 13)+
+  
+  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  theme(legend.text = element_text(size = 17))  +
+  #stat_bin(aes(y=..count../sum(..count..))) +
+  #geom_histogram(aes(y=..count../sum(..count..)))  +
+  labs(x = "mean CAI", 
+       y = "number of genomes")
+
+
+
+
+######______________________________For 1 genome______________________________######
 
 genomeID <- "GCA_000003645"
 cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
