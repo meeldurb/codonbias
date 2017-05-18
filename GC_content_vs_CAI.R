@@ -33,7 +33,9 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
                                  as.is=TRUE) #as.is to keep the it as char
 
 
-genomecount = 0
+genomeIDcol <- NULL
+meancaicol <- NULL
+GCcontcol <- NULL
 #pdf("GCvsCAI_plot_itcount.pdf")
 for (genomeID in genome.and.organisms[,1]){
   cat (genomeID, "\n")
@@ -50,40 +52,24 @@ for (genomeID in genome.and.organisms[,1]){
     all.seq <- paste(as.matrix(seq.data)[,2], sep="", collapse="")
     seq.split <- strsplit(all.seq, "")[[1]]
     GCcont <- GC(seq.split)*100
-    xlim = c(20, 80)
-    ylim = c(0.35, 0.8)
-    col = "blue"
-    # then plot the GC content against the mean CAI
-      # #if(genomeID %in% biased.genomes){
-      #   print ("biased genome")
-      #   col = "blue"
-      #   } else if (genomeID %in% unbiased.genomes){
-      #     print ("unbiased genome")
-      #   col = "red"
-      #   } else {
-      #   col = "grey"
-      #   }
-    if (genomecount == 0){  
-      plot(GCcont, mean.cai, col=col, 
-                   type = "p", xlim = xlim, ylim = ylim,
-           pch = 18, main = "Average CAI vs. GC content",
-           xlab = "GC content (%)", 
-           ylab = "Mean CAI")
-      grid(NULL, NULL, lty = 6, col = "cornsilk2")
-      #legend("topleft" ,c("biased", "unbiased", "unknown"), cex=1.5, pch=18,
-            # col=c("blue", "red", "grey") , bty="n")
-      genomecount = genomecount + 1
-      } else {
-      points(GCcont, mean.cai, col= col, pch = 18)
-      }
+    
+    # fill columns with mean cai, GC content and GenomeID
+    genomeIDcol <- c(genomeIDcol, genomeID)
+    meancaicol <- c(meancaicol, mean.cai)
+    GCcontcol <- c(GCcontcol, GCcont)
+    
   }
 }
 
-dev.off()
+meancaiGCcontdf <- data.frame(genomeIDcol, meancaicol, GCcontcol,
+                              stringsAsFactors = FALSE)
+    
+    
+save(meancaiGCcontdf, file = "GCcontMeanCAI.RData")
+load("GCcontMeanCAI.RData")
 
 
-
-######______________________________For 1 genome______________________________######
+GC######______________________________For 1 genome______________________________######
 
 genomeID <- "GCA_000003645"
 cai.files <- paste("new_CAI_CDS/", genomeID, "_CAI_CDS_new.csv", sep = "")
