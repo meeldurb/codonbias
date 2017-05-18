@@ -70,18 +70,6 @@ load("GCcontMeanCAI.RData")
 
 
 
-
-
-stenohal.hist <- hist(stenohal.cai,
-                      breaks = breakpoints, plot = F)
-stenohal.hist$counts = stenohal.hist$counts/sum(stenohal.hist$counts)
-
-
-
-qplot(x = meancaiGCcontdf[,2], fill = ..count../sum(..count..), 
-      geom = "histogram")
-
-
 ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,2])) +
   geom_histogram(aes(y=..count../sum(..count..)), col = "darkgrey", fill = "black") +
   theme_bw(base_size = 13)+
@@ -93,6 +81,16 @@ ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,2])) +
   labs(x = "mean CAI", 
        y = "number of genomes")
 
+
+ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,3], y = meancaiGCcontdf[,2])) +
+  geom_point(color = "blue", shape = 18) +
+  theme_bw(base_size = 13)+
+  theme(legend.background = element_rect(fill = "white", size = .0, linetype = "dotted")) +
+  theme(legend.text = element_text(size = 17))  +
+  #stat_bin(aes(y=..count../sum(..count..))) +
+  #geom_histogram(aes(y=..count../sum(..count..)))  +
+  labs(x = "GC content (%)", 
+       y = "mean CAI")
 
 
 
