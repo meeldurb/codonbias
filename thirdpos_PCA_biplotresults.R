@@ -3,7 +3,7 @@
 ###################################################################
 ##Author: Melanie van den Bosch
 ##Script for visualizing relation between loadings of the PCA, 
-## the PC's and extreme GC content genomes
+## the PC's and nucleotide position on 3rd position of codon
 ###################################################################
 
 
