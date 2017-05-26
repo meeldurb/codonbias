@@ -3,6 +3,20 @@ Scripts written during my Master thesis @ systems and synthetic biology WUR
 
 ## Explanation of scripts
 
+
+### Computation of weight tables & results
+
+### Computation of codon pairs & results
+
+
+cCAIpairs.R: script with funciton to calculate CAI of codonpairs
+
+ccodpairsweight.R: Script with function to calculate codonpair weight tables
+
+
+
+
+
 calculate_CAI_CDS.R: Calculates the CAI of complete CDS with iterative weight tables of all genomes in ENA db and writes files to new_CAI_CDS/
 
 calculate_CAI_complete_ENA.R: Calculates CAI of CDS associated to domains
@@ -17,9 +31,6 @@ catalaseCAI.R: Calculates & draws graphs of the average CAI of complete genome a
 
 cCAI.R: script with function to calculate CAI
 
-cCAIpairs.R: script with funciton to calculate CAI of codonpairs
-
-ccodpairsweight.R: Script with function to calculate codonpair weight tables
 
 compute_refweighttables_ENA.R: algorithm to compute the weighttables from ENA db, seed is ribosomal protein encoding genes
 
