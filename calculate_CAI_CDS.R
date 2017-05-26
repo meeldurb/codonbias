@@ -2,7 +2,7 @@
 
 ###################################################################
 ##Author: Melanie van den Bosch
-##Script for calculating the CAI of the complete CDS of the genomes
+##Script for calculating the CAI of all genes of the genomes
 ##from the ENA namespace on blazegraph
 ###################################################################
 
