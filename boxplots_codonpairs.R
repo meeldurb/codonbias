@@ -9,9 +9,7 @@
 
 # install packages to draw plots
 install.packages("ggplot2", repos="http://cran.rstudio.com/")
-install.packages("plotly", repos="http://cran.rstudio.com/")
 biocLite("Biostrings")
-
 
 # loading required libraries
 library("Biostrings")
