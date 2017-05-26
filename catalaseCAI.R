@@ -30,7 +30,7 @@ outfolder <- "Catalase_genes/"
 if (!file.exists(outfolder))dir.create(outfolder)
 
 
-####__________________after catalase seq files were written, calculate CAI and draw plot______________________#####
+####__________________Make dataframe containing mean CAI all genes and CAI catalase______________________#####
 
 genomecount = 0
 genome.col <- NULL
@@ -104,7 +104,7 @@ catalase.df <- data.frame(genome.col, meancai.col, catacai.col,
 save(catalase.df, file = "catalase_cai.RData")
 
 
-########____________ Results and draw the graph with sampled data ___________#######
+########____________ Results and draw the graph of mean CAI all genes and CAI catalase___________#######
 
 
 load("catalase_cai.RData")
@@ -130,21 +130,3 @@ myplot   #have a look at the plot
 
 
 
-
-xlim = c(0.1, 0.9)
-ylim = c(0.1, 0.9)
-col = "blue"
-if (genomecount == 0){  
-  plot(catalase.cai, mean.cai, col=col, 
-       xlim = xlim, ylim = ylim,
-       pch = 18, main = "CAI complete genome vs. CAI catalase genes",
-       xlab = "catalase CAI", 
-       ylab = "Mean CAI")
-  grid(NULL, NULL, lty = 6, col = "cornsilk2")
-  #legend("bottomright" ,c("dnaE1", "dnaE2/dnaE1", "polC/dnaE3", "Other"), cex=1.5, pch=18,
-  #    col=c("red", "blue", "green", "grey") , bty="n")
-  genomecount = genomecount + 1
-} else {
-  points(catalase.cai, mean.cai, col=col, pch = 18)
-}
-abline(a=0, b=1)
