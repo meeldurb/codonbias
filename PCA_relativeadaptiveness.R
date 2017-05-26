@@ -21,57 +21,14 @@ genome.and.organisms <- read.csv(file = "genomes_ENA.csv", header = FALSE,
 
 
 
-####______________ create dataframe of all genomes with the codons and their relative adaptiveness ______________####
-genomecount = 0
-n = 0
-c = 0
-for (genomeID in genome.and.organisms[,1]){
-  cat (genomeID, "\n")  
-  w.files <- paste("Iterated_weight_tables_ENA/", genomeID, "_it_weight.csv", sep = "") 
-  if (file.exists(w.files)){
-    # Searching for Mycoplasma and Spiroplasma, which use other genetic codon table
-    match.words <- c("Mycoplasma", "Spiroplasma")
-    # i contains the indices where Myco/Spiro is found
-    i <- grep(paste(match.words, collapse="|"), genome.and.organisms[,2])
-    genomesMycoSpiro <- genome.and.organisms[i,1]
-    # when the genome number of myc/spir is not found it will combine the genomeID in the dataframe
-    # else the dataframe is too short (less stop codons are omitted)
-    # so it will not complain anymore
-    if(!(genomeID %in% genomesMycoSpiro)) {
-    n <- n + 1
-    w.data <- read.csv(file = w.files, header = FALSE, as.is = TRUE)
-    # order on codon because of cai function
-    #ordered.w <- w.data[with(w.data, order(w.data[,1])), ]
-    # only leaving numbers
-    w <- w.data[,2]
-    if (genomecount == 0){
-    codgendf <- data.frame(row.names=w.data[,1])
-    codgendf <- cbind(codgendf, w)
-    colnames(codgendf)[n] <- genomeID
-    genomecount = genomecount + 1
-    } else {
-      codgendf <- cbind(codgendf, w)
-      colnames(codgendf)[n] <- genomeID
-    } 
-    }else{
-      print(paste("genomefile", "myco/spiro plasma"))
-    }
-    }else {
-      print(paste("genomefile", genomeID, "does not exist"))
-      c <- c + 1
-    }
-}
-save(codgendf, file = "GenomeDataSet.RData")
-
-
 ####________________________ Do the PCA of all genomes and codon weights ________________________####
 
 setwd("~/Documents/Master_Thesis_SSB/git_scripts")
 
 load("GenomeDataSet.RData")
-colnames(codgendf)
+#colnames(codgendf)
 codgen <- t(codgendf)
-rownames(codgen)
+#rownames(codgen)
 str(codgen)
 
 gold.data= read.table(file = "gold_gca.tsv", sep="\t" , header=TRUE,
@@ -94,7 +51,6 @@ m.codgen<- m.codgen[, which(colnames(m.codgen)!="TGG")]
 
 codgen.pca <- prcomp(m.codgen, scale = TRUE)
 # draw biplot
-par(mar = c(5, 4, 4, 4))
 palette(c("White", "Red"))
 biplot(codgen.pca, scale = 0)
 
@@ -108,11 +64,14 @@ PC2.codgen <- as.numeric(codgen.pca$x[,2])
 plot(PC1.codgen, PC2.codgen, xlab=paste("PC1 (", format(pca.summary$importance[2,1]*100, digits=2),"%)", sep=""), 
      ylab=paste("PC2 (", format(pca.summary$importance[2,2]*100, digits=2),"%)", sep=""))
 
+
+
+######__________________________Setting the values for the ggplot__________________________######
 ### ggplot Genus
 df <-data.frame(PC1.codgen, PC2.codgen)
 
 order.count <- rle(sort(gold.data$NCBI.Genus))
-selected <- order.count$values[which(order.count$length>100)]   
+selected <- order.count$values[which(order.count$length>150)]   
 ##put colors in those for which we have more than 5 (increase for a "real" example)
 group <- gold.data$NCBI.Genus
 group[which(!group%in% selected)] <- "Other"
@@ -216,7 +175,7 @@ df$Group <- factor(df$Group, levels=c(selected))
 title <- "ggplot of oxygen requirement"
 
 
-### Draw plot
+####_________________________Draw the plot_________________________####
 myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these commands creat the plot, but nothing appears
   geom_point(size=2, shape=18)+
   theme_bw(base_size = 13)+
@@ -232,15 +191,8 @@ myplot <- ggplot(df, aes(PC1.codgen, PC2.codgen, color=Group))+   #these command
 
 print(myplot)   #have a look at the plot 
 
-ggsave(file="test.pdf", myplot, width=8, height=8)  #save to a file (change extensdion for tiff, png..)
+#ggsave(file="test.pdf", myplot, width=8, height=8)  #save to a file (change extensdion for tiff, png..)
 
-
-
-#another aspect  #DEFAULS
-myplot <- ggplot(df,aes( PC1,PC2, color=Group))  +    #these commands creat the plot, but nothing appears
-  geom_point(size=3, shape=15)
-
-print(myplot) 
 
 ###_______________________________example script from Maria_______________________________###
 setwd("~/Documents/Master_Thesis_SSB/git_scripts/old or unused scripts and data/PCA example")
