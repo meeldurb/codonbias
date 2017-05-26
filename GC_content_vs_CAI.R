@@ -79,7 +79,7 @@ ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,2])) +
   #stat_bin(aes(y=..count../sum(..count..))) +
   #geom_histogram(aes(y=..count../sum(..count..)))  +
   labs(x = "mean CAI", 
-       y = "number of genomes")
+       y = "Fraction of genomes")
 
 
 ggplot(data = meancaiGCcontdf, aes(x = meancaiGCcontdf[,3], y = meancaiGCcontdf[,2])) +
